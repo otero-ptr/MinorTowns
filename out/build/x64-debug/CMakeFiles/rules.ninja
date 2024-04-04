@@ -47,7 +47,7 @@ rule CXX_EXECUTABLE_LINKER__MinorTowns_Debug
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = "D:\VisualStudio\Microsoft Visual Studio\2022\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --regenerate-during-build -SD:\Projects\MinorTowns\backend\MinorTowns -BD:\Projects\MinorTowns\backend\MinorTowns\out\build\x64-debug
+  command = "D:\VisualStudio\Microsoft Visual Studio\2022\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --regenerate-during-build -SD:\Projects\MinorTowns -BD:\Projects\MinorTowns\out\build\x64-debug
   description = Re-running CMake...
   generator = 1
 

@@ -1,8 +1,8 @@
-# Install script for directory: D:/Projects/MinorTowns/backend/MinorTowns/MinorTowns
+# Install script for directory: D:/Projects/MinorTowns/MinorTowns
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "D:/Projects/MinorTowns/backend/MinorTowns/out/install/x64-debug")
+  set(CMAKE_INSTALL_PREFIX "D:/Projects/MinorTowns/out/install/x64-debug")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

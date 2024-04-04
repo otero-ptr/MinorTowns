@@ -13,8 +13,9 @@
   },
   "ExpandedNodes": [
     "",
-    "\\MinorTowns"
+    "\\MinorTowns",
+    "\\out"
   ],
-  "SelectedNode": "\\CMakeLists.txt",
+  "SelectedNode": "\\out\\build",
   "PreviewInSolutionExplorer": false
 }
