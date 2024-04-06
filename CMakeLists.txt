@@ -12,4 +12,4 @@ endif()
 project ("MinorTowns")
 
 # Include sub-projects.
-add_subdirectory ("MinorTowns")
+add_subdirectory ("src")
