@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include "Server\Server.h"
 //#include "Poco/Net/HTTPServer.h"
 //#include "Poco/Net/WebSocket.h"
 //#include "Poco/Net/HTTPRequestHandler.h"
@@ -64,6 +65,7 @@
 //}
 
 int main() {
+	Server server();
 	std::cout << "Start" << std::endl;
 	return 0;
 }

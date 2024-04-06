@@ -10,6 +10,7 @@ set(SERVER_FILES
     "Server/LobbyManager/LobbyManager.cpp"
     "Server/Middleware/Middleware.h"
     "Server/Middleware/Middleware.cpp"
+    "Server/User/User.h"
 )
 
 set(MINOR_TOWNS_FILES
@@ -27,7 +28,7 @@ find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIRS})
 
 # Add source files to the executable
-add_executable(${PROJECT_NAME} "MinorTowns.cpp" "MinorTowns.h" "Server/Server.h" "Server/Server.cpp" "Server/GameManager/GameManager.cpp" "Server/GameManager/GameManager.h" "Server/LobbyManager/LobbyManager.h" "Server/LobbyManager/LobbyManager.cpp" "Server/Middleware/Middleware.h" "Server/Middleware/Middleware.cpp")
+add_executable(${PROJECT_NAME} ${MINOR_TOWNS_FILES} ${SERVER_FILES})
 
 # Link Poco and ZLIB libraries to the executable
 target_link_libraries(${PROJECT_NAME} PUBLIC ${Poco_LIBRARIES} ${ZLIB_LIBRARIES})
