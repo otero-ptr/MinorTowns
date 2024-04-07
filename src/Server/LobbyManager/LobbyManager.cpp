@@ -13,10 +13,16 @@ void LobbyManager::createLobby(int count)
 {
 }
 
-void LobbyManager::joinLobby()
+void LobbyManager::joinLobby(std::shared_ptr<User> user)
 {
 }
 
-void LobbyManager::getListLobby()
+std::vector<LobbyInfo> LobbyManager::getListLobby()
 {
+	std::vector<LobbyInfo> lobbyInfo;
+	lobbyInfo.reserve(this->lobbies.size());
+	for (auto it = this->lobbies.begin(); it != this->lobbies.end(); ++it) {
+		lobbyInfo.push_back(it->second->getLobbyInfo());
+	}
+	return lobbyInfo;
 }

@@ -1,16 +1,17 @@
 ﻿#include <iostream>
-#include "Server\Server.h"
-//#include "Poco/Net/HTTPServer.h"
-//#include "Poco/Net/WebSocket.h"
-//#include "Poco/Net/HTTPRequestHandler.h"
-//#include "Poco/Net/HTTPRequestHandlerFactory.h"
-//#include "Poco/Net/HTTPServerRequest.h"
-//#include "Poco/Net/HTTPServerResponse.h"
-//#include "Poco/Net/ServerSocket.h"
-//#include "Poco/Net/HTTPServerParams.h"
-//#include "Poco/Timestamp.h"
-//#include "Poco/DateTimeFormatter.h"
-//#include "Poco/DateTimeFormat.h"
+#include "Server/Server.h"
+#include "Poco/Net/HTTPServer.h"
+#include "Poco/Net/WebSocket.h"
+#include "Poco/Net/HTTPRequestHandler.h"
+#include "Poco/Net/HTTPRequestHandlerFactory.h"
+#include "Poco/Net/HTTPServerRequest.h"
+#include "Poco/Net/HTTPServerResponse.h"
+#include "Poco/Net/ServerSocket.h"
+#include "Poco/Net/HTTPServerParams.h"
+#include "Poco/Timestamp.h"
+#include "Poco/DateTimeFormatter.h"
+#include "Poco/DateTimeFormat.h"
+#include "Server\LobbyManager\Lobby\Lobby.h"
 //
 //using namespace Poco;
 //using namespace Poco::Net;
@@ -67,5 +68,10 @@
 int main() {
 	Server server();
 	std::cout << "Start" << std::endl;
+	for (int i = 0; i < 10000; i++) {
+		Lobby lobby1(4);
+		std::cout << lobby1.getUnique() << std::endl;
+	}
+
 	return 0;
 }

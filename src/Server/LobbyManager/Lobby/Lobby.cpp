@@ -1,17 +1,18 @@
 #include "Lobby.h"
-#include "Lobby.h"
-#include "Server\User\User.h"
-#include <memory>
+#include "Poco/UUIDGenerator.h"
+#include "Poco/UUID.h"
 
 Lobby::Lobby(int countUser)
 {
 	this->countUser = countUser;
 	this->users.reserve(countUser);
+	Poco::UUIDGenerator generator;
+	Poco::UUID uuid = generator.create(); // Создание случайного UUID
+	this->unique = uuid.toString();
 }
 
 Lobby::~Lobby()
 {
-
 }
 
 void Lobby::join(std::shared_ptr<User> user)
@@ -39,5 +40,15 @@ bool Lobby::isFull()
 
 std::vector<std::shared_ptr<User>>& Lobby::getUsers()
 {
-	this->users;
+	return this->users;
+}
+
+const std::string Lobby::getUnique()
+{
+	return this->unique;
+}
+
+LobbyInfo Lobby::getLobbyInfo()
+{
+	return LobbyInfo(this->unique, this->countUser, this->users.size());
 }
