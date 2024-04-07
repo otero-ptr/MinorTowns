@@ -29,7 +29,7 @@ set(MINOR_TOWNS_FILES
 )
 
 # Find and include Poco
-find_package(Poco REQUIRED COMPONENTS Foundation Net Util)
+find_package(Poco REQUIRED COMPONENTS Foundation Net Util JSON)
 include_directories(${Poco_INCLUDE_DIRS})
 
 # Find and include ZLIB

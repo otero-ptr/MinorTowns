@@ -67,11 +67,6 @@
 
 int main() {
 	Server server();
-	std::cout << "Start" << std::endl;
-	for (int i = 0; i < 10000; i++) {
-		Lobby lobby1(4);
-		std::cout << lobby1.getUnique() << std::endl;
-	}
 
 	return 0;
 }
