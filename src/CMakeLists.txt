@@ -2,32 +2,6 @@
 # project specific logic here.
 #
 
-set(SERVER_FILES 
-    "Server/Server.h"
-    "Server/Server.cpp"
-
-    "Server/GameManager/GameManager.cpp"
-    "Server/GameManager/GameManager.h"
-    "Server/GameManager/Game/Game.h" 
-    "Server/GameManager/Game/Game.cpp"
-
-    "Server/LobbyManager/LobbyManager.h"
-    "Server/LobbyManager/LobbyManager.cpp"
-    "Server/LobbyManager/Lobby/Lobby.h"
-    "Server/LobbyManager/Lobby/Lobby.cpp"
-
-    "Server/Middleware/Middleware.h"
-    "Server/Middleware/Middleware.cpp"
-
-    "Server/User/User.h"
-    "Server/User/User.cpp"
-)
-
-set(MINOR_TOWNS_FILES
-    "MinorTowns.cpp"
-    "MinorTowns.h"
-)
-
 # Find and include Poco
 find_package(Poco REQUIRED COMPONENTS Foundation Net Util JSON)
 include_directories(${Poco_INCLUDE_DIRS})
@@ -38,8 +12,19 @@ include_directories(${ZLIB_INCLUDE_DIRS})
 
 add_subdirectory("Server")
 
+set(MINOR_TOWNS_FILES
+    "MinorTowns.cpp"
+    "MinorTowns.h"
+)
+
+list(APPEND MINOR_TOWNS_FILES ${GAME_MANAGER_FILES})
+list(APPEND MINOR_TOWNS_FILES ${LOBBY_MANAGER_FILES})
+list(APPEND MINOR_TOWNS_FILES ${MIDDLEWARE_FILES})
+list(APPEND MINOR_TOWNS_FILES ${USER_FILES})
+list(APPEND MINOR_TOWNS_FILES ${SERVER_FILES})
+
 # Add source files to the executable
-add_executable(${PROJECT_NAME} ${MINOR_TOWNS_FILES} ${SERVER_FILES})
+add_executable(${PROJECT_NAME} ${MINOR_TOWNS_FILES})
 
 # Link Poco and ZLIB libraries to the executable
 target_link_libraries(${PROJECT_NAME} PUBLIC ${Poco_LIBRARIES} ${ZLIB_LIBRARIES})
