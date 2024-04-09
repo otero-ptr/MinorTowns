@@ -3,6 +3,7 @@
 #include "GameManager\GameManager.h"
 #include "LobbyManager\LobbyManager.h"
 #include "Middleware\Middleware.h"
+#include "WebSocketServer\WebSocketServer.h"
 
 class Server {
 public:
@@ -14,4 +15,5 @@ private:
 	std::unique_ptr<GameManager> gameManager;
 	std::unique_ptr<LobbyManager> lobbyManager;
 	std::unique_ptr<Middleware> middleware;
+	std::unique_ptr<WebSocketServer> socketServer;
 };
