@@ -29,6 +29,11 @@ set(WEBSOCKET_SERVER_FILES
     "Server/WebSocketServer/WebSocketServer.h"
 )
 
+set(BETTER_WEBSOCKET_SERVER_FILES
+    "Server/WebSocketServer/BetterSocketServer/BetterSocketServer.cpp"
+    "Server/WebSocketServer/BetterSocketServer/BetterSocketServer.h"
+)
+
 set(WEBSOCKET_FILES
     "Server/WebSocketServer/WebSocket/WebSocketRequestHandler.cpp"
     "Server/WebSocketServer/WebSocket/WebSocketRequestHandler.h"
@@ -76,7 +81,7 @@ list(APPEND SRC_FILES ${MINOR_TOWNS_FILES})
 list(APPEND SRC_FILES ${SERVER_FILES})
 
 # Add source files to the executable
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+add_executable(${PROJECT_NAME} ${SRC_FILES} "Server/WebSocketServer/WebSocket/BetterWebSocket/BetterWebSocket.h" "Server/WebSocketServer/WebSocket/BetterWebSocket/BetterWebSocket.cpp")
 
 
 # Link Poco and ZLIB libraries to the executable
