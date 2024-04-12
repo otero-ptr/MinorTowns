@@ -14,6 +14,6 @@ private:
 	void init();
 	std::unique_ptr<GameManager> gameManager;
 	std::unique_ptr<LobbyManager> lobbyManager;
-	std::unique_ptr<Middleware> middleware;
+	std::shared_ptr<Middleware> middleware;
 	std::unique_ptr<WebSocketServer> socketServer;
 };

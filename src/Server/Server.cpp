@@ -18,6 +18,7 @@ void Server::init()
 {
 	this->gameManager = std::make_unique<GameManager>();
 	this->lobbyManager = std::make_unique<LobbyManager>();
-	this->middleware = std::make_unique<Middleware>();
+	this->middleware = std::make_shared<Middleware>();
 	this->socketServer = std::make_unique<WebSocketServer>(8080, 100);
+	this->socketServer->setMiddleware(this->middleware);
 }
