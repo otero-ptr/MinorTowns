@@ -15,21 +15,29 @@ LobbyManager::~LobbyManager()
 std::string LobbyManager::createLobby(int count)
 {
 	std::unique_ptr<Lobby> lobby = std::make_unique<Lobby>(count);
-	std::string unique(lobby->getUnique());
-	this->lobbies.insert(std::make_pair(unique, std::move(lobby)));
+	std::string uuid(lobby->getUnique());
+	this->lobbies.insert(std::make_pair(uuid, std::move(lobby)));
 	this->refreshListLobby();
-	return unique;
+	return uuid;
 }
 
-void LobbyManager::joinLobby(std::string unique, std::shared_ptr<User> user)
+void LobbyManager::joinLobby(std::string uuidLobby, std::shared_ptr<User> user)
 {
-	this->lobbies.at(unique)->join(user);
+	if (user->getLocation() != Location::MENU) {
+		return;
+	}
+	this->lobbies.at(uuidLobby)->join(user);
+	user->setLocation(Location::LOBBY, uuidLobby);
 	this->refreshListLobby();
 }
 
-void LobbyManager::leaveLobby(std::string unique, std::shared_ptr<User> user)
+void LobbyManager::leaveLobby(std::shared_ptr<User> user)
 {
-	this->lobbies.at(unique)->leave(user);
+	if (user->getLocation() != Location::LOBBY) {
+		return;
+	}
+	this->lobbies.at(user->getUUIDLocation())->leave(user);
+	user->setLocation(Location::MENU, "menu");
 	this->refreshListLobby();
 }
 

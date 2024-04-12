@@ -1,9 +1,12 @@
 #include "Middleware.h"
 #include "Poco\JSON\JSON.h"
 #include "Poco\JSON\Parser.h"
-#
-Middleware::Middleware()
+#include "GameMinorTowns/GameMinorTowns.h"
+#include <thread>
+
+Middleware::Middleware(std::shared_ptr<GameMinorTowns> game)
 {
+    this->gameMinorTowns = game;
 }
 
 Middleware::~Middleware()
@@ -34,13 +37,16 @@ ACTION_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<User> 
             std::string actionTODO = value.toString();
             std::cout << "Value of action: " << actionTODO << std::endl;
             if (actionTODO == "create_game") {
-
+                std::thread th(&GameMinorTowns::createGame, this->gameMinorTowns, user, 3 /* added parametr from JSON */);
+                th.detach();
             }
             else if (actionTODO == "join_lobby") {
-
+                std::thread th(&GameMinorTowns::joinLobby, this->gameMinorTowns, user, "adwada" /* added parametr from JSON */);
+                th.detach();
             } 
-            else if (actionTODO == "other") {
-
+            else if (actionTODO == "leaveLobby") {
+                std::thread th(&GameMinorTowns::leaveLobby, this->gameMinorTowns, user);
+                th.detach();
             }
         }
         else {

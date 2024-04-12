@@ -10,8 +10,8 @@ public:
 	LobbyManager();
 	~LobbyManager();
 	std::string createLobby(int count);
-	void joinLobby(std::string unique, std::shared_ptr<User> user);
-	void leaveLobby(std::string unique, std::shared_ptr<User> user);
+	void joinLobby(std::string uuidLobby, std::shared_ptr<User> user);
+	void leaveLobby(std::shared_ptr<User> user);
 	const std::string getListLobby();
 private:
 	void refreshListLobby();

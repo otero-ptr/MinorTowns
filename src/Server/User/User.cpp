@@ -11,12 +11,18 @@ User::~User()
 {
 }
 
-void User::setLocation(Location l)
+void User::setLocation(Location l, std::string uuid)
 {
 	this->userLocation = l;
+	this->uuidLocation = uuid;
 }
 
 Location User::getLocation()
 {
 	return this->userLocation;
+}
+
+const std::string User::getUUIDLocation()
+{
+	return this->uuidLocation;
 }

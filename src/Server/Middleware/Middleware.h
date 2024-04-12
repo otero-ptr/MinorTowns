@@ -1,7 +1,10 @@
 #pragma once
 #include <memory>
-#include "../User/User.h"
+#include "User/User.h"
 #include "AuthorizatonValidate/AuthorizationValidate.h"
+
+class GameMinorTowns;
+
 enum ACTION_STATUS {
 	ST_OK,
 	ST_ERROR
@@ -9,7 +12,7 @@ enum ACTION_STATUS {
 
 class Middleware {
 public:
-	Middleware();
+	Middleware(std::shared_ptr<GameMinorTowns> game);
 	~Middleware();
 
 	std::shared_ptr<User> Authorization(std::string username, std::string address, unsigned short port);
@@ -22,4 +25,5 @@ private:
 	void leaveGame();
 
 	AuthorizatonValidate authValidate;
+	std::shared_ptr<GameMinorTowns> gameMinorTowns;
 };
