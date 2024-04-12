@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "../../User/User.h"
+#include "User/User.h"
 
 class Game {
 public:

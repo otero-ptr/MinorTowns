@@ -29,18 +29,17 @@ ACTION_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<User> 
         result = parser.parse(jsonMessage);
         Poco::JSON::Object::Ptr jsonObj = result.extract<Poco::JSON::Object::Ptr>();
 
-        // Получаем значение по ключу
         if (jsonObj->has("action")) {
             Poco::Dynamic::Var value = jsonObj->get("action");
             std::string actionTODO = value.toString();
             std::cout << "Value of action: " << actionTODO << std::endl;
-            if (actionTODO == "create_lobby") {
+            if (actionTODO == "create_game") {
 
             }
             else if (actionTODO == "join_lobby") {
 
             } 
-            else if (actionTODO == "") {
+            else if (actionTODO == "other") {
 
             }
         }

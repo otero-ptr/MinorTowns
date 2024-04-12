@@ -2,7 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
-#include "../User/User.h"
+#include "User/User.h"
 #include "Lobby/Lobby.h"
 
 class LobbyManager {

@@ -42,9 +42,8 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 			if (!timeout) {
 				if (n > 0) {
 					this->middlewareServer->action(buffer, user);
+					//bws.sendFrame(buffer, n, Poco::Net::WebSocket::FRAME_TEXT, timeout);
 				}
-				std::cout << Poco::format("Frame received (length=%d, flags=%x).", n, unsigned(flags)) << std::endl;
-				bws.sendFrame(buffer, n, Poco::Net::WebSocket::FRAME_TEXT, timeout);
 			}
 		} while ((flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
 		std::cout << "WebSocket connection closed." << std::endl;

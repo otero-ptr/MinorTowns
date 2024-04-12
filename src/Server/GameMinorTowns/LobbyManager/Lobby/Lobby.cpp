@@ -1,6 +1,7 @@
 #include "Lobby.h"
 #include "Poco/UUIDGenerator.h"
 #include "Poco/UUID.h"
+#include "User/User.h"
 
 Lobby::Lobby(int maxUser)
 {

@@ -2,8 +2,9 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include "../User/User.h"
 #include "Game/Game.h"
+
+class User;
 
 class GameManager {
 public:
