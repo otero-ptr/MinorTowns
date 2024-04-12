@@ -30,7 +30,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 			bws.shutdown();
 		}
 		if (n > 0) {
-			user = this->middlewareServer->Authourzation(buffer, request.clientAddress().host().toString(), std::to_string(request.clientAddress().port()));
+			user = this->middlewareServer->Authorization(buffer, request.clientAddress().host().toString(), request.clientAddress().port());
 			if (user == nullptr) {
 				bws.sendFrame(msg3.c_str(), msg3.size(), Poco::Net::WebSocket::FRAME_TEXT, timeout);
 				bws.shutdown();

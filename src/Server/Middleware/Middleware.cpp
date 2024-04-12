@@ -1,6 +1,7 @@
 #include "Middleware.h"
 #include "Poco\JSON\JSON.h"
 #include "Poco\JSON\Parser.h"
+#
 Middleware::Middleware()
 {
 }
@@ -9,22 +10,14 @@ Middleware::~Middleware()
 {
 }
 
-std::shared_ptr<User> Middleware::Authourzation(std::string username, std::string address, std::string port)
+std::shared_ptr<User> Middleware::Authorization(std::string username, std::string address, unsigned short port)
 {
+    if (this->authValidate.checkUsername(username) || this->authValidate.checkAddress(address) || this->authValidate.checkPort(port)) {
+        return nullptr;
+    }
 	std::shared_ptr<User> user;
-	user = std::make_shared<User>(username, address + ":" + port);
+	user = std::make_shared<User>(username, address + ":" + std::to_string(port));
 	return user;
-}
-
-bool Middleware::isJson(const std::string& str) {
-    Poco::JSON::Parser parser;
-    try {
-        parser.parse(str);
-        return true;
-    }
-    catch (Poco::Exception&) {
-        return false;
-    }
 }
 
 ACTION_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<User> user)

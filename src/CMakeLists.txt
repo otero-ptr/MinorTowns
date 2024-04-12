@@ -18,70 +18,76 @@ set(MINOR_TOWNS_FILES
     "MinorTowns.cpp"
     "MinorTowns.h"
 )
+list(APPEND SRC_FILES ${MINOR_TOWNS_FILES})
 
 set(SERVER_FILES
     "Server/Server.cpp"
     "Server/Server.h"
 )
+list(APPEND SRC_FILES ${SERVER_FILES})
 
 set(WEBSOCKET_SERVER_FILES
     "Server/WebSocketServer/WebSocketServer.cpp"
     "Server/WebSocketServer/WebSocketServer.h"
 )
+list(APPEND SRC_FILES ${WEBSOCKET_SERVER_FILES})
 
-set(BETTER_WEBSOCKET_SERVER_FILES
-    "Server/WebSocketServer/BetterSocketServer/BetterSocketServer.cpp"
-    "Server/WebSocketServer/BetterSocketServer/BetterSocketServer.h"
+set(BETTER_WEBSOCKET_FILES
+    "Server/WebSocketServer/WebSocket/BetterWebSocket/BetterWebSocket.h" 
+    "Server/WebSocketServer/WebSocket/BetterWebSocket/BetterWebSocket.cpp"
 )
+list(APPEND SRC_FILES ${BETTER_WEBSOCKET_FILES})
 
 set(WEBSOCKET_FILES
     "Server/WebSocketServer/WebSocket/WebSocketRequestHandler.cpp"
     "Server/WebSocketServer/WebSocket/WebSocketRequestHandler.h"
 )
+list(APPEND SRC_FILES ${WEBSOCKET_FILES})
 
 set(USER_FILES
     "Server/User/User.cpp"
     "Server/User/User.h"
 )
+list(APPEND SRC_FILES ${USER_FILES})
 
 set(MIDDLEWARE_FILES
     "Server/Middleware/Middleware.cpp"
     "Server/Middleware/Middleware.h"
 )
+list(APPEND SRC_FILES ${MIDDLEWARE_FILES})
 
 set(LOBBY_MANAGER_FILES
     "Server/LobbyManager/LobbyManager.cpp"
     "Server/LobbyManager/LobbyManager.h"
 )
+list(APPEND SRC_FILES ${LOBBY_MANAGER_FILES})
 
 set(LOBBY_FILES
     "Server/LobbyManager/Lobby/Lobby.cpp"
     "Server/LobbyManager/Lobby/Lobby.h"
 )
+list(APPEND SRC_FILES ${LOBBY_FILES})
 
 set(GAME_MANAGER_FILES
     "Server/GameManager/GameManager.cpp"
     "Server/GameManager/GameManager.h"
 )
+list(APPEND SRC_FILES ${GAME_MANAGER_FILES})
 
 set(GAME_FILES
     "Server/GameManager/Game/Game.cpp"
     "Server/GameManager/Game/Game.h"
 )
-
-list(APPEND SRC_FILES ${USER_FILES})
 list(APPEND SRC_FILES ${GAME_FILES})
-list(APPEND SRC_FILES ${GAME_MANAGER_FILES})
-list(APPEND SRC_FILES ${LOBBY_FILES})
-list(APPEND SRC_FILES ${MIDDLEWARE_FILES})
-list(APPEND SRC_FILES ${LOBBY_MANAGER_FILES})
-list(APPEND SRC_FILES ${WEBSOCKET_FILES})
-list(APPEND SRC_FILES ${WEBSOCKET_SERVER_FILES})
-list(APPEND SRC_FILES ${MINOR_TOWNS_FILES})
-list(APPEND SRC_FILES ${SERVER_FILES})
+
+set(AUTH_VALIDATE_FILES
+    "Server/Middleware/AuthorizatonValidate/AuthorizationValidate.h"
+    "Server/Middleware/AuthorizatonValidate/AuthorizationValidate.cpp"
+)
+list(APPEND SRC_FILES ${AUTH_VALIDATE_FILES})
 
 # Add source files to the executable
-add_executable(${PROJECT_NAME} ${SRC_FILES} "Server/WebSocketServer/WebSocket/BetterWebSocket/BetterWebSocket.h" "Server/WebSocketServer/WebSocket/BetterWebSocket/BetterWebSocket.cpp")
+add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 
 # Link Poco and ZLIB libraries to the executable
