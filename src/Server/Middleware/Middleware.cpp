@@ -15,7 +15,7 @@ Middleware::~Middleware()
 
 std::shared_ptr<User> Middleware::Authorization(std::string username, std::string address, unsigned short port)
 {
-    if (this->authValidate.checkUsername(username) || this->authValidate.checkAddress(address) || this->authValidate.checkPort(port)) {
+    if (this->authValidate.checkUsername(username)) {
         return nullptr;
     }
 	std::shared_ptr<User> user;

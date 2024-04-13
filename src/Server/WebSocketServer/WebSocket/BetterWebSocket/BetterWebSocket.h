@@ -6,11 +6,11 @@ public:
 	BetterWebSocket() = delete;
 	BetterWebSocket(Poco::Net::WebSocket ws, int timeout);
 	~BetterWebSocket();
-	int receiveFrame(void* buffer, int length, int& flags);
-	int receiveFrame(void* buffer, int length, int& flags, bool &timeout);
-	int sendFrame(const void* buffer, int length, int flags);
-	int sendFrame(const void* buffer, int length, int flags, bool &timeout);
+	std::string receiveFrame(int& flags, bool &timeout);
+	int sendFrame(const std::string &msg, int flags, bool &timeout);
 	void shutdown();
 private:
+	int receiveFrame(void* buffer, int length, int& flags); // default
+	int sendFrame(const void* buffer, int length, int flags); // default
 	Poco::Net::WebSocket ws;
 };

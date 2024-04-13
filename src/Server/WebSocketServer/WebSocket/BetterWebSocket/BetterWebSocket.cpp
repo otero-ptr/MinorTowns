@@ -10,23 +10,28 @@ BetterWebSocket::~BetterWebSocket()
 {
 }
 
-int BetterWebSocket::receiveFrame(void* buffer, int length, int& flags)
+std::string BetterWebSocket::receiveFrame(int& flags, bool& timeout)
 {
-	return this->ws.receiveFrame(buffer, length, std::ref(flags));
-}
-
-int BetterWebSocket::receiveFrame(void *buffer, int length, int &flags, bool &timeout)
-{
-	int n = -1;
+	char buffer[1024];
+	int n;
 	try {
-		n = this->ws.receiveFrame(buffer, length, std::ref(flags));
+		n = this->ws.receiveFrame(buffer, sizeof(buffer), std::ref(flags));
 	}
 	catch (Poco::TimeoutException& e) {
 		timeout = true;
-		return n; // return -1, equal timeout;
+		return std::string(); // return empty string, equal timeout;
 	}
 	timeout = false;
-	return n;
+	if (n < 1) {
+		return std::string();
+	}
+	buffer[n] = '\0';
+	return std::string(buffer);
+}
+
+int BetterWebSocket::receiveFrame(void* buffer, int length, int& flags)
+{
+	return this->ws.receiveFrame(buffer, length, std::ref(flags));
 }
 
 int BetterWebSocket::sendFrame(const void* buffer, int length, int flags)
@@ -34,18 +39,16 @@ int BetterWebSocket::sendFrame(const void* buffer, int length, int flags)
 	return this->ws.sendFrame(buffer, std::ref(length), std::ref(flags));
 }
 
-int BetterWebSocket::sendFrame(const void* buffer, int length, int flags, bool &timeout)
+int BetterWebSocket::sendFrame(const std::string &msg, int flags, bool& timeout)
 {
-	int n = -1;
 	try {
-		n = this->ws.sendFrame(buffer, std::ref(length), std::ref(flags));
+		timeout = false;
+		return this->ws.sendFrame(msg.c_str(), msg.size(), std::ref(flags));
 	}
 	catch (Poco::TimeoutException& e) {
 		timeout = true;
-		return n; // return -1, equal timeout;
+		return 0;
 	}
-	timeout = false;
-	return n;
 }
 
 void BetterWebSocket::shutdown()
