@@ -22,3 +22,8 @@ void GameMinorTowns::leaveLobby(std::shared_ptr<User> user)
 {
 	this->lobbyManager->leaveLobby(user);
 }
+
+void GameMinorTowns::receiveLobbyList(std::shared_ptr<User> user)
+{
+	user->setUserInfo(this->lobbyManager->getListLobby());
+}

@@ -43,9 +43,18 @@ MIDDLEWARE_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<Us
                 std::thread th(&GameMinorTowns::joinLobby, this->gameMinorTowns, user, "adwada" /* added parametr from JSON */);
                 th.detach();
             } 
-            else if (actionTODO == "leaveLobby") {
+            else if (actionTODO == "leave_Lobby") {
                 std::thread th(&GameMinorTowns::leaveLobby, this->gameMinorTowns, user);
                 th.detach();
+            }
+            else if (actionTODO == "lobby_list") {
+                if (user->getLocation() == Location::MENU) {
+                    std::thread th(&GameMinorTowns::receiveLobbyList, this->gameMinorTowns, user);
+                    th.detach();
+                }
+                else {
+                    return MIDDLEWARE_STATUS::ST_ERROR;
+                }
             }
         }
         else {

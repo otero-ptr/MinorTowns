@@ -1,4 +1,5 @@
 #include "BetterWebSocket.h"
+#include <iostream>
 
 BetterWebSocket::BetterWebSocket(Poco::Net::WebSocket ws, int timeout_sec) : ws(ws)
 {
@@ -51,7 +52,7 @@ int BetterWebSocket::sendFrame(const std::string &msg, int flags, bool& timeout)
 	}
 }
 
-void BetterWebSocket::shutdown()
+void BetterWebSocket::close()
 {
-	this->ws.shutdown();
+	this->ws.close();
 }

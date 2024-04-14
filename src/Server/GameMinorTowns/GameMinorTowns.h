@@ -11,6 +11,7 @@ public:
 	void createGame(std::shared_ptr<User> user, int maxUsers);
 	void joinLobby(std::shared_ptr<User> user, std::string uuidLobby);
 	void leaveLobby(std::shared_ptr<User> user);
+	void receiveLobbyList(std::shared_ptr<User> user);
 private:
 	std::unique_ptr<GameManager> gameManager;
 	std::unique_ptr<LobbyManager> lobbyManager;

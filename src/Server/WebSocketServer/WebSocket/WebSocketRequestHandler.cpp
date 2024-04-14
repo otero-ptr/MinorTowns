@@ -27,13 +27,17 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 		msg = bws.receiveFrame(flags, timeout);
 		if (timeout) {
 			bws.sendFrame(msg2, Poco::Net::WebSocket::FRAME_TEXT, timeout);
-			bws.shutdown();
+			bws.close();
+			std::cout << "WebSocket connection closed." << std::endl;
+			return;
 		}
 		if (!msg.empty()) {
 			user = this->middlewareServer->Authorization(msg, request.clientAddress().host().toString(), request.clientAddress().port());
 			if (user == nullptr) {
 				bws.sendFrame(msg3, Poco::Net::WebSocket::FRAME_TEXT, timeout);
-				bws.shutdown();
+				bws.close();
+				std::cout << "WebSocket connection closed." << std::endl;
+				return;
 			}
 			else {
 				bws.sendFrame(msgOk, Poco::Net::WebSocket::FRAME_TEXT, timeout);
@@ -64,6 +68,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 			sendThread.join();
 		}
 		user->getLocation();
+		bws.close();
 		std::cout << "WebSocket connection closed." << std::endl;
 	}
 	catch (Poco::Net::WebSocketException& exc)
