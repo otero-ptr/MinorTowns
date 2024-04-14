@@ -8,6 +8,7 @@
 #include "Middleware\Middleware.h"
 
 std::string msg1("Hello! Welcome in server MinorTowns. To be continue you need send your nickname :)");
+std::string msgOk("Username correct");
 std::string msg2("Timeout. Server closed :(");
 std::string msg3("Wrong user. Server closed :(");
 std::string test_msg("Test msg");
@@ -34,17 +35,34 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 				bws.sendFrame(msg3, Poco::Net::WebSocket::FRAME_TEXT, timeout);
 				bws.shutdown();
 			}
+			else {
+				bws.sendFrame(msgOk, Poco::Net::WebSocket::FRAME_TEXT, timeout);
+			}
 		}
+		bool sendThreadRun = true;
+		std::jthread sendThread([&user, &bws, &sendThreadRun]() {
+				bool timeout = false;
+				do {
+					if (user->isInfoUpdate()) {
+						bws.sendFrame(user->getUserInfo(), Poco::Net::WebSocket::FRAME_TEXT, timeout);
+					}
+					std::this_thread::sleep_for(std::chrono::seconds(1));
+				} while (sendThreadRun);
+			});
+
 		do
 		{
 			msg = bws.receiveFrame(flags, timeout);
 			if (!timeout) {
 				if (!msg.empty()) {
 					this->middlewareServer->action(msg, user);
-					//bws.sendFrame(msg, Poco::Net::WebSocket::FRAME_TEXT, timeout);
 				}
 			}
 		} while ((flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
+		if (sendThread.joinable()) {
+			sendThreadRun = false;
+			sendThread.join();
+		}
 		std::cout << "WebSocket connection closed." << std::endl;
 	}
 	catch (Poco::Net::WebSocketException& exc)
