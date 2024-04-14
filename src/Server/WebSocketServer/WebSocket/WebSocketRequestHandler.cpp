@@ -63,6 +63,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 			sendThreadRun = false;
 			sendThread.join();
 		}
+		user->getLocation();
 		std::cout << "WebSocket connection closed." << std::endl;
 	}
 	catch (Poco::Net::WebSocketException& exc)

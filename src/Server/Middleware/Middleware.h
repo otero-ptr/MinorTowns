@@ -5,7 +5,7 @@
 
 class GameMinorTowns;
 
-enum ACTION_STATUS {
+enum MIDDLEWARE_STATUS {
 	ST_OK,
 	ST_ERROR
 };
@@ -16,14 +16,9 @@ public:
 	~Middleware();
 
 	std::shared_ptr<User> Authorization(std::string username, std::string address, unsigned short port);
-	ACTION_STATUS action(std::string jsonMessage, std::shared_ptr<User> user);
+	MIDDLEWARE_STATUS action(std::string jsonMessage, std::shared_ptr<User> user);
+	MIDDLEWARE_STATUS disconnect(std::shared_ptr<User> user);
 private:
-	void joinLobby();
-	void createLobby();
-	void leaveLobby();
-	void joinGame();
-	void leaveGame();
-
 	AuthorizatonValidate authValidate;
 	std::shared_ptr<GameMinorTowns> gameMinorTowns;
 };

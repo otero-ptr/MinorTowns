@@ -23,9 +23,8 @@ std::shared_ptr<User> Middleware::Authorization(std::string username, std::strin
 	return user;
 }
 
-ACTION_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<User> user)
+MIDDLEWARE_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<User> user)
 {
-    std::cout << "Middleware" << std::endl;
     try {
         Poco::JSON::Parser parser;
         Poco::Dynamic::Var result;
@@ -50,11 +49,29 @@ ACTION_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<User> 
             }
         }
         else {
-            return ACTION_STATUS::ST_ERROR;
+            return MIDDLEWARE_STATUS::ST_ERROR;
         }
     }
     catch (Poco::Exception&) {
-        return ACTION_STATUS::ST_ERROR;
+        return MIDDLEWARE_STATUS::ST_ERROR;
     }
-	return ACTION_STATUS::ST_OK;
+	return MIDDLEWARE_STATUS::ST_OK;
+}
+
+MIDDLEWARE_STATUS Middleware::disconnect(std::shared_ptr<User> user)
+{
+    auto location = user->getLocation();
+    if (location == Location::MENU) {
+        return MIDDLEWARE_STATUS::ST_OK;
+    }
+    else if (location == Location::LOBBY) {
+        std::thread th(&GameMinorTowns::leaveLobby, this->gameMinorTowns, user);
+        th.detach();
+        return MIDDLEWARE_STATUS::ST_OK;
+    }
+    else if (location == Location::GAME) {
+        
+        return MIDDLEWARE_STATUS::ST_OK;
+    }
+    return MIDDLEWARE_STATUS::ST_ERROR;
 }
