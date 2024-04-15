@@ -13,7 +13,7 @@ public:
 	void join(std::shared_ptr<User> user);
 	void leave(std::shared_ptr<User> user);
 	bool isFull();
-	std::vector<std::shared_ptr<User>>& getUsers();
+	std::vector<std::shared_ptr<User>> getUsers();
 	const std::string getUnique();
 	const int getNowUsers();
 	const int getMaxUsers();
