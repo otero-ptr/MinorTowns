@@ -46,6 +46,21 @@ const std::string LobbyManager::getListLobby()
 	return this->listLobby;
 }
 
+bool LobbyManager::isLobbyFull(std::string uuidLobby)
+{
+	return this->lobbies.at(uuidLobby)->isFull();
+}
+
+std::vector<std::shared_ptr<User>> LobbyManager::getLobbyUsers(std::string uuidLobby)
+{
+	return std::move(this->lobbies.at(uuidLobby)->getUsers());
+}
+
+void LobbyManager::closeLobby(std::string uuidLobby)
+{
+	this->lobbies.erase(uuidLobby);
+}
+
 void LobbyManager::refreshListLobby()
 {
 	Poco::JSON::Array jsonArray;

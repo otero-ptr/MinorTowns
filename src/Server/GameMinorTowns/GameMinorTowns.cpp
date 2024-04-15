@@ -7,15 +7,19 @@ GameMinorTowns::GameMinorTowns()
 	this->lobbyManager = std::make_unique<LobbyManager>();
 }
 
-void GameMinorTowns::createGame(std::shared_ptr<User> user, int maxUsers)
+void GameMinorTowns::createGame(std::shared_ptr<User> user,const int maxUsers)
 {
 	std::string uuidLobby = this->lobbyManager->createLobby(maxUsers);
 	this->lobbyManager->joinLobby(uuidLobby, user);
 }
 
-void GameMinorTowns::joinLobby(std::shared_ptr<User> user, std::string uuidLobby)
+void GameMinorTowns::joinLobby(std::shared_ptr<User> user,const std::string uuidLobby)
 {
 	this->lobbyManager->joinLobby(uuidLobby, user);
+	if (this->lobbyManager->isLobbyFull(uuidLobby)) {
+		this->gameManager->createGame(this->lobbyManager->getLobbyUsers(uuidLobby));
+		this->lobbyManager->closeLobby(uuidLobby);
+	}
 }
 
 void GameMinorTowns::leaveLobby(std::shared_ptr<User> user)

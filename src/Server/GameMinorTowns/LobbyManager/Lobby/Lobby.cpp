@@ -39,7 +39,7 @@ bool Lobby::isFull()
 	return this->users.size() == this->maxUser;
 }
 
-std::vector<std::shared_ptr<User>>& Lobby::getUsers()
+std::vector<std::shared_ptr<User>> Lobby::getUsers()
 {
 	return this->users;
 }

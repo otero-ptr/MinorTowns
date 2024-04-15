@@ -13,6 +13,9 @@ public:
 	void joinLobby(std::string uuidLobby, std::shared_ptr<User> user);
 	void leaveLobby(std::shared_ptr<User> user);
 	const std::string getListLobby();
+	bool isLobbyFull(std::string uuidLobby);
+	std::vector<std::shared_ptr<User>> getLobbyUsers(std::string uuidLobby);
+	void closeLobby(std::string uuidLobby);
 private:
 	void refreshListLobby();
 	std::string listLobby;

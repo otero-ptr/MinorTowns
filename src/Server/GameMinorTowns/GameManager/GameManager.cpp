@@ -8,7 +8,7 @@ GameManager::~GameManager()
 {
 }
 
-void GameManager::createGame(std::vector<User> users)
+void GameManager::createGame(std::vector<std::shared_ptr<User>> users)
 {
 	this->games.emplace(0, std::make_unique<Game>(users));
 }
