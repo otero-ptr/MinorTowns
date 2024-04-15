@@ -1,3 +1,1 @@
-
-
-# test
+add_subdirectory("GameMap")

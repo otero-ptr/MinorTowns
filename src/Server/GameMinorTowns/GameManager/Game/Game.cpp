@@ -9,6 +9,7 @@ Game::Game(std::vector<std::shared_ptr<User>> users)
 	Poco::UUIDGenerator generator;
 	Poco::UUID uuid = generator.create();
 	this->uuid = uuid.toString();
+	this->gameMap = std::make_unique<GameMap>(25);
 }
 
 const std::string Game::getUUID()

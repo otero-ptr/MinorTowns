@@ -14,8 +14,6 @@ include_directories(Server/)
 
 add_subdirectory("Server")
 
-set(SRC_FILES)
-
 set(MINOR_TOWNS_FILES
     "MinorTowns.cpp"
     "MinorTowns.h"
@@ -81,6 +79,18 @@ set(GAME_FILES
     "Server/GameMinorTowns/GameManager/Game/Game.h"
 )
 list(APPEND SRC_FILES ${GAME_FILES})
+
+set(GAME_MAP_FILES
+    "Server/GameMinorTowns/GameManager/Game/GameMap/GameMap.cpp"
+    "Server/GameMinorTowns/GameManager/Game/GameMap/GameMap.h"
+)
+list(APPEND SRC_FILES ${GAME_MAP_FILES})
+
+set(NODE_MAP_FILES 
+    "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeMap.h" 
+    "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeMap.cpp"
+)
+list(APPEND SRC_FILES ${NODE_MAP_FILES})
 
 set(MIDDLEWARE_FILES
     "Server/Middleware/Middleware.cpp"

@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include "GameMap/GameMap.h"
 
 class User;
 
@@ -14,4 +15,6 @@ public:
 private:
 	std::vector<std::shared_ptr<User>> users;
 	std::string uuid;
+
+	std::unique_ptr<GameMap> gameMap;
 };
