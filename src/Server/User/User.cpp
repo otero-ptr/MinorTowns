@@ -45,3 +45,8 @@ std::string User::getUserInfo()
 	this->updateInfo = false;
 	return this->userInfo;
 }
+
+std::string User::getUsername()
+{
+	return this->username;
+}

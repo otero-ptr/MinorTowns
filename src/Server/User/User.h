@@ -21,6 +21,7 @@ public:
 	void setUserInfo(std::string jsonInfo);
 	bool isInfoUpdate();
 	std::string getUserInfo();
+	std::string getUsername();
 private:
 	Location userLocation;
 	std::string uuidLocation;

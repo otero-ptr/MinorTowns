@@ -92,6 +92,19 @@ set(NODE_MAP_FILES
 )
 list(APPEND SRC_FILES ${NODE_MAP_FILES})
 
+set(TOWN_FILES 
+    "Server/GameMinorTowns/GameManager/Game/Town/Town.h"
+    "Server/GameMinorTowns/GameManager/Game/Town/Town.cpp"
+)
+list(APPEND SRC_FILES ${TOWN_FILES})
+
+set(ECONOMY_FILES 
+    "Server/GameMinorTowns/GameManager/Game/Town/Economy/Economy.h"
+    "Server/GameMinorTowns/GameManager/Game/Town/Economy/Economy.cpp"
+)
+list(APPEND SRC_FILES ${ECONOMY_FILES})
+
+
 set(MIDDLEWARE_FILES
     "Server/Middleware/Middleware.cpp"
     "Server/Middleware/Middleware.h"
