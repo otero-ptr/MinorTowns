@@ -10,5 +10,7 @@ GameManager::~GameManager()
 
 void GameManager::createGame(std::vector<std::shared_ptr<User>> users)
 {
-	this->games.emplace(0, std::make_unique<Game>(users));
+	std::unique_ptr<Game> game = std::make_unique<Game>(users);
+	std::string uuid(game->getUUID());
+	this->games.insert(std::make_pair(uuid, std::move(game)));
 }
