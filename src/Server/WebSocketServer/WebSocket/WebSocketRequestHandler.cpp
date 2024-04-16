@@ -2,16 +2,15 @@
 #include "Poco/Util/ServerApplication.h"
 #include "Poco/Net/NetException.h"
 #include "Poco/Net/WebSocket.h"
+#include "Poco/URI.h"
 #include "BetterWebSocket\BetterWebSocket.h"
 #include <iostream>
 #include "User\User.h"
 #include "Middleware\Middleware.h"
 
-std::string msg1("Hello! Welcome in server MinorTowns. To be continue you need send your nickname :)");
-std::string msgOk("Username correct");
+std::string msg1("Hello! Welcome in server MinorTowns :)");
 std::string msg2("Timeout. Server closed :(");
 std::string msg3("Wrong user. Server closed :(");
-std::string test_msg("Test msg");
 
 void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
@@ -21,16 +20,23 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 		std::string msg;
 		int flags;
 		bool timeout = false;
-		std::cout << "WebSocket connection established." << std::endl;
-		BetterWebSocket bws(Poco::Net::WebSocket(request, response), 15);
-		bws.sendFrame(msg1, Poco::Net::WebSocket::FRAME_TEXT, timeout);
-		msg = bws.receiveFrame(flags, timeout);
-		if (timeout) {
-			bws.sendFrame(msg2, Poco::Net::WebSocket::FRAME_TEXT, timeout);
-			bws.close();
-			std::cout << "WebSocket connection closed." << std::endl;
+		Poco::URI uri(request.getURI());
+		Poco::URI::QueryParameters params = uri.getQueryParameters();
+		if (params.size() != 1) {
+			response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
+			response.setContentLength(0);
+			response.send();
 			return;
 		}
+		if (params.begin()->first != "username" || params.begin()->second.empty()) {
+			response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
+			response.setContentLength(0);
+			response.send();
+			return;
+		}
+		std::cout << "WebSocket connection established." << std::endl;
+		BetterWebSocket bws(Poco::Net::WebSocket(request, response), 15);
+		msg = params.begin()->second;
 		if (!msg.empty()) {
 			user = this->middlewareServer->Authorization(msg, request.clientAddress().host().toString(), request.clientAddress().port());
 			if (user == nullptr) {
@@ -40,7 +46,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 				return;
 			}
 			else {
-				bws.sendFrame(msgOk, Poco::Net::WebSocket::FRAME_TEXT, timeout);
+				bws.sendFrame(msg1, Poco::Net::WebSocket::FRAME_TEXT, timeout);
 			}
 		}
 		bool sendThreadRun = true;
