@@ -32,6 +32,12 @@ set(USER_FILES
 )
 list(APPEND SRC_FILES ${USER_FILES})
 
+set(MESSAGE_POOL_FILES
+    "Server/User/MessagePool/MessagePool.h" 
+    "Server/User/MessagePool/MessagePool.cpp"
+)
+list(APPEND SRC_FILES ${MESSAGE_POOL_FILES})
+
 set(WEBSOCKET_SERVER_FILES
     "Server/WebSocketServer/WebSocketServer.cpp"
     "Server/WebSocketServer/WebSocketServer.h"

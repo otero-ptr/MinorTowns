@@ -1,11 +1,14 @@
 #include "LobbyManager.h"
-#include "Lobby\Lobby.h"
+#include "Lobby/Lobby.h"
 #include "Poco/JSON/Object.h"
 #include "Poco/JSON/Array.h"
+#include "Poco/JSON/Parser.h"
 #include "Poco/JSON/Stringifier.h"
+#include "Poco/Dynamic/Var.h"
 
 LobbyManager::LobbyManager()
 {
+	this->refreshListLobby();
 }
 
 LobbyManager::~LobbyManager()
@@ -15,7 +18,7 @@ LobbyManager::~LobbyManager()
 std::string LobbyManager::createLobby(int count)
 {
 	std::unique_ptr<Lobby> lobby = std::make_unique<Lobby>(count);
-	std::string uuid(lobby->getUnique());
+	std::string uuid(lobby->getUUID());
 	this->lobbies.insert(std::make_pair(uuid, std::move(lobby)));
 	this->refreshListLobby();
 	return uuid;
@@ -64,13 +67,11 @@ void LobbyManager::closeLobby(std::string uuidLobby)
 void LobbyManager::refreshListLobby()
 {
 	Poco::JSON::Array jsonArray;
+	Poco::JSON::Parser parser;
 	for (auto it = this->lobbies.begin(); it != this->lobbies.end(); ++it) {
-
-		Poco::JSON::Object obj;
-		obj.set("uuid_lobby", it->second->getUnique());
-		obj.set("users_now", it->second->getNowUsers());
-		obj.set("users_max", it->second->getMaxUsers());
-		jsonArray.add(obj);
+		Poco::Dynamic::Var result = parser.parse(it->second->getLobbyData());
+		Poco::JSON::Object::Ptr object = result.extract<Poco::JSON::Object::Ptr>();
+		jsonArray.add(object);
 	}
 	std::ostringstream oss;
 	Poco::JSON::Stringifier::stringify(jsonArray, oss);

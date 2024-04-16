@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "MessagePool\MessagePool.h"
 
 enum Location {
 	MENU,
@@ -18,16 +19,11 @@ public:
 	void setLocation(Location l, std::string uuid);
 	Location getLocation();
 	const std::string getUUIDLocation();
-	void setUserInfo(std::string jsonInfo);
-	bool isInfoUpdate();
-	std::string getUserInfo();
 	std::string getUsername();
+	MessagePool messagePool;
 private:
 	Location userLocation;
 	std::string uuidLocation;
 	std::string username;
 	std::string address;
-
-	std::string userInfo;
-	bool updateInfo;
 };

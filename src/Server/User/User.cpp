@@ -5,8 +5,6 @@ User::User(std::string username, std::string address)
 	this->userLocation = MENU;
 	this->username = username;
 	this->address = address;
-	this->userInfo = "{ }";
-	this->updateInfo = false;
 }
 
 User::~User()
@@ -27,23 +25,6 @@ Location User::getLocation()
 const std::string User::getUUIDLocation()
 {
 	return this->uuidLocation;
-}
-
-void User::setUserInfo(std::string jsonInfo)
-{
-	this->userInfo = jsonInfo;
-	this->updateInfo = true;
-}
-
-bool User::isInfoUpdate()
-{
-	return this->updateInfo;
-}
-
-std::string User::getUserInfo()
-{
-	this->updateInfo = false;
-	return this->userInfo;
 }
 
 std::string User::getUsername()

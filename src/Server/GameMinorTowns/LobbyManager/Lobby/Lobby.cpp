@@ -2,14 +2,15 @@
 #include "Poco/UUIDGenerator.h"
 #include "Poco/UUID.h"
 #include "User/User.h"
+#include "Poco/JSON/Object.h"
+#include "Poco/JSON/Stringifier.h"
 
 Lobby::Lobby(int maxUser)
 {
 	this->maxUser = maxUser;
 	this->users.reserve(maxUser);
-	Poco::UUIDGenerator generator;
-	Poco::UUID uuid = generator.create();
-	this->unique = uuid.toString();
+	this->createUUID();
+	this->createLobbyData();
 }
 
 Lobby::~Lobby()
@@ -23,6 +24,8 @@ void Lobby::join(std::shared_ptr<User> user)
 		if (it == this->users.end()) {
 			this->users.push_back(user);
 		}
+		this->createLobbyData();
+		user->messagePool.pushBackMessage(this->lobbyData);
 	}
 }
 
@@ -32,6 +35,7 @@ void Lobby::leave(std::shared_ptr<User> user)
 	if (it != this->users.end()) {
 		this->users.erase(it);
 	}
+	this->createLobbyData();
 }
 
 bool Lobby::isFull()
@@ -44,9 +48,9 @@ std::vector<std::shared_ptr<User>> Lobby::getUsers()
 	return this->users;
 }
 
-const std::string Lobby::getUnique()
+const std::string Lobby::getUUID()
 {
-	return this->unique;
+	return this->uuid;
 }
 
 const int Lobby::getNowUsers()
@@ -57,4 +61,27 @@ const int Lobby::getNowUsers()
 const int Lobby::getMaxUsers()
 {
 	return this->maxUser;
+}
+
+std::string Lobby::getLobbyData()
+{
+	return this->lobbyData;
+}
+
+void Lobby::createLobbyData()
+{
+	Poco::JSON::Object json;
+	json.set("uuid_lobby", this->uuid);
+	json.set("users_now", this->users.size());
+	json.set("users_max", this->maxUser);
+	std::ostringstream oss;
+	Poco::JSON::Stringifier::stringify(json, oss);
+	this->lobbyData = oss.str();
+}
+
+void Lobby::createUUID()
+{
+	Poco::UUIDGenerator generator;
+	Poco::UUID uuid = generator.create();
+	this->uuid = uuid.toString();
 }

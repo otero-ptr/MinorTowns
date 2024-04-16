@@ -14,11 +14,17 @@ public:
 	void leave(std::shared_ptr<User> user);
 	bool isFull();
 	std::vector<std::shared_ptr<User>> getUsers();
-	const std::string getUnique();
+	const std::string getUUID();
 	const int getNowUsers();
 	const int getMaxUsers();
+
+	std::string getLobbyData();
 private:
+	void createLobbyData();
+	void createUUID();
 	int maxUser;
 	std::vector<std::shared_ptr<User>> users;
-	std::string unique; // uuid
+
+	std::string uuid;
+	std::string lobbyData;
 };
