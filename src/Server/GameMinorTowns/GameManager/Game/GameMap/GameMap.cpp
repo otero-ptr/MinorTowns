@@ -1,5 +1,8 @@
 #include "GameMap.h"
-#include <iostream>
+#include "Poco/JSON/Object.h"
+#include "Poco/JSON/Array.h"
+#include "Poco/JSON/Stringifier.h"
+#include "Poco/Dynamic/Var.h"
 
 GameMap::GameMap(const int x_nodes, const int y_nodes) : myMap(y_nodes)
 {
@@ -61,14 +64,31 @@ std::shared_ptr<NodeMap> GameMap::operator[](int index) const
 
 GameMap::~GameMap()
 {
-	{
-		for (int i = 0; i < this->x_nodes; i++) {
-			for (int j = 0; j < this->y_nodes; j++) {
-				std::cout << this->myMap[i][j]->getType() << "\t";
-			}
-			std::cout << std::endl;
+}
+
+std::string GameMap::getMapJson()
+{
+	return this->mapJson;
+}
+
+void GameMap::createMapJson()
+{
+	Poco::JSON::Object json;
+	Poco::JSON::Array rowArr;
+	for (auto& row : this->myMap) {
+		Poco::JSON::Array colArr;
+		for (auto& col : row) {
+			Poco::JSON::Object objJson;
+			objJson.set("id", col->getID());
+			objJson.set("type", static_cast<int>(col->getType()));
+			colArr.add(objJson);
 		}
+		rowArr.add(colArr);
 	}
+	json.set("map", rowArr);
+	std::ostringstream oss;
+	json.stringify(oss);
+	this->mapJson = oss.str();
 }
 
 void GameMap::generate()

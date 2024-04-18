@@ -10,7 +10,7 @@ NodeMap::~NodeMap()
 {
 }
 
-const int NodeMap::getID() const
+int NodeMap::getID() const
 {
 	return this->id;
 }

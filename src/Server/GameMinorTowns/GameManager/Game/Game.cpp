@@ -7,6 +7,9 @@ Game::Game(std::vector<std::shared_ptr<User>> users)
 {
 	this->users = users;
 	this->init();
+	for (auto& user : users) {
+		user->messagePool.pushBackMessage(this->gameMap->getMapJson());
+	}
 }
 
 const std::string Game::getUUID()
@@ -24,6 +27,7 @@ void Game::init()
 	this->createUUID();
 	this->createMap();
 	this->createTowns();
+	this->gameMap->createMapJson();
 }
 
 void Game::createUUID()
@@ -42,5 +46,5 @@ void Game::createTowns()
 
 void Game::createMap()
 {
-	this->gameMap = std::make_unique<GameMap>(5,5, this->towns.size());
+	this->gameMap = std::make_unique<GameMap>(5,5);
 }
