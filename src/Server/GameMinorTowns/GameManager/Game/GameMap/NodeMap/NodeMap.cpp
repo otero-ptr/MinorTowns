@@ -10,9 +10,14 @@ NodeMap::~NodeMap()
 {
 }
 
-const int NodeMap::getID()
+const int NodeMap::getID() const
 {
 	return this->id;
+}
+
+NODE_TYPE NodeMap::getType() const
+{
+	return this->type;
 }
 
 bool NodeMap::occupyTown()
@@ -26,7 +31,7 @@ bool NodeMap::occupyTown()
 	}
 }
 
-bool NodeMap::isTown()
+bool NodeMap::isTown() const
 {
 	if (this->type == NODE_TYPE::TOWN) {
 		return true;

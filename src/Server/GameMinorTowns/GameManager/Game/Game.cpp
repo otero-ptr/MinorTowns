@@ -2,7 +2,6 @@
 #include "Poco/UUIDGenerator.h"
 #include "Poco/UUID.h"
 #include "User/User.h"
-#include <iostream>
 
 Game::Game(std::vector<std::shared_ptr<User>> users)
 {
@@ -43,5 +42,5 @@ void Game::createTowns()
 
 void Game::createMap()
 {
-	this->gameMap = std::make_unique<GameMap>(5,5);
+	this->gameMap = std::make_unique<GameMap>(5,5, this->towns.size());
 }
