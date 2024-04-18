@@ -20,6 +20,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 		std::string msg;
 		int flags;
 		bool timeout = false;
+		response.set("Access-Control-Allow-Origin", "http://localhost:3000"); // cross for dev test for client react
 		Poco::URI uri(request.getURI());
 		Poco::URI::QueryParameters params = uri.getQueryParameters();
 		if (params.size() != 1) {
