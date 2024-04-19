@@ -25,9 +25,8 @@ void Game::tick()
 void Game::init()
 {
 	this->createUUID();
-	this->createMap();
-	this->createTowns();
-	this->gameMap->createMapJson();
+	std::vector<int> idTowns = this->createMap();
+	this->createTowns(idTowns);
 }
 
 void Game::createUUID()
@@ -36,15 +35,18 @@ void Game::createUUID()
 	this->uuid = generator.create().toString();
 }
 
-void Game::createTowns()
+void Game::createTowns(std::vector<int> &idTowns)
 {
 	this->towns.reserve(this->users.size());
-	for (auto it : users) {
-		this->towns.push_back(std::make_unique<Town>(it, this->gameMap->getFreeSquarePosition()));
+	for (int i = 0; i < users.size(); i++) {
+		this->towns.push_back(std::make_unique<Town>(this->users[i], idTowns[i]));
 	}
 }
 
-void Game::createMap()
+std::vector<int> Game::createMap()
 {
-	this->gameMap = std::make_unique<GameMap>(5,5);
+	auto sizeMap = DimensionMap::detect(this->users.size());
+	auto posTowns = DimensionMap::placeTowns(this->users.size(), sizeMap);
+	this->gameMap = std::make_unique<GameMap>(sizeMap);
+	return this->gameMap->placeTowns(posTowns);
 }

@@ -17,8 +17,8 @@ public:
 private:
 	void init();
 	void createUUID();
-	void createTowns();
-	void createMap();
+	void createTowns(std::vector<int>& idTowns);
+	std::vector<int> createMap();
 
 	std::vector<std::shared_ptr<User>> users;
 	std::string uuid;

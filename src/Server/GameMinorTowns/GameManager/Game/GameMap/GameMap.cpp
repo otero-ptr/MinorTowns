@@ -4,53 +4,37 @@
 #include "Poco/JSON/Stringifier.h"
 #include "Poco/Dynamic/Var.h"
 
-GameMap::GameMap(const int x_nodes, const int y_nodes) : myMap(y_nodes)
+GameMap::GameMap(const int row, const int column) : myMap(row)
 {
-	this->x_nodes = x_nodes;
-	this->y_nodes = y_nodes;
+	this->row_nodes = row;
+	this->column_nodes = column;
 	this->generate();
 }
 
-int GameMap::getFreeSquarePosition()
+GameMap::GameMap(DimensionMap::SizeMap size) : myMap(size.x)
 {
-	if (!this->myMap.at(0).at(0)->isTown()) {
-		this->myMap.at(0).at(0)->occupyTown();
-		return this->myMap.at(0).at(0)->getID();
-	}
-	else if (!this->myMap.at(0).at(this->x_nodes-1)->isTown()) {
-		this->myMap.at(0).at(this->x_nodes - 1)->occupyTown();
-		return this->myMap.at(0).at(this->x_nodes - 1)->getID();
-	}
-	else if (!this->myMap.at(this->y_nodes -1).at(0)->isTown()) {
-		this->myMap.at(this->y_nodes - 1).at(0)->occupyTown();
-		return this->myMap.at(0).at(this->x_nodes - 1)->getID();
-	}
-	else if (!this->myMap.at(this->y_nodes -1).at(this->x_nodes - 1)->isTown()) {
-		this->myMap.at(this->y_nodes - 1).at(this->x_nodes - 1)->occupyTown();
-		return this->myMap.at(0).at(this->x_nodes - 1)->getID();
-	}
-	else {
-		return -1;
-	}
+	this->row_nodes = size.x;
+	this->column_nodes = size.y;
+	this->generate();
 }
 
-int GameMap::getX()
+int GameMap::getRow()
 {
-	return this->x_nodes;
+	return this->row_nodes;
 }
 
-int GameMap::getY()
+int GameMap::getColumn()
 {
-	return this->y_nodes;
+	return this->column_nodes;
 }
 
 std::shared_ptr<NodeMap> GameMap::operator[](int index) const
 {
-	if (index > this->x_nodes * this->y_nodes || index < 0) {
+	if (index > this->row_nodes * this->column_nodes || index < 0) {
 		return nullptr;
 	}
 	int i = 0;
-	int j = this->y_nodes - 1;
+	int j = this->column_nodes - 1;
 	while (this->myMap[i][j]->getID() != index) {
 		if (this->myMap[i][j]->getID() > index) {
 			--j;
@@ -91,12 +75,61 @@ void GameMap::createMapJson()
 	this->mapJson = oss.str();
 }
 
+std::vector<int> GameMap::placeTowns(std::vector<DimensionMap::SizeMap> &towns)
+{
+	std::cout << this->row_nodes << " | " << this->column_nodes << std::endl;
+	std::cout << myMap.size() << " | " << myMap[0].size() << std::endl;
+	std::vector<int> ids;
+	for (int i = 0; i < towns.size(); ++i) {
+		std::cout << towns[i].x << " | " << towns[i].y << std::endl;
+		this->myMap[towns[i].x][towns[i].y]->occupyTown();
+		ids.push_back(this->myMap[towns[i].x][towns[i].y]->getID());
+	}
+	this->createMapJson();
+	return ids;
+}
+
 void GameMap::generate()
 {
 	int id = 0;
-	for (int y = 0; y < this->y_nodes; ++y) {
-		for (int x = 0; x < this->x_nodes; ++x) {
-			this->myMap.at(y).push_back(std::make_shared<NodeMap>(id++, NODE_TYPE::DEFAULT));
+	for (int x = 0; x < this->row_nodes; ++x) {
+		for (int y = 0; y < this->column_nodes; ++y) {
+			this->myMap.at(x).push_back(std::make_shared<NodeMap>(id++, NODE_TYPE::DEFAULT));
 		}
 	}
+}
+
+DimensionMap::SizeMap DimensionMap::detect(const int players)
+{
+	if (players == 2) {
+		return SizeMap(5, 3);
+	}
+	else if (players == 3) {
+		return SizeMap(5, 4);
+	}
+	else if (players == 4) {
+		return SizeMap(5, 5);
+	}
+}
+
+std::vector<DimensionMap::SizeMap> DimensionMap::placeTowns(const int players, DimensionMap::SizeMap size)
+{
+	std::vector<DimensionMap::SizeMap> ids;
+	ids.reserve(players);
+	if (players == 2) {
+		ids.push_back(SizeMap(0, 1));
+		ids.push_back(SizeMap(4, 1));
+	}
+	else if (players == 3) {
+		ids.push_back(SizeMap(0, 0));
+		ids.push_back(SizeMap(4, 0));
+		ids.push_back(SizeMap(2, 3));
+	}
+	else if (players == 4) {
+		ids.push_back(SizeMap(0, 0));
+		ids.push_back(SizeMap(4, 0));
+		ids.push_back(SizeMap(0, 4));
+		ids.push_back(SizeMap(4, 4));
+	}
+	return ids;
 }
