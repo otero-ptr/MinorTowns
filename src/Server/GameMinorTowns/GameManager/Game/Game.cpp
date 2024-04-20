@@ -2,6 +2,7 @@
 #include "Poco/UUIDGenerator.h"
 #include "Poco/UUID.h"
 #include "User/User.h"
+#include <iostream>
 
 Game::Game(std::vector<std::shared_ptr<User>> users)
 {
@@ -10,6 +11,16 @@ Game::Game(std::vector<std::shared_ptr<User>> users)
 	for (auto& user : users) {
 		user->messagePool.pushBackMessage(this->gameMap->getMapJson());
 	}
+	this->active = true;
+	this->thTick = std::jthread(&Game::tick, this);
+}
+
+Game::~Game()
+{
+	this->active = false;
+	if (this->thTick.joinable()) {
+		this->thTick.join();
+	}
 }
 
 const std::string Game::getUUID()
@@ -17,9 +28,29 @@ const std::string Game::getUUID()
 	return this->uuid;
 }
 
+bool Game::isActive()
+{
+	return this->active;
+}
+
 void Game::tick()
 {
+	int cooldown = 5000;
+	while (this->active) {
+		++tickCount;
+		auto start = std::chrono::steady_clock::now();
 
+		std::cout << "this game tick [UUID]: " << this->uuid << std::endl;
+		for (auto& user : this->users) {
+			user->messagePool.pushBackMessage("tick" + std::to_string(this->tickCount));
+		}
+
+		auto end = std::chrono::steady_clock::now();
+
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(cooldown - duration.count()));
+	}
 }
 
 void Game::init()

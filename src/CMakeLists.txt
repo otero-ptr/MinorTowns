@@ -110,6 +110,17 @@ set(ECONOMY_FILES
 )
 list(APPEND SRC_FILES ${ECONOMY_FILES})
 
+set(BUILDINGS_FILES 
+    "Server/GameMinorTowns/GameManager/Game/Town/Economy/Buildings/Buildings.h" 
+    "Server/GameMinorTowns/GameManager/Game/Town/Economy/Buildings/Buildings.cpp"
+)
+list(APPEND SRC_FILES ${BUILDINGS_FILES})
+
+set(MARKET_FILES 
+    "Server/GameMinorTowns/GameManager/Game/Town/Economy/Market/Market.h" 
+    "Server/GameMinorTowns/GameManager/Game/Town/Economy/Market/Market.cpp" 
+)
+list(APPEND SRC_FILES ${MARKET_FILES})
 
 set(MIDDLEWARE_FILES
     "Server/Middleware/Middleware.cpp"
