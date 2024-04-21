@@ -2,14 +2,20 @@
 
 class Economy {
 public:
-	Economy();
-	Economy(int startBudget);
+	Economy() = delete;
+	Economy(double startBudget = 0.0, double tickIncome = 0.0);
 	~Economy();
-	const int getBudget();
-	const int getNetWorth();
-	void expense(int value);
-	void income(int value);
+	const double getBudget();
+	const double getNetWorth();
+	const double getTickIncome();
+	const double getMultiplier();
+	void setTickIncome(double value);
+	void setMultiplier(double value);
+	void expenseBuild(double value);
+	void income(double value);
 private:
-	int budget = 0;
-	int netWorth = 0;
+	double budget;
+	double netWorth;
+	double tickIncome;
+	double multiplier = 1.0;
 };

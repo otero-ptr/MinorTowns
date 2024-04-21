@@ -37,16 +37,17 @@ void Game::tick()
 {
 	int cooldown = 5000;
 	while (this->active) {
-		++tickCount;
 		auto start = std::chrono::steady_clock::now();
-
+		++tickCount;
+		for (const auto& town : towns) {
+			town->TownTickProcessing();
+		}
 		std::cout << "this game tick [UUID]: " << this->uuid << std::endl;
 		for (auto& user : this->users) {
 			user->messagePool.pushBackMessage("tick" + std::to_string(this->tickCount));
 		}
 
 		auto end = std::chrono::steady_clock::now();
-
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(cooldown - duration.count()));

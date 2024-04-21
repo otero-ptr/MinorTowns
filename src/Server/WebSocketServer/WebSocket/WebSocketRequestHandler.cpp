@@ -57,7 +57,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 					if (!user->messagePool.isEmpty()) {
 						bws.sendFrame(user->messagePool.popFrontMessage(), Poco::Net::WebSocket::FRAME_TEXT, timeout);
 					}
-					std::this_thread::sleep_for(std::chrono::seconds(1));
+					std::this_thread::sleep_for(std::chrono::milliseconds(250));
 				} while (sendThreadRun);
 			});
 

@@ -1,35 +1,51 @@
 #include "Economy.h"
 
-Economy::Economy()
-{
-}
-
-Economy::Economy(int startBudget)
+Economy::Economy(double startBudget, double tickIncome)
 {
 	this->income(startBudget);
+	this->tickIncome = tickIncome;
 }
 
 Economy::~Economy()
 {
 }
 
-const int Economy::getBudget()
+const double Economy::getBudget()
 {
 	return this->budget;
 }
 
-const int Economy::getNetWorth()
+const double Economy::getNetWorth()
 {
 	return this->netWorth;
 }
 
-void Economy::expense(int value)
+const double Economy::getTickIncome()
 {
-	this->budget -= value;
-	this->netWorth -= value;
+	return this->tickIncome;
 }
 
-void Economy::income(int value)
+const double Economy::getMultiplier()
+{
+	return this->multiplier;
+}
+
+void Economy::setTickIncome(double value)
+{
+	this->tickIncome = value;
+}
+
+void Economy::setMultiplier(double value)
+{
+	this->multiplier = value;
+}
+
+void Economy::expenseBuild(double value)
+{
+	this->budget -= value;
+}
+
+void Economy::income(double value)
 {
 	this->budget += value;
 	this->netWorth += value;
