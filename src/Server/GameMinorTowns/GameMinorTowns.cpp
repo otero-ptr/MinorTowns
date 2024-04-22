@@ -35,3 +35,8 @@ void GameMinorTowns::receiveLobbyList(std::shared_ptr<User> user)
 {
 	user->messagePool.pushBackMessage(this->lobbyManager->getListLobby());
 }
+
+void GameMinorTowns::buildBuildings(std::shared_ptr<User> user, int buildingType)
+{
+	this->gameManager->buildBuildings(user, buildingType);
+}

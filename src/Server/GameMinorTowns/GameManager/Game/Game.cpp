@@ -33,6 +33,16 @@ bool Game::isActive()
 	return this->active;
 }
 
+void Game::buildBuildings(std::shared_ptr<User> user, int& buildingType)
+{
+	for (auto& town : this->towns) {
+		if (town->getOwnTown() == user) {
+			town->buildBuilding(buildingType);
+			break;
+		}
+	}
+}
+
 void Game::tick()
 {
 	int cooldown = 5000;

@@ -5,6 +5,7 @@
 #include "GameMap/GameMap.h"
 #include "Town/Town.h"
 #include <thread>
+#include <cstdarg>	
 
 class User;
 
@@ -15,6 +16,7 @@ public:
 	~Game();
 	const std::string getUUID();
 	bool isActive();
+	void buildBuildings(std::shared_ptr<User> user, int &buildingType);
 private:
 	void tick();
 	void init();

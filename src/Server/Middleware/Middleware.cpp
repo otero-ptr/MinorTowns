@@ -71,14 +71,21 @@ MIDDLEWARE_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<Us
                 return MIDDLEWARE_STATUS::ST_OK;
             }
             else if (actionTODO == "lobby_list" && user->getLocation() == Location::MENU) {
-                if (user->getLocation() == Location::MENU) {
-                    std::thread th(&GameMinorTowns::receiveLobbyList, this->gameMinorTowns, user);
-                    th.detach();
-                    return MIDDLEWARE_STATUS::ST_OK;
+                std::thread th(&GameMinorTowns::receiveLobbyList, this->gameMinorTowns, user);
+                th.detach();
+                return MIDDLEWARE_STATUS::ST_OK;
+            }
+            else if (actionTODO == "build_buildings" && user->getLocation() == Location::GAME) {
+                if (jsonObj->has("params")) {
+                    Poco::JSON::Object::Ptr paramsObject = jsonObj->getObject("params");
+                    if (paramsObject->has("building_id")) {
+                        std::thread th(&GameMinorTowns::buildBuildings, this->gameMinorTowns, user, paramsObject->getValue<int>("building_id"));
+                        th.detach();
+                        return MIDDLEWARE_STATUS::ST_OK;
+                    }
                 }
-                else {
-                    return MIDDLEWARE_STATUS::ST_ERROR;
-                }
+                user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
+                return MIDDLEWARE_STATUS::ST_ERROR;
             }
         }
         else {

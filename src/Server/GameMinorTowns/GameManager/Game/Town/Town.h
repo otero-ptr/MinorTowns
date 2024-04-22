@@ -13,7 +13,8 @@ public:
 	void TownTickProcessing();
 	void buildBuilding(const int &buildingType);
 	void destroyBuilding(const int &buildingType);
-//private:
+	std::shared_ptr<User> getOwnTown();
+private:
 	void BuildingsInit();
 	int capitalNode;
 	Economy economy;

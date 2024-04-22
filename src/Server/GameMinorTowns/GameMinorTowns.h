@@ -12,6 +12,7 @@ public:
 	void joinLobby(std::shared_ptr<User> user,const std::string uuidLobby);
 	void leaveLobby(std::shared_ptr<User> user);
 	void receiveLobbyList(std::shared_ptr<User> user);
+	void buildBuildings(std::shared_ptr<User> user, int buildingType);
 private:
 	std::unique_ptr<GameManager> gameManager;
 	std::unique_ptr<LobbyManager> lobbyManager;

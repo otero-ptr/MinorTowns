@@ -12,6 +12,7 @@ public:
 	~GameManager();
 	void createGame(std::vector<std::shared_ptr<User>> users);
 	void getGame() {}
+	void buildBuildings(std::shared_ptr<User> user, int& buildingType);
 private:
 	std::unordered_map<std::string, std::unique_ptr<Game>> games;
 };

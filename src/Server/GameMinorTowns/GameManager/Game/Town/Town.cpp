@@ -48,6 +48,11 @@ void Town::destroyBuilding(const int& buildingType)
 	}
 }
 
+std::shared_ptr<User> Town::getOwnTown()
+{
+	return this->own;
+}
+
 void Town::BuildingsInit()
 {
 	this->buildings.setPriceBuildings(0, 70.0); //church
