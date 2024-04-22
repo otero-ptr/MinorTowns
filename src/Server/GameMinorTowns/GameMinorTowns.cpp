@@ -7,7 +7,7 @@ GameMinorTowns::GameMinorTowns()
 	this->lobbyManager = std::make_unique<LobbyManager>();
 }
 
-void GameMinorTowns::createGame(std::shared_ptr<User> user,const int maxUsers)
+void GameMinorTowns::createLobby(std::shared_ptr<User> user,const int maxUsers)
 {
 	if (maxUsers > 4 || maxUsers < 2) {
 		user->messagePool.pushBackMessage("only 2-4 users");

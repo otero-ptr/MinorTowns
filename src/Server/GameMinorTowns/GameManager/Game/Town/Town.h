@@ -14,6 +14,8 @@ public:
 	void buildBuilding(const int &buildingType);
 	void destroyBuilding(const int &buildingType);
 	std::shared_ptr<User> getOwnTown();
+	const Economy& getTownEconomy();
+	const Buildings& getTownBuildings();
 private:
 	void BuildingsInit();
 	int capitalNode;

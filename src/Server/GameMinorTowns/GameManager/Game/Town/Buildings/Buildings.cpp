@@ -32,7 +32,7 @@ bool Buildings::isTypeExists(const int& type)
 	return type < static_cast<int>(TypeBuilding::MaxValue);
 }
 
-int Buildings::getCountBuildings(const int& type)
+int Buildings::getCountBuildings(const int& type) const
 {
 	if (type == TypeBuilding::Church) {
 		return this->church;
@@ -53,7 +53,7 @@ void Buildings::setPriceBuildings(const int& type, double value)
 	}
 }
 
-double Buildings::getPriceBuildings(const int& type)
+double Buildings::getPriceBuildings(const int& type) const
 {
 	if (type == TypeBuilding::Church) {
 		return this->priceChurch;

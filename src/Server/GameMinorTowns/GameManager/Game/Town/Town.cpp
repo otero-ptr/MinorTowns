@@ -1,5 +1,4 @@
 #include "Town.h"
-#include <iostream>
 
 Town::Town(std::shared_ptr<User> user, int capitalNode) : economy(100.0, 10.0)
 {
@@ -51,6 +50,16 @@ void Town::destroyBuilding(const int& buildingType)
 std::shared_ptr<User> Town::getOwnTown()
 {
 	return this->own;
+}
+
+const Economy& Town::getTownEconomy()
+{
+	return this->economy;
+}
+
+const Buildings& Town::getTownBuildings()
+{
+	return this->buildings;
 }
 
 void Town::BuildingsInit()

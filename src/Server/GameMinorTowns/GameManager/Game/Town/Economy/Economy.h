@@ -5,10 +5,10 @@ public:
 	Economy() = delete;
 	Economy(double startBudget = 0.0, double tickIncome = 0.0);
 	~Economy();
-	const double getBudget();
-	const double getNetWorth();
-	const double getTickIncome();
-	const double getMultiplier();
+	const double getBudget() const;
+	const double getNetWorth() const;
+	const double getTickIncome() const;
+	const double getMultiplier() const;
 	void setTickIncome(double value);
 	void setMultiplier(double value);
 	void expenseBuild(double value);

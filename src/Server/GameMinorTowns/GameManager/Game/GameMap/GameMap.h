@@ -20,7 +20,6 @@ public:
 	GameMap(const int row, const int column);
 	GameMap(DimensionMap::SizeMap size);
 	~GameMap();
-	int getFreeSquarePosition();
 	int getRow();
 	int getColumn();
 	std::shared_ptr<NodeMap> operator[](int index) const;

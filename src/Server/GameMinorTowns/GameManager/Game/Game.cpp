@@ -1,14 +1,18 @@
 #include "Game.h"
 #include "Poco/UUIDGenerator.h"
 #include "Poco/UUID.h"
+#include "Poco/JSON/Object.h"
+#include "Poco/JSON/Array.h"
+#include "Poco/JSON/Stringifier.h"
+#include "Poco/Dynamic/Var.h"
 #include "User/User.h"
-#include <iostream>
 
 Game::Game(std::vector<std::shared_ptr<User>> users)
 {
 	this->users = users;
 	this->init();
 	for (auto& user : users) {
+		user->setLocation(Location::GAME, this->uuid);
 		user->messagePool.pushBackMessage(this->gameMap->getMapJson());
 	}
 	this->active = true;
@@ -49,12 +53,39 @@ void Game::tick()
 	while (this->active) {
 		auto start = std::chrono::steady_clock::now();
 		++tickCount;
-		for (const auto& town : towns) {
+		for (auto& town : towns) {
 			town->TownTickProcessing();
 		}
-		std::cout << "this game tick [UUID]: " << this->uuid << std::endl;
-		for (auto& user : this->users) {
-			user->messagePool.pushBackMessage("tick" + std::to_string(this->tickCount));
+
+		Poco::JSON::Object json;
+		Poco::JSON::Array townsArr;
+		json.set("tick", this->tickCount);
+		json.set("uuid", this->uuid);
+		for (int i = 0; i < this->towns.size(); ++i) {
+			Poco::JSON::Object objJson;
+			objJson.set("town_id", i);
+			objJson.set("username", this->towns[i]->getOwnTown()->getUsername());
+			objJson.set("networth", this->towns[i]->getTownEconomy().getNetWorth());
+			townsArr.add(objJson);
+		}
+		json.set("towns", townsArr);
+		for (int i = 0; i < this->users.size(); ++i) {
+			Poco::JSON::Object userJson = json;
+			Poco::JSON::Object objJson;
+			objJson.set("town_id", i);
+			objJson.set("budget", this->towns[i]->getTownEconomy().getBudget());
+			objJson.set("multiplier", this->towns[i]->getTownEconomy().getMultiplier());
+			objJson.set("income", this->towns[i]->getTownEconomy().getTickIncome());
+			objJson.set("charch_id", 0);
+			objJson.set("charch_count", this->towns[i]->getTownBuildings().getCountBuildings(0));
+			objJson.set("charch_price", this->towns[i]->getTownBuildings().getPriceBuildings(0));
+			objJson.set("manufactory_id", 1);
+			objJson.set("manufactory_count", this->towns[i]->getTownBuildings().getCountBuildings(1));
+			objJson.set("manufactory_price", this->towns[i]->getTownBuildings().getPriceBuildings(1));
+			userJson.set("town", objJson);
+			std::ostringstream oss;
+			userJson.stringify(oss);
+			this->users[i]->messagePool.pushBackMessage(oss.str());
 		}
 
 		auto end = std::chrono::steady_clock::now();

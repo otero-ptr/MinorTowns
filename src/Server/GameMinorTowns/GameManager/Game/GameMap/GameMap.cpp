@@ -77,11 +77,8 @@ void GameMap::createMapJson()
 
 std::vector<int> GameMap::placeTowns(std::vector<DimensionMap::SizeMap> &towns)
 {
-	std::cout << this->row_nodes << " | " << this->column_nodes << std::endl;
-	std::cout << myMap.size() << " | " << myMap[0].size() << std::endl;
 	std::vector<int> ids;
 	for (int i = 0; i < towns.size(); ++i) {
-		std::cout << towns[i].x << " | " << towns[i].y << std::endl;
 		this->myMap[towns[i].x][towns[i].y]->occupyTown();
 		ids.push_back(this->myMap[towns[i].x][towns[i].y]->getID());
 	}

@@ -30,7 +30,6 @@ MIDDLEWARE_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<Us
         Poco::Dynamic::Var result;
         result = parser.parse(jsonMessage);
         Poco::JSON::Object::Ptr jsonObj = result.extract<Poco::JSON::Object::Ptr>();
-
         if (jsonObj->has("action")) {
             Poco::Dynamic::Var value = jsonObj->get("action");
             std::string actionTODO = value.toString();
@@ -41,7 +40,7 @@ MIDDLEWARE_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<Us
                     if (paramsObject->has("max_users")) {
                         int maxUsers = paramsObject->getValue<int>("max_users");
                         if (maxUsers > 0) {
-                            std::thread th(&GameMinorTowns::createGame, this->gameMinorTowns, user, maxUsers);
+                            std::thread th(&GameMinorTowns::createLobby, this->gameMinorTowns, user, maxUsers);
                             th.detach();
                             return MIDDLEWARE_STATUS::ST_OK;
                         }

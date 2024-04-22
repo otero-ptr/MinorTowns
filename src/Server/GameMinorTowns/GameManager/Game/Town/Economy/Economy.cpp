@@ -10,22 +10,22 @@ Economy::~Economy()
 {
 }
 
-const double Economy::getBudget()
+const double Economy::getBudget() const
 {
 	return this->budget;
 }
 
-const double Economy::getNetWorth()
+const double Economy::getNetWorth() const
 {
 	return this->netWorth;
 }
 
-const double Economy::getTickIncome()
+const double Economy::getTickIncome() const
 {
 	return this->tickIncome;
 }
 
-const double Economy::getMultiplier()
+const double Economy::getMultiplier() const
 {
 	return this->multiplier;
 }

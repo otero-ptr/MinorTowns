@@ -8,7 +8,7 @@ class User;
 class GameMinorTowns {
 public:
 	GameMinorTowns();
-	void createGame(std::shared_ptr<User> user,const int maxUsers);
+	void createLobby(std::shared_ptr<User> user,const int maxUsers);
 	void joinLobby(std::shared_ptr<User> user,const std::string uuidLobby);
 	void leaveLobby(std::shared_ptr<User> user);
 	void receiveLobbyList(std::shared_ptr<User> user);
