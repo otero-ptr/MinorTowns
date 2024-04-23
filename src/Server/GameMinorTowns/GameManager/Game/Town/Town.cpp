@@ -1,7 +1,8 @@
 #include "Town.h"
 
-Town::Town(std::shared_ptr<User> user, int capitalNode) : economy(100.0, 10.0)
+Town::Town(int townId, std::shared_ptr<User> user, int capitalNode) : economy(100.0, 10.0)
 {
+	this->id = townId;
 	this->own = user;
 	this->capitalNode = capitalNode;
 	this->BuildingsInit();
@@ -60,6 +61,11 @@ const Economy& Town::getTownEconomy()
 const Buildings& Town::getTownBuildings()
 {
 	return this->buildings;
+}
+
+const int Town::getID()
+{
+	return this->id;
 }
 
 void Town::BuildingsInit()

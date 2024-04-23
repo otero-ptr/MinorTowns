@@ -9,12 +9,9 @@
 
 Game::Game(std::vector<std::shared_ptr<User>> users)
 {
-	this->users = users;
-	this->init();
-	for (auto& user : users) {
-		user->setLocation(Location::GAME, this->uuid);
-		user->messagePool.pushBackMessage(this->gameMap->getMapJson());
-	}
+	this->createUUID();
+	std::vector<int> idTowns = this->createMap(users.size());
+	this->createTowns(idTowns, users);
 	this->active = true;
 	this->thTick = std::jthread(&Game::tick, this);
 }
@@ -47,6 +44,11 @@ void Game::buildBuildings(std::shared_ptr<User> user, int& buildingType)
 	}
 }
 
+std::string Game::getMapJSON()
+{
+	return this->gameMap->getMapJson();
+}
+
 void Game::tick()
 {
 	int cooldown = 5000;
@@ -56,37 +58,7 @@ void Game::tick()
 		for (auto& town : towns) {
 			town->TownTickProcessing();
 		}
-
-		Poco::JSON::Object json;
-		Poco::JSON::Array townsArr;
-		json.set("tick", this->tickCount);
-		json.set("uuid", this->uuid);
-		for (int i = 0; i < this->towns.size(); ++i) {
-			Poco::JSON::Object objJson;
-			objJson.set("town_id", i);
-			objJson.set("username", this->towns[i]->getOwnTown()->getUsername());
-			objJson.set("networth", this->towns[i]->getTownEconomy().getNetWorth());
-			townsArr.add(objJson);
-		}
-		json.set("towns", townsArr);
-		for (int i = 0; i < this->users.size(); ++i) {
-			Poco::JSON::Object userJson = json;
-			Poco::JSON::Object objJson;
-			objJson.set("town_id", i);
-			objJson.set("budget", this->towns[i]->getTownEconomy().getBudget());
-			objJson.set("multiplier", this->towns[i]->getTownEconomy().getMultiplier());
-			objJson.set("income", this->towns[i]->getTownEconomy().getTickIncome());
-			objJson.set("charch_id", 0);
-			objJson.set("charch_count", this->towns[i]->getTownBuildings().getCountBuildings(0));
-			objJson.set("charch_price", this->towns[i]->getTownBuildings().getPriceBuildings(0));
-			objJson.set("manufactory_id", 1);
-			objJson.set("manufactory_count", this->towns[i]->getTownBuildings().getCountBuildings(1));
-			objJson.set("manufactory_price", this->towns[i]->getTownBuildings().getPriceBuildings(1));
-			userJson.set("town", objJson);
-			std::ostringstream oss;
-			userJson.stringify(oss);
-			this->users[i]->messagePool.pushBackMessage(oss.str());
-		}
+		this->notifyUsers();
 
 		auto end = std::chrono::steady_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -95,31 +67,58 @@ void Game::tick()
 	}
 }
 
-void Game::init()
-{
-	this->createUUID();
-	std::vector<int> idTowns = this->createMap();
-	this->createTowns(idTowns);
-}
-
 void Game::createUUID()
 {
 	Poco::UUIDGenerator generator;
 	this->uuid = generator.create().toString();
 }
 
-void Game::createTowns(std::vector<int> &idTowns)
+void Game::createTowns(std::vector<int> &idTowns, std::vector<std::shared_ptr<User>> &users)
 {
-	this->towns.reserve(this->users.size());
+	this->towns.reserve(users.size());
 	for (int i = 0; i < users.size(); i++) {
-		this->towns.push_back(std::make_unique<Town>(this->users[i], idTowns[i]));
+		this->towns.push_back(std::make_unique<Town>(i, users[i], idTowns[i]));
 	}
 }
 
-std::vector<int> Game::createMap()
+void Game::notifyUsers()
 {
-	auto sizeMap = DimensionMap::detect(this->users.size());
-	auto posTowns = DimensionMap::placeTowns(this->users.size(), sizeMap);
+	Poco::JSON::Object json;
+	Poco::JSON::Array townsArr;
+	json.set("tick", this->tickCount);
+	json.set("uuid", this->uuid);
+	for (int i = 0; i < this->towns.size(); ++i) {
+		Poco::JSON::Object objJson;
+		objJson.set("town_id", i);
+		objJson.set("username", this->towns[i]->getOwnTown()->getUsername());
+		objJson.set("networth", this->towns[i]->getTownEconomy().getNetWorth());
+		townsArr.add(objJson);
+	}
+	json.set("towns", townsArr);
+	for (auto& town : this->towns) {
+		Poco::JSON::Object userJson = json;
+		Poco::JSON::Object objJson;
+		objJson.set("town_id", town->getID());
+		objJson.set("budget", town->getTownEconomy().getBudget());
+		objJson.set("multiplier", town->getTownEconomy().getMultiplier());
+		objJson.set("income", town->getTownEconomy().getTickIncome());
+		objJson.set("charch_id", 0);
+		objJson.set("charch_count", town->getTownBuildings().getCountBuildings(0));
+		objJson.set("charch_price", town->getTownBuildings().getPriceBuildings(0));
+		objJson.set("manufactory_id", 1);
+		objJson.set("manufactory_count", town->getTownBuildings().getCountBuildings(1));
+		objJson.set("manufactory_price", town->getTownBuildings().getPriceBuildings(1));
+		userJson.set("town", objJson);
+		std::ostringstream oss;
+		userJson.stringify(oss);
+		town->getOwnTown()->messagePool.pushBackMessage(oss.str());
+	}
+}
+
+std::vector<int> Game::createMap(int countUser)
+{
+	auto sizeMap = DimensionMap::detect(countUser);
+	auto posTowns = DimensionMap::placeTowns(countUser, sizeMap);
 	this->gameMap = std::make_unique<GameMap>(sizeMap);
 	return this->gameMap->placeTowns(posTowns);
 }

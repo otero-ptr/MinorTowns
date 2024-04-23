@@ -17,6 +17,7 @@ LobbyUpdateNotifier::~LobbyUpdateNotifier()
 void LobbyUpdateNotifier::subscribe(std::shared_ptr<User> user)
 {
 	this->subscribedUsers.insert(std::make_pair(user->getUUID(), user));
+	user->messagePool.pushBackMessage(this->lobbyList);
 }
 
 void LobbyUpdateNotifier::unsubscribe(std::shared_ptr<User> user)

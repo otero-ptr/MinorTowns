@@ -17,20 +17,20 @@ public:
 	const std::string getUUID();
 	bool isActive();
 	void buildBuildings(std::shared_ptr<User> user, int &buildingType);
+	std::string getMapJSON();
 private:
 	void tick();
-	void init();
 	void createUUID();
-	void createTowns(std::vector<int>& idTowns);
-	std::vector<int> createMap();
+	std::vector<int> createMap(int countUser);
+	void createTowns(std::vector<int>& idTowns, std::vector<std::shared_ptr<User>>& users);
+	
+	void notifyUsers();
 
-	std::vector<std::shared_ptr<User>> users;
-	std::string uuid;
-
-	std::unique_ptr<GameMap> gameMap;
 	std::vector<std::unique_ptr<Town>> towns;
+	std::unique_ptr<GameMap> gameMap;
 
 	bool active;
 	std::jthread thTick;
 	int tickCount = 0;
+	std::string uuid;
 };
