@@ -9,6 +9,7 @@
 LobbyManager::LobbyManager()
 {
 	this->refreshListLobby();
+	this->notifier = std::make_unique<LobbyUpdateNotifier>([this]() {return this->listLobby; });
 }
 
 LobbyManager::~LobbyManager()
@@ -42,11 +43,6 @@ void LobbyManager::leaveLobby(std::shared_ptr<User> user)
 	this->lobbies.at(user->getUUIDLocation())->leave(user);
 	user->setLocation(Location::MENU, "menu");
 	this->refreshListLobby();
-}
-
-const std::string LobbyManager::getListLobby()
-{
-	return this->listLobby;
 }
 
 bool LobbyManager::isLobbyFull(std::string uuidLobby)

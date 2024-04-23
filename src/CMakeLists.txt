@@ -68,6 +68,12 @@ set(LOBBY_MANAGER_FILES
 )
 list(APPEND SRC_FILES ${LOBBY_MANAGER_FILES})
 
+set(LOBBY_UPDATE_NOTIFIER_FILES
+    "Server/GameMinorTowns/LobbyManager/LobbyUpdateNotifier/LobbyUpdateNotifier.h"
+    "Server/GameMinorTowns/LobbyManager/LobbyUpdateNotifier/LobbyUpdateNotifier.cpp"
+)
+list(APPEND SRC_FILES ${LOBBY_UPDATE_NOTIFIER_FILES})
+
 set(LOBBY_FILES
     "Server/GameMinorTowns/LobbyManager/Lobby/Lobby.cpp"
     "Server/GameMinorTowns/LobbyManager/Lobby/Lobby.h"

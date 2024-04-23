@@ -69,8 +69,13 @@ MIDDLEWARE_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<Us
                 th.detach();
                 return MIDDLEWARE_STATUS::ST_OK;
             }
-            else if (actionTODO == "lobby_list" && user->getLocation() == Location::MENU) {
-                std::thread th(&GameMinorTowns::receiveLobbyList, this->gameMinorTowns, user);
+            else if (actionTODO == "subscribe_update_lobby" && user->getLocation() == Location::MENU) {
+                std::thread th(&GameMinorTowns::subscribeUpdateLobby, this->gameMinorTowns, user);
+                th.detach();
+                return MIDDLEWARE_STATUS::ST_OK;
+            }
+            else if (actionTODO == "unsubscribe_update_lobby" && user->getLocation() == Location::MENU) {
+                std::thread th(&GameMinorTowns::unsubscribeUpdateLobby, this->gameMinorTowns, user);
                 th.detach();
                 return MIDDLEWARE_STATUS::ST_OK;
             }
