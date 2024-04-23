@@ -14,11 +14,13 @@ public:
 	void joinLobby(std::string uuidLobby, std::shared_ptr<User> user);
 	void leaveLobby(std::shared_ptr<User> user);
 	bool isLobbyFull(std::string uuidLobby);
-	std::vector<std::shared_ptr<User>> getLobbyUsers(std::string uuidLobby);
 	void closeLobby(std::string uuidLobby);
+	std::vector<std::shared_ptr<User>> getLobbyUsers(std::string uuidLobby);
 	std::unique_ptr<LobbyUpdateNotifier> notifier;
 private:
 	void refreshListLobby();
 	std::string listLobby;
 	std::unordered_map<std::string, std::unique_ptr<Lobby>> lobbies;
+	bool active;
+	std::jthread thRefresher;
 };

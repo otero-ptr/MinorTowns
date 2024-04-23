@@ -8,12 +8,17 @@
 
 LobbyManager::LobbyManager()
 {
-	this->refreshListLobby();
+	this->active = true;
+	this->thRefresher = std::jthread(&LobbyManager::refreshListLobby, this);
 	this->notifier = std::make_unique<LobbyUpdateNotifier>([this]() {return this->listLobby; });
 }
 
 LobbyManager::~LobbyManager()
 {
+	this->active = false;
+	if (this->thRefresher.joinable()) {
+		this->thRefresher.join();
+	}
 }
 
 std::string LobbyManager::createLobby(int count)
@@ -21,7 +26,6 @@ std::string LobbyManager::createLobby(int count)
 	std::unique_ptr<Lobby> lobby = std::make_unique<Lobby>(count);
 	std::string uuid(lobby->getUUID());
 	this->lobbies.insert(std::make_pair(uuid, std::move(lobby)));
-	this->refreshListLobby();
 	return uuid;
 }
 
@@ -32,7 +36,6 @@ void LobbyManager::joinLobby(std::string uuidLobby, std::shared_ptr<User> user)
 	}
 	this->lobbies.at(uuidLobby)->join(user);
 	user->setLocation(Location::LOBBY, uuidLobby);
-	this->refreshListLobby();
 }
 
 void LobbyManager::leaveLobby(std::shared_ptr<User> user)
@@ -42,7 +45,6 @@ void LobbyManager::leaveLobby(std::shared_ptr<User> user)
 	}
 	this->lobbies.at(user->getUUIDLocation())->leave(user);
 	user->setLocation(Location::MENU, "menu");
-	this->refreshListLobby();
 }
 
 bool LobbyManager::isLobbyFull(std::string uuidLobby)
@@ -62,14 +64,17 @@ void LobbyManager::closeLobby(std::string uuidLobby)
 
 void LobbyManager::refreshListLobby()
 {
-	Poco::JSON::Array jsonArray;
-	Poco::JSON::Parser parser;
-	for (auto it = this->lobbies.begin(); it != this->lobbies.end(); ++it) {
-		Poco::Dynamic::Var result = parser.parse(it->second->getLobbyData());
-		Poco::JSON::Object::Ptr object = result.extract<Poco::JSON::Object::Ptr>();
-		jsonArray.add(object);
+	while (this->active) {
+		Poco::JSON::Array jsonArray;
+		Poco::JSON::Parser parser;
+		for (auto it = this->lobbies.begin(); it != this->lobbies.end(); ++it) {
+			Poco::Dynamic::Var result = parser.parse(it->second->getLobbyData());
+			Poco::JSON::Object::Ptr object = result.extract<Poco::JSON::Object::Ptr>();
+			jsonArray.add(object);
+		}
+		std::ostringstream oss;
+		Poco::JSON::Stringifier::stringify(jsonArray, oss);
+		this->listLobby = oss.str();
+		std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 	}
-	std::ostringstream oss;
-	Poco::JSON::Stringifier::stringify(jsonArray, oss);
-	this->listLobby = oss.str();
 }
