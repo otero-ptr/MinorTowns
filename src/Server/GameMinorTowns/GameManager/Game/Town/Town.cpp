@@ -68,6 +68,11 @@ const int Town::getID()
 	return this->id;
 }
 
+bool Town::operator<(const Town& other) const
+{
+	return this->economy.getNetWorth() < other.economy.getNetWorth();
+}
+
 void Town::BuildingsInit()
 {
 	this->buildings.setPriceBuildings(0, 70.0); //church

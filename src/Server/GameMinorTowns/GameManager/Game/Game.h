@@ -18,7 +18,7 @@ public:
 	bool isActive();
 	void buildBuildings(std::shared_ptr<User> user, int &buildingType);
 	std::string getMapJSON();
-private:
+//private:
 	void tick();
 	void createUUID();
 	std::vector<int> createMap(int countUser);
@@ -26,7 +26,7 @@ private:
 	
 	void notifyUsers();
 
-	std::vector<std::unique_ptr<Town>> towns;
+	std::vector<Town> towns;
 	std::unique_ptr<GameMap> gameMap;
 
 	bool active;

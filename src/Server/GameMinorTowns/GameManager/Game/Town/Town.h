@@ -17,6 +17,7 @@ public:
 	const Economy& getTownEconomy();
 	const Buildings& getTownBuildings();
 	const int getID();
+	bool operator<(const Town& other) const;
 private:
 	void BuildingsInit();
 	int capitalNode;
