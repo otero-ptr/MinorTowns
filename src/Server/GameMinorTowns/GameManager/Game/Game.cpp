@@ -109,15 +109,6 @@ void Game::notifyUsersTick()
 		objJson.set("town_id", town.getID());
 		objJson.set("username", town.getOwnTown()->getUsername());
 		objJson.set("networth", town.getTownEconomy().getNetWorth());
-		objJson.set("budget", town.getTownEconomy().getBudget());
-		objJson.set("multiplier", town.getTownEconomy().getMultiplier());
-		objJson.set("income", town.getTownEconomy().getTickIncome());
-		objJson.set("charch_id", 0);
-		objJson.set("charch_count", town.getTownBuildings().getCountBuildings(0));
-		objJson.set("charch_price", town.getTownBuildings().getPriceBuildings(0));
-		objJson.set("manufactory_id", 1);
-		objJson.set("manufactory_count", town.getTownBuildings().getCountBuildings(1));
-		objJson.set("manufactory_price", town.getTownBuildings().getPriceBuildings(1));
 		townsArr.add(objJson);
 	}
 	json.set("towns", townsArr);

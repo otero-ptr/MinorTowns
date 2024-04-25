@@ -92,6 +92,12 @@ set(GAME_FILES
 )
 list(APPEND SRC_FILES ${GAME_FILES})
 
+set(GAME_CONTROLLER_FILES
+    "Server/GameMinorTowns/GameManager/Game/GameController/GameController.h" 
+    "Server/GameMinorTowns/GameManager/Game/GameController/GameController.cpp"
+)
+list(APPEND SRC_FILES ${GAME_CONTROLLER_FILES})
+
 set(GAME_MAP_FILES
     "Server/GameMinorTowns/GameManager/Game/GameMap/GameMap.cpp"
     "Server/GameMinorTowns/GameManager/Game/GameMap/GameMap.h"
@@ -135,7 +141,7 @@ set(AUTH_VALIDATE_FILES
 list(APPEND SRC_FILES ${AUTH_VALIDATE_FILES})
 
 # Add source files to the executable
-add_executable(${PROJECT_NAME} ${SRC_FILES} "Server/GameMinorTowns/GameManager/Game/GameController/GameController.h" "Server/GameMinorTowns/GameManager/Game/GameController/GameController.cpp")
+add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 
 # Link Poco and ZLIB libraries to the executable
