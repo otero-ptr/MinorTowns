@@ -2,10 +2,11 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <thread>
 #include "GameMap/GameMap.h"
 #include "Town/Town.h"
-#include <thread>
-#include <cstdarg>	
+#include "GameController/GameController.h"
+
 
 class User;
 
@@ -18,16 +19,18 @@ public:
 	bool isActive();
 	void buildBuildings(std::shared_ptr<User> user, int &buildingType);
 	std::string getMapJSON();
-//private:
+private:
 	void tick();
 	void createUUID();
 	std::vector<int> createMap(int countUser);
 	void createTowns(std::vector<int>& idTowns, std::vector<std::shared_ptr<User>>& users);
 	
-	void notifyUsers();
+	void notifyUsersTick();
 
 	std::vector<Town> towns;
 	std::unique_ptr<GameMap> gameMap;
+
+	GameController gameController;
 
 	bool active;
 	std::jthread thTick;

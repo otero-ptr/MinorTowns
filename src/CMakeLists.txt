@@ -135,7 +135,7 @@ set(AUTH_VALIDATE_FILES
 list(APPEND SRC_FILES ${AUTH_VALIDATE_FILES})
 
 # Add source files to the executable
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+add_executable(${PROJECT_NAME} ${SRC_FILES} "Server/GameMinorTowns/GameManager/Game/GameController/GameController.h" "Server/GameMinorTowns/GameManager/Game/GameController/GameController.cpp")
 
 
 # Link Poco and ZLIB libraries to the executable

@@ -52,6 +52,13 @@ std::string Game::getMapJSON()
 void Game::tick()
 {
 	int cooldown = 5000;
+
+	// start zero tick
+	this->notifyUsersTick(); 
+	this->gameController.control(this->tickCount, this->towns);
+	std::this_thread::sleep_for(std::chrono::milliseconds(cooldown));
+	// end zero tick
+
 	while (this->active) {
 		auto start = std::chrono::steady_clock::now();
 		++tickCount;
@@ -61,7 +68,14 @@ void Game::tick()
 
 		std::sort(this->towns.rbegin(), this->towns.rend());
 
-		this->notifyUsers();
+		this->notifyUsersTick();
+
+		this->gameController.control(this->tickCount, this->towns);
+		
+		if (this->gameController.isGameEnd()) {
+			this->active = false;
+			break;
+		}
 
 		auto end = std::chrono::steady_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -84,7 +98,7 @@ void Game::createTowns(std::vector<int> &idTowns, std::vector<std::shared_ptr<Us
 	}
 }
 
-void Game::notifyUsers()
+void Game::notifyUsersTick()
 {
 	Poco::JSON::Object json;
 	Poco::JSON::Array townsArr;

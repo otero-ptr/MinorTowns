@@ -48,7 +48,7 @@ void Town::destroyBuilding(const int& buildingType)
 	}
 }
 
-std::shared_ptr<User> Town::getOwnTown()
+std::shared_ptr<User> Town::getOwnTown() const
 {
 	return this->own;
 }
@@ -63,7 +63,7 @@ const Buildings& Town::getTownBuildings()
 	return this->buildings;
 }
 
-const int Town::getID()
+const int Town::getID() const
 {
 	return this->id;
 }

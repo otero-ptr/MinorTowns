@@ -13,10 +13,10 @@ public:
 	void TownTickProcessing();
 	void buildBuilding(const int &buildingType);
 	void destroyBuilding(const int &buildingType);
-	std::shared_ptr<User> getOwnTown();
+	std::shared_ptr<User> getOwnTown() const;
 	const Economy& getTownEconomy();
 	const Buildings& getTownBuildings();
-	const int getID();
+	const int getID() const;
 	bool operator<(const Town& other) const;
 private:
 	void BuildingsInit();
