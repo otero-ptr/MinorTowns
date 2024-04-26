@@ -13,6 +13,7 @@ public:
 	void join(std::shared_ptr<User> user);
 	void leave(std::shared_ptr<User> user);
 	bool isFull();
+	bool isEmpty();
 	std::vector<std::shared_ptr<User>> getUsers();
 	const std::string getUUID();
 	const int getNowUsers();

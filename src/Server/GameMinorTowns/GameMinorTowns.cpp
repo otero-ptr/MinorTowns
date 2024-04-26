@@ -28,7 +28,11 @@ void GameMinorTowns::joinLobby(std::shared_ptr<User> user,const std::string uuid
 
 void GameMinorTowns::leaveLobby(std::shared_ptr<User> user)
 {
+	std::string uuidTemp = user->getUUIDLocation();
 	this->lobbyManager->leaveLobby(user);
+	if (this->lobbyManager->isLobbyEmpty(uuidTemp)) {
+		this->lobbyManager->closeLobby(uuidTemp);
+	}
 }
 
 void GameMinorTowns::buildBuildings(std::shared_ptr<User> user, int buildingType)

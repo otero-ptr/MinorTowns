@@ -52,6 +52,11 @@ bool LobbyManager::isLobbyFull(std::string uuidLobby)
 	return this->lobbies.at(uuidLobby)->isFull();
 }
 
+bool LobbyManager::isLobbyEmpty(std::string uuidLobby)
+{
+	return this->lobbies.at(uuidLobby)->isEmpty();
+}
+
 std::vector<std::shared_ptr<User>> LobbyManager::getLobbyUsers(std::string uuidLobby)
 {
 	return std::move(this->lobbies.at(uuidLobby)->getUsers());

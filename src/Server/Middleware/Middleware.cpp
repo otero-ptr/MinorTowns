@@ -64,7 +64,7 @@ MIDDLEWARE_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<Us
                 user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
                 return MIDDLEWARE_STATUS::ST_ERROR;
             } 
-            else if (actionTODO == "leave_Lobby" && user->getLocation() == Location::LOBBY) {
+            else if (actionTODO == "leave_lobby" && user->getLocation() == Location::LOBBY) {
                 std::thread th(&GameMinorTowns::leaveLobby, this->gameMinorTowns, user);
                 th.detach();
                 return MIDDLEWARE_STATUS::ST_OK;
