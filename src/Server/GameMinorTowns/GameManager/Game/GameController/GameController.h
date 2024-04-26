@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GameMinorTowns\GameManager\Game\Town\Town.h"
 
 class GameController {

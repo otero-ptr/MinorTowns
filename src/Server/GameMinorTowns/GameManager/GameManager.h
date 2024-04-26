@@ -14,5 +14,9 @@ public:
 	void getGame() {}
 	void buildBuildings(std::shared_ptr<User> user, int& buildingType);
 private:
+	void CollectorEndedGames();
 	std::unordered_map<std::string, std::unique_ptr<Game>> games;
+
+	bool active;
+	std::jthread thCollector;
 };

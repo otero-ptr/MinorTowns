@@ -1,11 +1,18 @@
 #include "GameManager.h"
+#include <iostream>
 
 GameManager::GameManager()
 {
+	this->active = true;
+	this->thCollector = std::jthread(&GameManager::CollectorEndedGames, this);
 }
 
 GameManager::~GameManager()
 {
+	this->active = false;
+	if (this->thCollector.joinable()) {
+		this->thCollector.join();
+	}
 }
 
 void GameManager::createGame(std::vector<std::shared_ptr<User>> users)
@@ -24,4 +31,21 @@ void GameManager::createGame(std::vector<std::shared_ptr<User>> users)
 void GameManager::buildBuildings(std::shared_ptr<User> user, int& buildingType)
 {
 	this->games[user->getUUIDLocation()]->buildBuildings(user, buildingType);
+}
+
+void GameManager::CollectorEndedGames()
+{
+	while (this->active) {
+		for (auto it = this->games.begin(); it != this->games.end();)
+		{
+			if (!it->second->isActive())
+			{
+				it = this->games.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+		std::this_thread::sleep_for(std::chrono::seconds(30));
+	}
 }

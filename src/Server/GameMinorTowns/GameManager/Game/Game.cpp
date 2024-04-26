@@ -73,6 +73,9 @@ void Game::tick()
 		this->gameController.control(this->tickCount, this->towns);
 		
 		if (this->gameController.isGameEnd()) {
+			for (auto& town : this->towns) {
+				town.getOwnTown()->setLocation(Location::MENU, "menu");
+			}
 			this->active = false;
 			break;
 		}

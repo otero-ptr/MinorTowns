@@ -32,8 +32,9 @@ private:
 
 	GameController gameController;
 
+	int tickCount = 0;
 	bool active;
 	std::jthread thTick;
-	int tickCount = 0;
+
 	std::string uuid;
 };
