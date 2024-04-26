@@ -15,7 +15,7 @@ public:
 	Middleware(std::shared_ptr<GameMinorTowns> game);
 	~Middleware();
 
-	std::shared_ptr<User> Authorization(std::string username, std::string address, unsigned short port);
+	std::shared_ptr<User> authorization(std::string username, std::string address, unsigned short port);
 	MIDDLEWARE_STATUS action(std::string jsonMessage, std::shared_ptr<User> user);
 	MIDDLEWARE_STATUS disconnect(std::shared_ptr<User> user);
 private:

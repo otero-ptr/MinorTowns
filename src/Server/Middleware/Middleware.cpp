@@ -13,7 +13,7 @@ Middleware::~Middleware()
 {
 }
 
-std::shared_ptr<User> Middleware::Authorization(std::string username, std::string address, unsigned short port)
+std::shared_ptr<User> Middleware::authorization(std::string username, std::string address, unsigned short port)
 {
     if (this->authValidate.checkUsername(username)) {
         return nullptr;
@@ -106,6 +106,8 @@ MIDDLEWARE_STATUS Middleware::disconnect(std::shared_ptr<User> user)
 {
     auto location = user->getLocation();
     if (location == Location::MENU) {
+        std::thread th(&GameMinorTowns::unsubscribeUpdateLobby, this->gameMinorTowns, user);
+        th.detach();
         return MIDDLEWARE_STATUS::ST_OK;
     }
     else if (location == Location::LOBBY) {

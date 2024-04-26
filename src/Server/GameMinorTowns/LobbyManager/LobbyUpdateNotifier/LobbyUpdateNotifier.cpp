@@ -22,7 +22,10 @@ void LobbyUpdateNotifier::subscribe(std::shared_ptr<User> user)
 
 void LobbyUpdateNotifier::unsubscribe(std::shared_ptr<User> user)
 {
-	this->subscribedUsers.erase(user->getUUID());
+	auto it = this->subscribedUsers.find(user->getUUID());
+	if (it != this->subscribedUsers.end()) {
+		this->subscribedUsers.erase(user->getUUID());
+	}
 }
 
 void LobbyUpdateNotifier::notify()

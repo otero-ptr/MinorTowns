@@ -39,7 +39,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 		BetterWebSocket bws(Poco::Net::WebSocket(request, response), 15);
 		msg = params.begin()->second;
 		if (!msg.empty()) {
-			user = this->middlewareServer->Authorization(msg, request.clientAddress().host().toString(), request.clientAddress().port());
+			user = this->middlewareServer->authorization(msg, request.clientAddress().host().toString(), request.clientAddress().port());
 			if (user == nullptr) {
 				bws.sendFrame(msg3, Poco::Net::WebSocket::FRAME_TEXT, timeout);
 				bws.close();
@@ -74,7 +74,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 			sendThreadRun = false;
 			sendThread.join();
 		}
-		user->getLocation();
+		this->middlewareServer->disconnect(user);
 		bws.close();
 		std::cout << "WebSocket connection closed." << std::endl;
 	}
