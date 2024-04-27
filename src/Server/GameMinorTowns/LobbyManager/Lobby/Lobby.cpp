@@ -25,7 +25,7 @@ void Lobby::join(std::shared_ptr<User> user)
 			this->users.push_back(user);
 		}
 		this->createLobbyData();
-		user->messagePool.pushBackMessage(this->lobbyData);
+		this->notifyAllUsers();
 	}
 }
 
@@ -36,6 +36,7 @@ void Lobby::leave(std::shared_ptr<User> user)
 		this->users.erase(it);
 	}
 	this->createLobbyData();
+	this->notifyAllUsers();
 }
 
 bool Lobby::isFull()
@@ -89,4 +90,11 @@ void Lobby::createUUID()
 	Poco::UUIDGenerator generator;
 	Poco::UUID uuid = generator.create();
 	this->uuid = uuid.toString();
+}
+
+void Lobby::notifyAllUsers()
+{
+	for (auto& user : this->users) {
+		user->messagePool.pushBackMessage(this->lobbyData);
+	}
 }

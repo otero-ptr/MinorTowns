@@ -23,6 +23,8 @@ public:
 private:
 	void createLobbyData();
 	void createUUID();
+
+	void notifyAllUsers();
 	int maxUser;
 	std::vector<std::shared_ptr<User>> users;
 
