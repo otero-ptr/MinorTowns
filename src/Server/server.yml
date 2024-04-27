@@ -1,0 +1,16 @@
+server:
+  port: 8080
+  max_clients: 100
+  
+client:
+  cors: "http://localhost:3000"
+  timeout_response: 15000 #milliseconds
+  repeat_request: 250 #milliseconds
+    
+max_users: 4 
+  
+manager:
+  lobby:
+    refresher: 3000 #milliseconds
+  game:
+    collector: 30000 #milliseconds

@@ -6,6 +6,7 @@
 #include "GameMap/GameMap.h"
 #include "Town/Town.h"
 #include "GameController/GameController.h"
+#include "GameSettings/GameSettings.h"
 
 
 class User;
@@ -32,8 +33,11 @@ private:
 
 	GameController gameController;
 
+	GameSettings *gameSettings;
+
 	int tickCount = 0;
 	bool active;
+	int cooldownTick;
 	std::jthread thTick;
 
 	std::string uuid;

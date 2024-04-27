@@ -8,7 +8,8 @@ class User;
 
 class GameManager {
 public:
-	GameManager();
+	GameManager() = delete;
+	GameManager(int cooldownCollector);
 	~GameManager();
 	void createGame(std::vector<std::shared_ptr<User>> users);
 	void getGame() {}
@@ -17,6 +18,7 @@ private:
 	void CollectorEndedGames();
 	std::unordered_map<std::string, std::unique_ptr<Game>> games;
 
+	int cooldownCollector;
 	bool active;
 	std::jthread thCollector;
 };

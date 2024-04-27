@@ -1,5 +1,10 @@
 #include "Buildings.h"
 
+Buildings::Buildings(double priceIncrease)
+{
+	this->priceIncrease = priceIncrease;
+}
+
 void Buildings::build(const int& type)
 {
 	if (type == TypeBuilding::Church) {
@@ -43,13 +48,15 @@ int Buildings::getCountBuildings(const int& type) const
 	return -1;
 }
 
-void Buildings::setPriceBuildings(const int& type, double value)
+void Buildings::setPriceBuildings(const int& type, double value, double modifier)
 {
 	if (type == TypeBuilding::Church) {
 		this->priceChurch = value;
+		this->modifierChurch = modifier;
 	}
 	else if (type == TypeBuilding::Manufactory) {
 		this->priceManufactory = value;
+		this->modifierManufactory = modifier;
 	}
 }
 
@@ -61,4 +68,19 @@ double Buildings::getPriceBuildings(const int& type) const
 	else if (type == TypeBuilding::Manufactory) {
 		return this->priceManufactory;
 	}
+}
+
+double Buildings::getModifierBuildings(const int& type) const
+{
+	if (type == TypeBuilding::Church) {
+		return this->modifierChurch;
+	}
+	else if (type == TypeBuilding::Manufactory) {
+		return this->modifierManufactory;
+	}
+}
+
+double Buildings::getPriceIncrease() const
+{
+	return this->priceIncrease;
 }

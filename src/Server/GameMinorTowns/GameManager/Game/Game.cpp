@@ -9,9 +9,12 @@
 
 Game::Game(std::vector<std::shared_ptr<User>> users)
 {
+	this->gameSettings = new GameSettings;
 	this->createUUID();
 	std::vector<int> idTowns = this->createMap(users.size());
 	this->createTowns(idTowns, users);
+	this->cooldownTick = this->gameSettings->cooldownTick;
+	delete this->gameSettings;
 	this->active = true;
 	this->thTick = std::jthread(&Game::tick, this);
 }
@@ -51,12 +54,10 @@ std::string Game::getMapJSON()
 
 void Game::tick()
 {
-	int cooldown = 5000;
-
 	// start zero tick
 	this->notifyUsersTick(); 
 	this->gameController.control(this->tickCount, this->towns);
-	std::this_thread::sleep_for(std::chrono::milliseconds(cooldown));
+	std::this_thread::sleep_for(std::chrono::milliseconds(this->cooldownTick));
 	// end zero tick
 
 	while (this->active) {
@@ -83,7 +84,7 @@ void Game::tick()
 		auto end = std::chrono::steady_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(cooldown - duration.count()));
+		std::this_thread::sleep_for(std::chrono::milliseconds(this->cooldownTick - duration.count()));
 	}
 }
 
@@ -96,8 +97,16 @@ void Game::createUUID()
 void Game::createTowns(std::vector<int> &idTowns, std::vector<std::shared_ptr<User>> &users)
 {
 	this->towns.reserve(users.size());
+	
+	Economy townEconomy(this->gameSettings->economy.startBudget,
+		this->gameSettings->economy.startIncome,
+		this->gameSettings->economy.startMultiplier);
+	Buildings townBuildings(this->gameSettings->buildings.priceIncrease);
+	townBuildings.setPriceBuildings(0, this->gameSettings->buildings.priceChurch, this->gameSettings->buildings.modifierChurch); //church
+	townBuildings.setPriceBuildings(1, this->gameSettings->buildings.priceManufactory, this->gameSettings->buildings.modifierManufactory); //manufactory
+
 	for (int i = 0; i < users.size(); i++) {
-		this->towns.emplace_back(i, users[i], idTowns[i]);
+		this->towns.emplace_back(i, users[i], idTowns[i], townEconomy, townBuildings);
 	}
 }
 

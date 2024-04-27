@@ -20,7 +20,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 		std::string msg;
 		int flags;
 		bool timeout = false;
-		response.set("Access-Control-Allow-Origin", "http://localhost:3000"); // cross for dev test for client react
+		response.set("Access-Control-Allow-Origin", *this->cors);
 		Poco::URI uri(request.getURI());
 		Poco::URI::QueryParameters params = uri.getQueryParameters();
 		if (params.size() != 1) {
@@ -36,7 +36,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 			return;
 		}
 		std::cout << "WebSocket connection established." << std::endl;
-		BetterWebSocket bws(Poco::Net::WebSocket(request, response), 15);
+		BetterWebSocket bws(Poco::Net::WebSocket(request, response), *this->timeoutResponse);
 		msg = params.begin()->second;
 		if (!msg.empty()) {
 			user = this->middlewareServer->authorization(msg, request.clientAddress().host().toString(), request.clientAddress().port());
@@ -51,13 +51,13 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 			}
 		}
 		bool sendThreadRun = true;
-		std::jthread sendThread([&user, &bws, &sendThreadRun]() {
+		std::jthread sendThread([&user, &bws, &sendThreadRun, repeatRequest = this->repeatRequest]() {
 				bool timeout = false;
 				do {
 					if (!user->messagePool.isEmpty()) {
 						bws.sendFrame(user->messagePool.popFrontMessage(), Poco::Net::WebSocket::FRAME_TEXT, timeout);
 					}
-					std::this_thread::sleep_for(std::chrono::milliseconds(250));
+					std::this_thread::sleep_for(std::chrono::milliseconds(*repeatRequest));
 				} while (sendThreadRun);
 			});
 
@@ -99,5 +99,5 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 
 Poco::Net::HTTPRequestHandler* WebSocketRequestHandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest& request)
 {
-	return new WebSocketRequestHandler(this->middlewareServer);
+	return new WebSocketRequestHandler(this->middlewareServer, this->cors, this->repeatRequest, this->timeoutResponse);
 }

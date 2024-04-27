@@ -1,0 +1,1 @@
+configure_file(game.yml ${CMAKE_BINARY_DIR}/src/game.yml COPYONLY)

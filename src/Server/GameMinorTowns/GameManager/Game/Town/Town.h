@@ -7,7 +7,7 @@
 class Town {
 public:
 	Town() = delete;
-	Town(int townId, std::shared_ptr<User> user, int capitalNode);
+	Town(int townId, std::shared_ptr<User> user, int capitalNode, Economy economy, Buildings buildings);
 	~Town();
 	const int getCapitalNodeId();
 	void TownTickProcessing();
@@ -19,7 +19,6 @@ public:
 	const int getID() const;
 	bool operator<(const Town& other) const;
 private:
-	void BuildingsInit();
 	int capitalNode;
 	int id;
 	Economy economy;

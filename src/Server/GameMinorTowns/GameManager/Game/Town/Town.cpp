@@ -1,11 +1,10 @@
 #include "Town.h"
 
-Town::Town(int townId, std::shared_ptr<User> user, int capitalNode) : economy(100.0, 10.0)
+Town::Town(int townId, std::shared_ptr<User> user, int capitalNode, Economy economy, Buildings buildings) : economy(economy), buildings(buildings)
 {
 	this->id = townId;
 	this->own = user;
 	this->capitalNode = capitalNode;
-	this->BuildingsInit();
 }
 
 Town::~Town()
@@ -28,12 +27,12 @@ void Town::buildBuilding(const int& buildingType)
 		if (this->economy.getBudget() >= this->buildings.getPriceBuildings(buildingType)) {
 			this->economy.expenseBuild(this->buildings.getPriceBuildings(buildingType));
 			this->buildings.build(buildingType);
-			this->buildings.setPriceBuildings(buildingType, this->buildings.getPriceBuildings(buildingType) + this->buildings.getPriceBuildings(buildingType) / 2); // first price + first price / 2
+			this->buildings.setPriceBuildings(buildingType, this->buildings.getPriceBuildings(buildingType) * this->buildings.getPriceIncrease(), this->buildings.getModifierBuildings(buildingType));
 			if (buildingType == TypeBuilding::Church) {
-				this->economy.setMultiplier(1.0 + this->buildings.getCountBuildings(TypeBuilding::Church) * 0.1); // church multiplier 0.1
+				this->economy.setMultiplier(this->economy.getMultiplier() + this->buildings.getCountBuildings(TypeBuilding::Church) * this->buildings.getModifierBuildings(buildingType)); // church multiplier 0.1
 			}
 			else if (buildingType == TypeBuilding::Manufactory) {
-				this->economy.setTickIncome(this->economy.getTickIncome() + 10); // manufactory income 10
+				this->economy.setTickIncome(this->economy.getTickIncome() + this->buildings.getModifierBuildings(buildingType)); // manufactory income 10
 			}
 		}
 	}
@@ -71,10 +70,4 @@ const int Town::getID() const
 bool Town::operator<(const Town& other) const
 {
 	return this->economy.getNetWorth() < other.economy.getNetWorth();
-}
-
-void Town::BuildingsInit()
-{
-	this->buildings.setPriceBuildings(0, 70.0); //church
-	this->buildings.setPriceBuildings(1, 30.0); //manufactory
 }

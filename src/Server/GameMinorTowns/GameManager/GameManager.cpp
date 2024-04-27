@@ -1,8 +1,9 @@
 #include "GameManager.h"
 #include <iostream>
 
-GameManager::GameManager()
+GameManager::GameManager(int cooldownCollector)
 {
+	this->cooldownCollector = cooldownCollector;
 	this->active = true;
 	this->thCollector = std::jthread(&GameManager::CollectorEndedGames, this);
 }
@@ -46,6 +47,6 @@ void GameManager::CollectorEndedGames()
 				++it;
 			}
 		}
-		std::this_thread::sleep_for(std::chrono::seconds(30));
+		std::this_thread::sleep_for(std::chrono::seconds(this->cooldownCollector));
 	}
 }

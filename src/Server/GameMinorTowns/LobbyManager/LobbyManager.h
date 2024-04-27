@@ -8,7 +8,8 @@
 
 class LobbyManager {
 public:
-	LobbyManager();
+	LobbyManager() = delete;
+	LobbyManager(int cooldownRefresher);
 	~LobbyManager();
 	std::string createLobby(int count);
 	void joinLobby(std::string uuidLobby, std::shared_ptr<User> user);
@@ -23,5 +24,6 @@ private:
 	std::string listLobby;
 	std::unordered_map<std::string, std::unique_ptr<Lobby>> lobbies;
 	bool active;
+	int cooldownRefresher;
 	std::jthread thRefresher;
 };

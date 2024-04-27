@@ -4,11 +4,12 @@
 
 # Find and include Poco
 find_package(Poco REQUIRED COMPONENTS Foundation Net Util JSON)
-include_directories(${Poco_INCLUDE_DIRS})
 
 # Find and include ZLIB
 find_package(ZLIB REQUIRED)
-include_directories(${ZLIB_INCLUDE_DIRS})
+
+# Find and include YAML CPP
+find_package(yaml-cpp REQUIRED)
 
 include_directories(Server/)
 
@@ -92,6 +93,12 @@ set(GAME_FILES
 )
 list(APPEND SRC_FILES ${GAME_FILES})
 
+set(GAME_SETTINGS_FILES
+    "Server/GameMinorTowns/GameManager/Game/GameSettings/GameSettings.h" 
+    "Server/GameMinorTowns/GameManager/Game/GameSettings/GameSettings.cpp"
+)
+list(APPEND SRC_FILES ${GAME_SETTINGS_FILES})
+
 set(GAME_CONTROLLER_FILES
     "Server/GameMinorTowns/GameManager/Game/GameController/GameController.h" 
     "Server/GameMinorTowns/GameManager/Game/GameController/GameController.cpp"
@@ -145,7 +152,7 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 
 # Link Poco and ZLIB libraries to the executable
-target_link_libraries(${PROJECT_NAME} PUBLIC ${Poco_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${Poco_LIBRARIES} ${ZLIB_LIBRARIES} ${YAML_CPP_LIBRARIES})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET MinorTowns PROPERTY CXX_STANDARD 20)

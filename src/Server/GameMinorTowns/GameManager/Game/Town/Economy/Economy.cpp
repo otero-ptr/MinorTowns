@@ -1,9 +1,10 @@
 #include "Economy.h"
 
-Economy::Economy(double startBudget, double tickIncome)
+Economy::Economy(double startBudget, double tickIncome, double startMultiplier)
 {
 	this->income(startBudget);
 	this->tickIncome = tickIncome;
+	this->setMultiplier(startMultiplier);
 }
 
 Economy::~Economy()

@@ -1,19 +1,19 @@
 #include "GameMinorTowns.h"
 #include "User\User.h"
 
-GameMinorTowns::GameMinorTowns()
+GameMinorTowns::GameMinorTowns(int maxUsers, int cooldownCollector, int cooldownRefresher)
 {
-	this->gameManager = std::make_unique<GameManager>();
-	this->lobbyManager = std::make_unique<LobbyManager>();
+	this->maxUsers = maxUsers;
+	this->gameManager = std::make_unique<GameManager>(cooldownCollector);
+	this->lobbyManager = std::make_unique<LobbyManager>(cooldownRefresher);
 }
 
-void GameMinorTowns::createLobby(std::shared_ptr<User> user,const int maxUsers)
+void GameMinorTowns::createLobby(std::shared_ptr<User> user,const int maxGameUsers)
 {
-	if (maxUsers > 4 || maxUsers < 2) {
-		user->messagePool.pushBackMessage("only 2-4 users");
+	if (maxGameUsers > this->maxUsers || maxGameUsers < 2) {
 		return;
 	}
-	std::string uuidLobby = this->lobbyManager->createLobby(maxUsers);
+	std::string uuidLobby = this->lobbyManager->createLobby(maxGameUsers);
 	this->lobbyManager->joinLobby(uuidLobby, user);
 }
 

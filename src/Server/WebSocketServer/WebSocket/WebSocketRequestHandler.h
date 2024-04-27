@@ -12,16 +12,27 @@ class Middleware;
 
 class WebSocketRequestHandler : public Poco::Net::HTTPRequestHandler {
 public:
-    WebSocketRequestHandler(std::shared_ptr<Middleware> middleware) : middlewareServer(middleware) {}
+    WebSocketRequestHandler(std::shared_ptr<Middleware> middleware,const std::string &cors,const int &repeatRequest,const int &timeoutResponse) : middlewareServer(middleware) {
+        this->cors = &cors;
+        this->repeatRequest = &repeatRequest;
+        this->timeoutResponse = &timeoutResponse;
+    }
     void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 private:
+    const std::string *cors;
+    const int *repeatRequest;
+    const int *timeoutResponse;
     std::shared_ptr<Middleware> middlewareServer;
 };
 
 class WebSocketRequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory {
 public:
-    WebSocketRequestHandlerFactory(std::shared_ptr<Middleware> middleware) : middlewareServer(middleware) {}
+    WebSocketRequestHandlerFactory(std::shared_ptr<Middleware> middleware, std::string cors, int repeatRequest, int timeoutResponse) : middlewareServer(middleware),
+        cors(cors), repeatRequest(repeatRequest), timeoutResponse(timeoutResponse) {}
     Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest& request);
 private:
+    std::string cors;
+    int repeatRequest;
+    int timeoutResponse;
     std::shared_ptr<Middleware> middlewareServer;
 };

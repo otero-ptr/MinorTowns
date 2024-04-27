@@ -3,7 +3,7 @@
 class Economy {
 public:
 	Economy() = delete;
-	Economy(double startBudget = 0.0, double tickIncome = 0.0);
+	Economy(double startBudget = 0.0, double tickIncome = 0.0, double startMultiplier = 0.0);
 	~Economy();
 	const double getBudget() const;
 	const double getNetWorth() const;
@@ -17,5 +17,5 @@ private:
 	double budget;
 	double netWorth;
 	double tickIncome;
-	double multiplier = 1.0;
+	double multiplier;
 };

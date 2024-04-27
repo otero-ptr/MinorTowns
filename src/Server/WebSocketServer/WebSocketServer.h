@@ -5,6 +5,7 @@
 
 class Middleware;
 
+
 class WebSocketServer {
 public:
 	WebSocketServer() = delete;
@@ -12,6 +13,7 @@ public:
 	~WebSocketServer();
 	void run();
 	void setMiddleware(std::shared_ptr<Middleware> middleware);
+	void setClientSettings(std::string cors, int repeatRequest, int timeoutResponse);
 private:
 	void runServer();
 	bool running;
@@ -20,5 +22,8 @@ private:
 	int port;
 	int maxThreads;
 
+	std::string cors;
+	int repeatRequest; 
+	int timeoutResponse;
 	std::shared_ptr<Middleware> middlewareServer;
 };

@@ -6,11 +6,12 @@
 #include "Poco/JSON/Stringifier.h"
 #include "Poco/Dynamic/Var.h"
 
-LobbyManager::LobbyManager()
+LobbyManager::LobbyManager(int cooldownRefresher)
 {
+	this->cooldownRefresher = cooldownRefresher;
 	this->active = true;
 	this->thRefresher = std::jthread(&LobbyManager::refreshListLobby, this);
-	this->notifier = std::make_unique<LobbyUpdateNotifier>([this]() {return this->listLobby; });
+	this->notifier = std::make_unique<LobbyUpdateNotifier>([this]() { return this->listLobby; });
 }
 
 LobbyManager::~LobbyManager()
@@ -80,6 +81,6 @@ void LobbyManager::refreshListLobby()
 		std::ostringstream oss;
 		Poco::JSON::Stringifier::stringify(jsonArray, oss);
 		this->listLobby = oss.str();
-		std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(this->cooldownRefresher));
 	}
 }

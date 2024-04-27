@@ -1,0 +1,16 @@
+game:
+  max_tick: 240
+  repeat_tick: 60
+  tick_cooldown: 5000 #milliseconds  
+    
+  economy:
+    start_budget: 100.0
+    start_income: 10.0
+    start_multiplier: 1.0
+      
+  buildings:
+    price_increase: 1.5
+    price_church: 70 #type 0
+    price_manufactory: 30 #type 1
+    modifier_church: 0.1
+    modifier_manufactory: 10

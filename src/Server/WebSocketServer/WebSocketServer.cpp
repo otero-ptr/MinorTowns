@@ -33,12 +33,19 @@ void WebSocketServer::setMiddleware(std::shared_ptr<Middleware> middleware)
     this->middlewareServer = middleware;
 }
 
+void WebSocketServer::setClientSettings(std::string cors, int repeatRequest, int timeoutResponse)
+{
+    this->cors = cors;
+    this->repeatRequest = repeatRequest;
+    this->timeoutResponse = timeoutResponse;
+}
+
 void WebSocketServer::runServer()
 {
     Poco::Net::HTTPServerParams* params = new Poco::Net::HTTPServerParams;
     params->setMaxThreads(this->maxThreads);
     Poco::Net::ServerSocket svs(this->port);
-    Poco::Net::HTTPServer srv(new WebSocketRequestHandlerFactory(this->middlewareServer), svs, params);
+    Poco::Net::HTTPServer srv(new WebSocketRequestHandlerFactory(this->middlewareServer, this->cors, this->repeatRequest, this->timeoutResponse), svs, params);
     srv.start();
     std::cout << "Server started" << std::endl;
     std::cout << "Press Ctrl-C to stop the server" << std::endl;
