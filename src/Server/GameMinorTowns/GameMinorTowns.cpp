@@ -49,3 +49,12 @@ void GameMinorTowns::unsubscribeUpdateLobby(std::shared_ptr<User> user)
 {
 	this->lobbyManager->notifier->unsubscribe(user);
 }
+
+void GameMinorTowns::raiseArmy(std::shared_ptr<User> user, int countSoldiers)
+{
+	this->gameManager->getGame();
+}
+
+void GameMinorTowns::disbandArmy(std::shared_ptr<User> user, int countSoldiers)
+{
+}

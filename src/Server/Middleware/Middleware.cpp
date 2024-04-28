@@ -91,6 +91,30 @@ MIDDLEWARE_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<Us
                 user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
                 return MIDDLEWARE_STATUS::ST_ERROR;
             }
+            else if (actionTODO == "raise_army" && user->getLocation() == Location::GAME) {
+                if (jsonObj->has("params")) {
+                    Poco::JSON::Object::Ptr paramsObject = jsonObj->getObject("params");
+                    if (paramsObject->has("soldiers")) {
+                        std::thread th(&GameMinorTowns::raiseArmy, this->gameMinorTowns, user, paramsObject->getValue<int>("soldiers"));
+                        th.detach();
+                        return MIDDLEWARE_STATUS::ST_OK;
+                    }
+                }
+                user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
+                return MIDDLEWARE_STATUS::ST_ERROR;
+            }
+            else if (actionTODO == "disband_army" && user->getLocation() == Location::GAME) {
+                if (jsonObj->has("params")) {
+                    Poco::JSON::Object::Ptr paramsObject = jsonObj->getObject("params");
+                    if (paramsObject->has("soldiers")) {
+                        std::thread th(&GameMinorTowns::disbandArmy, this->gameMinorTowns, user, paramsObject->getValue<int>("soldiers"));
+                        th.detach();
+                        return MIDDLEWARE_STATUS::ST_OK;
+                    }
+                }
+                user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
+                return MIDDLEWARE_STATUS::ST_ERROR;
+            }
         }
         else {
             return MIDDLEWARE_STATUS::ST_ERROR;

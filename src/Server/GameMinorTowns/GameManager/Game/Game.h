@@ -5,6 +5,7 @@
 #include <thread>
 #include "GameMap/GameMap.h"
 #include "Town/Town.h"
+#include "Army/Army.h"
 #include "GameController/GameController.h"
 #include "GameSettings/GameSettings.h"
 
@@ -19,6 +20,8 @@ public:
 	const std::string getUUID();
 	bool isActive();
 	void buildBuildings(std::shared_ptr<User> user, int &buildingType);
+	void raiseArmy(std::shared_ptr<User> user, int &countSoldiers);
+	void disbandArmy(std::shared_ptr<User> user, int &countSoldiers);
 	std::string getMapJSON();
 private:
 	void tick();
@@ -29,6 +32,9 @@ private:
 	void notifyUsersTick();
 
 	std::vector<Town> towns;
+
+	std::vector<Army> armies;
+
 	std::unique_ptr<GameMap> gameMap;
 
 	GameController gameController;

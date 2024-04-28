@@ -13,6 +13,7 @@ Game::Game(std::vector<std::shared_ptr<User>> users)
 	this->createUUID();
 	std::vector<int> idTowns = this->createMap(users.size());
 	this->createTowns(idTowns, users);
+
 	this->cooldownTick = this->gameSettings->cooldownTick;
 	delete this->gameSettings;
 	this->active = true;
@@ -44,6 +45,36 @@ void Game::buildBuildings(std::shared_ptr<User> user, int& buildingType)
 			town.buildBuilding(buildingType);
 			break;
 		}
+	}
+}
+
+void Game::raiseArmy(std::shared_ptr<User> user, int& countSoldiers)
+{
+	if (countSoldiers > 0) {
+		for (int i = 0; i < this->towns.size(); ++i) {
+			if (this->towns[i].getOwnTown() == user) {
+				this->armies[i].merge(countSoldiers);
+				break;
+			}
+		}
+	}
+	else {
+		throw std::invalid_argument("The value cannot be less than 1.");
+	}
+}
+
+void Game::disbandArmy(std::shared_ptr<User> user, int& countSoldiers)
+{
+	if (countSoldiers > 0) {
+		for (int i = 0; i < this->towns.size(); ++i) {
+			if (this->towns[i].getOwnTown() == user) {
+				this->armies[i].merge(countSoldiers);
+				break;
+			}
+		}
+	}
+	else {
+		throw std::invalid_argument("The value cannot be less than 1.");
 	}
 }
 
@@ -97,6 +128,7 @@ void Game::createUUID()
 void Game::createTowns(std::vector<int> &idTowns, std::vector<std::shared_ptr<User>> &users)
 {
 	this->towns.reserve(users.size());
+	this->armies.reserve(users.size());
 	
 	Economy townEconomy(this->gameSettings->economy.startBudget,
 		this->gameSettings->economy.startIncome,
@@ -107,6 +139,7 @@ void Game::createTowns(std::vector<int> &idTowns, std::vector<std::shared_ptr<Us
 
 	for (int i = 0; i < users.size(); i++) {
 		this->towns.emplace_back(i, users[i], idTowns[i], townEconomy, townBuildings);
+		this->armies.emplace_back(0, idTowns[i]);
 	}
 }
 
@@ -116,11 +149,13 @@ void Game::notifyUsersTick()
 	Poco::JSON::Array townsArr;
 	json.set("tick", this->tickCount);
 	json.set("uuid", this->uuid);
-	for (auto& town : this->towns) {
+	for (int it = 0; it < this->towns.size(); ++it) {
 		Poco::JSON::Object objJson;
-		objJson.set("town_id", town.getID());
-		objJson.set("username", town.getOwnTown()->getUsername());
-		objJson.set("networth", town.getTownEconomy().getNetWorth());
+		objJson.set("town_id", this->towns[it].getID());
+		objJson.set("username", this->towns[it].getOwnTown()->getUsername());
+		objJson.set("networth", this->towns[it].getTownEconomy().getNetWorth());
+		objJson.set("soldiers", this->armies[it].getCount());
+		objJson.set("node_army", this->armies[it].getNode());
 		townsArr.add(objJson);
 	}
 	json.set("towns", townsArr);

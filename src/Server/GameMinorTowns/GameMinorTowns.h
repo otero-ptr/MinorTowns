@@ -15,6 +15,9 @@ public:
 	void buildBuildings(std::shared_ptr<User> user, int buildingType);
 	void subscribeUpdateLobby(std::shared_ptr<User> user);
 	void unsubscribeUpdateLobby(std::shared_ptr<User> user);
+
+	void raiseArmy(std::shared_ptr<User> user, int countSoldiers);
+	void disbandArmy(std::shared_ptr<User> user, int countSoldiers);
 private:
 	int maxUsers;
 	std::unique_ptr<GameManager> gameManager;

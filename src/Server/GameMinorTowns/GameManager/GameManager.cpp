@@ -34,6 +34,16 @@ void GameManager::buildBuildings(std::shared_ptr<User> user, int& buildingType)
 	this->games[user->getUUIDLocation()]->buildBuildings(user, buildingType);
 }
 
+void GameManager::raiseArmy(std::shared_ptr<User> user, int& countSoldiers)
+{
+	this->games[user->getUUIDLocation()]->raiseArmy(user, countSoldiers);
+}
+
+void GameManager::disbandArmy(std::shared_ptr<User> user, int& countSoldiers)
+{
+	this->games[user->getUUIDLocation()]->disbandArmy(user, countSoldiers);
+}
+
 void GameManager::CollectorEndedGames()
 {
 	while (this->active) {
