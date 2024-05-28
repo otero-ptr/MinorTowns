@@ -87,6 +87,12 @@ set(GAME_MANAGER_FILES
 )
 list(APPEND SRC_FILES ${GAME_MANAGER_FILES})
 
+set(GAME_FILES
+    "Server/GameMinorTowns/GameManager/Game/Game.h" 
+    "Server/GameMinorTowns/GameManager/Game/Game.cpp"
+)
+list(APPEND SRC_FILES ${GAME_FILES})
+
 set(ARMY_FILES
     "Server/GameMinorTowns/GameManager/Game/Army/Army.h" 
     "Server/GameMinorTowns/GameManager/Game/Army/Army.cpp"

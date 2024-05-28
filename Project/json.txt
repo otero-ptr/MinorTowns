@@ -1,0 +1,81 @@
+time
+first phase - 20minute
+formule:
+ (20minute(1200sec) / cooldown(5sec) game tick) = 240tick <
+
+second phase, winner after first phase, across 5m
+formule:
+ (5minute(300sec) / cooldown(5sec) game tick) = 60 tick
+
+third phase after 20 minute winner top 1
+formule:
+ (20min
+
+task api:
+
+
+json:
+{
+  "action": "build_buildings",
+  "params": {
+    "building_id" : 0
+  }
+}
+
+{
+  "action": "army_destroy_buildings",
+  "params": {
+    "town_id" : 0,
+    "building_id" : 0
+  }
+}
+
+{
+  "action": "subscribe_update_lobby"
+}
+
+{
+  "action": "unsubscribe_update_lobby"
+}
+
+{
+  "action": "create_game",
+  "params": {
+    "max_users": 3
+  }
+}
+
+{
+  "action": "join_lobby",
+  "params": {
+    "uuid": "501f3428-f90e-11ee-a422-0250cf951982"
+  }
+}
+
+{
+  "action": "leave_lobby"
+}
+
+{
+  "action": "raise_army",
+  "params": {
+    "soldiers": 1000 
+  }
+}
+
+{
+  "action": "disband_army",
+  "params": {
+    "soldiers": 1000 
+  }
+}
+
+game phase:
+начало первой фазы
+{"game_phase": 1}
+начало второй фазы
+{"game_phase": 2}
+город-претендент на победу
+{"contender_town": 0}
+город-победитель
+{"win_town": 0}
