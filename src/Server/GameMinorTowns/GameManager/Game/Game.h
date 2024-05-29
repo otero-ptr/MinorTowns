@@ -8,6 +8,7 @@
 #include "Army/Army.h"
 #include "GameController/GameController.h"
 #include "GameSettings/GameSettings.h"
+#include "ActionManager/ActionManager.h"
 
 
 class User;
@@ -36,6 +37,7 @@ private:
 	std::vector<Army> armies;
 
 	std::unique_ptr<GameMap> gameMap;
+	std::unique_ptr<ActionManager> actionManager;
 
 	GameController gameController;
 

@@ -16,6 +16,9 @@ Game::Game(std::vector<std::shared_ptr<User>> users)
 
 	this->cooldownTick = this->gameSettings->cooldownTick;
 	delete this->gameSettings;
+
+	this->actionManager = std::make_unique<ActionManager>();
+	
 	this->active = true;
 	this->thTick = std::jthread(&Game::tick, this);
 }
@@ -104,6 +107,8 @@ void Game::tick()
 
 		this->gameController.control(this->tickCount, this->towns);
 		
+		this->actionManager->doActions();
+
 		if (this->gameController.isGameEnd()) {
 			for (auto& town : this->towns) {
 				town.getOwnTown()->setLocation(Location::MENU, "menu");

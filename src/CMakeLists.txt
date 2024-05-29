@@ -153,6 +153,43 @@ set(AUTH_VALIDATE_FILES
 )
 list(APPEND SRC_FILES ${AUTH_VALIDATE_FILES})
 
+
+set(ACTION_MANAGER_FILES
+"Server/GameMinorTowns/GameManager/Game/ActionManager/ActionManager.h" 
+"Server/GameMinorTowns/GameManager/Game/ActionManager/ActionManager.cpp" 
+)
+list(APPEND SRC_FILES ${ACTION_MANAGER_FILES})
+
+set(ACTION_FILES
+"Server/GameMinorTowns/GameManager/Game/ActionManager/Action/Action.h" 
+"Server/GameMinorTowns/GameManager/Game/ActionManager/Action/Action.cpp" 
+)
+list(APPEND SRC_FILES ${ACTION_FILES})
+
+set(ACTION_LAST_FILES
+"Server/GameMinorTowns/GameManager/Game/ActionManager/Action/ActionLast/ActionLast.h" 
+"Server/GameMinorTowns/GameManager/Game/ActionManager/Action/ActionLast/ActionLast.cpp" 
+)
+list(APPEND SRC_FILES ${ACTION_LAST_FILES})
+
+set(ACTION_EVERY_FILES
+"Server/GameMinorTowns/GameManager/Game/ActionManager/Action/ActionEvery/ActionEvery.h" 
+"Server/GameMinorTowns/GameManager/Game/ActionManager/Action/ActionEvery/ActionEvery.cpp" 
+)
+list(APPEND SRC_FILES ${ACTION_EVERY_FILES})
+
+set(ACTION_EVERY_FILES
+"Server/GameMinorTowns/GameManager/Game/ActionManager/Action/ActionEvery/ActionEvery.h" 
+"Server/GameMinorTowns/GameManager/Game/ActionManager/Action/ActionEvery/ActionEvery.cpp" 
+)
+list(APPEND SRC_FILES ${ACTION_EVERY_FILES})
+
+set(ACTION_FOREVER_FILES
+"Server/GameMinorTowns/GameManager/Game/ActionManager/Action/ActionForever/ActionForever.h" 
+"Server/GameMinorTowns/GameManager/Game/ActionManager/Action/ActionForever/ActionForever.cpp" 
+)
+list(APPEND SRC_FILES ${ACTION_FOREVER_FILES})
+
 # Add source files to the executable
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
