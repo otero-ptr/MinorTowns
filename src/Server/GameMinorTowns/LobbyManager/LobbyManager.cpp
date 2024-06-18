@@ -1,10 +1,6 @@
 #include "LobbyManager.h"
 #include "Lobby/Lobby.h"
-#include "Poco/JSON/Object.h"
-#include "Poco/JSON/Array.h"
-#include "Poco/JSON/Parser.h"
-#include "Poco/JSON/Stringifier.h"
-#include "Poco/Dynamic/Var.h"
+#include "nlohmann/json.hpp"
 
 LobbyManager::LobbyManager(int cooldownRefresher)
 {
@@ -71,16 +67,11 @@ void LobbyManager::closeLobby(std::string uuidLobby)
 void LobbyManager::refreshListLobby()
 {
 	while (this->active) {
-		Poco::JSON::Array jsonArray;
-		Poco::JSON::Parser parser;
+		nlohmann::json jsonObj;
 		for (auto it = this->lobbies.begin(); it != this->lobbies.end(); ++it) {
-			Poco::Dynamic::Var result = parser.parse(it->second->getLobbyData());
-			Poco::JSON::Object::Ptr object = result.extract<Poco::JSON::Object::Ptr>();
-			jsonArray.add(object);
+			jsonObj["lobbies"].push_back(nlohmann::json::parse(it->second->getLobbyData()));
 		}
-		std::ostringstream oss;
-		Poco::JSON::Stringifier::stringify(jsonArray, oss);
-		this->listLobby = oss.str();
+		this->listLobby = jsonObj.dump();
 		std::this_thread::sleep_for(std::chrono::milliseconds(this->cooldownRefresher));
 	}
 }

@@ -2,8 +2,7 @@
 #include "Poco/UUIDGenerator.h"
 #include "Poco/UUID.h"
 #include "User/User.h"
-#include "Poco/JSON/Object.h"
-#include "Poco/JSON/Stringifier.h"
+#include "nlohmann\json.hpp"
 
 Lobby::Lobby(int maxUser)
 {
@@ -76,13 +75,11 @@ std::string Lobby::getLobbyData()
 
 void Lobby::createLobbyData()
 {
-	Poco::JSON::Object json;
-	json.set("uuid_lobby", this->uuid);
-	json.set("users_now", this->users.size());
-	json.set("users_max", this->maxUser);
-	std::ostringstream oss;
-	Poco::JSON::Stringifier::stringify(json, oss);
-	this->lobbyData = oss.str();
+	nlohmann::json objJson;
+	objJson["uuid_lobby"] = this->uuid;
+	objJson["users_now"] = this->users.size();
+	objJson["users_max"] = this->maxUser;
+	this->lobbyData = objJson.dump();
 }
 
 void Lobby::createUUID()

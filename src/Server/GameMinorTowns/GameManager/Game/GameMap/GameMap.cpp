@@ -1,8 +1,5 @@
 #include "GameMap.h"
-#include "Poco/JSON/Object.h"
-#include "Poco/JSON/Array.h"
-#include "Poco/JSON/Stringifier.h"
-#include "Poco/Dynamic/Var.h"
+#include "nlohmann\json.hpp"
 
 GameMap::GameMap(const int row, const int column) : myMap(row)
 {
@@ -57,22 +54,14 @@ std::string GameMap::getMapJson()
 
 void GameMap::createMapJson()
 {
-	Poco::JSON::Object json;
-	Poco::JSON::Array rowArr;
-	for (auto& row : this->myMap) {
-		Poco::JSON::Array colArr;
-		for (auto& col : row) {
-			Poco::JSON::Object objJson;
-			objJson.set("id", col->getID());
-			objJson.set("type", static_cast<int>(col->getType()));
-			colArr.add(objJson);
+	nlohmann::json jsonObj;
+	for (int x = 0; x < this->myMap.size(); ++x) {
+		for (int y = 0; y < this->myMap[x].size(); ++y) {
+			jsonObj["map"][x][y]["id"] = this->myMap[x][y]->getID();
+			jsonObj["map"][x][y]["type"] = static_cast<int>(this->myMap[x][y]->getType());
 		}
-		rowArr.add(colArr);
 	}
-	json.set("map", rowArr);
-	std::ostringstream oss;
-	json.stringify(oss);
-	this->mapJson = oss.str();
+	this->mapJson = jsonObj.dump();
 }
 
 std::vector<int> GameMap::placeTowns(std::vector<DimensionMap::SizeMap> &towns)

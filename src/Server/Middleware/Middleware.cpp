@@ -1,8 +1,9 @@
 #include "Middleware.h"
-#include "Poco\JSON\JSON.h"
-#include "Poco\JSON\Parser.h"
 #include "GameMinorTowns/GameMinorTowns.h"
 #include <thread>
+#include "nlohmann\json.hpp"
+#include <iostream>
+#include <Poco\Exception.h>
 
 Middleware::Middleware(std::shared_ptr<GameMinorTowns> game)
 {
@@ -26,19 +27,13 @@ std::shared_ptr<User> Middleware::authorization(std::string username, std::strin
 MIDDLEWARE_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<User> user)
 {
     try {
-        Poco::JSON::Parser parser;
-        Poco::Dynamic::Var result;
-        result = parser.parse(jsonMessage);
-        Poco::JSON::Object::Ptr jsonObj = result.extract<Poco::JSON::Object::Ptr>();
-        if (jsonObj->has("action")) {
-            Poco::Dynamic::Var value = jsonObj->get("action");
-            std::string actionTODO = value.toString();
-            std::cout << "Value of action: " << actionTODO << std::endl;
-            if (actionTODO == "create_game" && user->getLocation() == Location::MENU) {
-                if (jsonObj->has("params")) {
-                    Poco::JSON::Object::Ptr paramsObject = jsonObj->getObject("params");
-                    if (paramsObject->has("max_users")) {
-                        int maxUsers = paramsObject->getValue<int>("max_users");
+        nlohmann::json jsonObj = nlohmann::json::parse(jsonMessage);
+        if (jsonObj.contains("action")) {
+            std::cout << "Value of action: " << jsonObj["action"] << std::endl;
+            if (jsonObj["action"].get<std::string>() == "create_game" && user->getLocation() == Location::MENU) {
+                if (jsonObj.contains("params")) {
+                    if (jsonObj["params"].contains("max_users")) {
+                        int maxUsers = jsonObj["params"]["max_users"].get<int>();
                         if (maxUsers > 0) {
                             std::thread th(&GameMinorTowns::createLobby, this->gameMinorTowns, user, maxUsers);
                             th.detach();
@@ -49,81 +44,70 @@ MIDDLEWARE_STATUS Middleware::action(std::string jsonMessage, std::shared_ptr<Us
                 user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
                 return MIDDLEWARE_STATUS::ST_ERROR;
             }
-            else if (actionTODO == "join_lobby" && user->getLocation() == Location::MENU) {
-                if (jsonObj->has("params")) {
-                    Poco::JSON::Object::Ptr paramsObject = jsonObj->getObject("params");
-                    if (paramsObject->has("uuid")) {
-                        std::string uuid = paramsObject->getValue<std::string>("uuid");
+            else if (jsonObj["action"] == "join_lobby" && user->getLocation() == Location::MENU) {
+                if (jsonObj.contains("params")) {
+                    if (jsonObj["params"].contains("uuid")) {
+                        std::string uuid = jsonObj["params"]["uuid"].get<std::string>();
                         if (!uuid.empty()) {
                             std::thread th(&GameMinorTowns::joinLobby, this->gameMinorTowns, user, uuid);
                             th.detach();
                             return MIDDLEWARE_STATUS::ST_OK;
                         }
                     }
+                    user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
+                    return MIDDLEWARE_STATUS::ST_ERROR;
                 }
-                user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
-                return MIDDLEWARE_STATUS::ST_ERROR;
-            } 
-            else if (actionTODO == "leave_lobby" && user->getLocation() == Location::LOBBY) {
-                std::thread th(&GameMinorTowns::leaveLobby, this->gameMinorTowns, user);
-                th.detach();
-                return MIDDLEWARE_STATUS::ST_OK;
-            }
-            else if (actionTODO == "subscribe_update_lobby" && user->getLocation() == Location::MENU) {
-                std::thread th(&GameMinorTowns::subscribeUpdateLobby, this->gameMinorTowns, user);
-                th.detach();
-                return MIDDLEWARE_STATUS::ST_OK;
-            }
-            else if (actionTODO == "unsubscribe_update_lobby" && user->getLocation() == Location::MENU) {
-                std::thread th(&GameMinorTowns::unsubscribeUpdateLobby, this->gameMinorTowns, user);
-                th.detach();
-                return MIDDLEWARE_STATUS::ST_OK;
-            }
-            else if (actionTODO == "build_buildings" && user->getLocation() == Location::GAME) {
-                if (jsonObj->has("params")) {
-                    Poco::JSON::Object::Ptr paramsObject = jsonObj->getObject("params");
-                    if (paramsObject->has("building_id")) {
-                        std::thread th(&GameMinorTowns::buildBuildings, this->gameMinorTowns, user, paramsObject->getValue<int>("building_id"));
-                        th.detach();
-                        return MIDDLEWARE_STATUS::ST_OK;
+            } else if (jsonObj["action"] == "leave_lobby" && user->getLocation() == Location::LOBBY) {
+                    std::thread th(&GameMinorTowns::leaveLobby, this->gameMinorTowns, user);
+                    th.detach();
+                    return MIDDLEWARE_STATUS::ST_OK;
+            } else if (jsonObj["action"] == "subscribe_update_lobby" && user->getLocation() == Location::MENU) {
+                    std::thread th(&GameMinorTowns::subscribeUpdateLobby, this->gameMinorTowns, user);
+                    th.detach();
+                    return MIDDLEWARE_STATUS::ST_OK;
+            } else if (jsonObj["action"] == "unsubscribe_update_lobby" && user->getLocation() == Location::MENU) {
+                    std::thread th(&GameMinorTowns::unsubscribeUpdateLobby, this->gameMinorTowns, user);
+                    th.detach();
+                    return MIDDLEWARE_STATUS::ST_OK;
+            } else if (jsonObj["action"] == "build_buildings" && user->getLocation() == Location::GAME) {
+                    if (jsonObj.contains("params")) {
+                        if (jsonObj["params"].contains("building_id")) {
+                            std::thread th(&GameMinorTowns::buildBuildings, this->gameMinorTowns, user, jsonObj["params"]["building_id"].get<int>());
+                            th.detach();
+                            return MIDDLEWARE_STATUS::ST_OK;
+                        }
                     }
-                }
-                user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
-                return MIDDLEWARE_STATUS::ST_ERROR;
-            }
-            else if (actionTODO == "raise_army" && user->getLocation() == Location::GAME) {
-                if (jsonObj->has("params")) {
-                    Poco::JSON::Object::Ptr paramsObject = jsonObj->getObject("params");
-                    if (paramsObject->has("soldiers")) {
-                        std::thread th(&GameMinorTowns::raiseArmy, this->gameMinorTowns, user, paramsObject->getValue<int>("soldiers"));
-                        th.detach();
-                        return MIDDLEWARE_STATUS::ST_OK;
+                    user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
+                    return MIDDLEWARE_STATUS::ST_ERROR;
+            } else if (jsonObj["action"] == "raise_army" && user->getLocation() == Location::GAME) {
+                    if (jsonObj.contains("params")) {
+                        if (jsonObj["params"].contains("soldiers")) {
+                            std::thread th(&GameMinorTowns::raiseArmy, this->gameMinorTowns, user, jsonObj["params"]["soldiers"]);
+                            th.detach();
+                            return MIDDLEWARE_STATUS::ST_OK;
+                        }
                     }
-                }
-                user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
-                return MIDDLEWARE_STATUS::ST_ERROR;
-            }
-            else if (actionTODO == "disband_army" && user->getLocation() == Location::GAME) {
-                if (jsonObj->has("params")) {
-                    Poco::JSON::Object::Ptr paramsObject = jsonObj->getObject("params");
-                    if (paramsObject->has("soldiers")) {
-                        std::thread th(&GameMinorTowns::disbandArmy, this->gameMinorTowns, user, paramsObject->getValue<int>("soldiers"));
-                        th.detach();
-                        return MIDDLEWARE_STATUS::ST_OK;
+                    user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
+                    return MIDDLEWARE_STATUS::ST_ERROR;
+            } else if (jsonObj["action"] == "disband_army" && user->getLocation() == Location::GAME) {
+                    if (jsonObj.contains("params")) {
+                        if (jsonObj["params"].contains("soldiers")) {
+                            std::thread th(&GameMinorTowns::disbandArmy, this->gameMinorTowns, user, jsonObj["params"]["soldiers"]);
+                            th.detach();
+                            return MIDDLEWARE_STATUS::ST_OK;
+                        }
                     }
-                }
-                user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
-                return MIDDLEWARE_STATUS::ST_ERROR;
+                    user->messagePool.pushBackMessage("{\"err\": \"param problem\"}");
+                    return MIDDLEWARE_STATUS::ST_ERROR;
             }
-        }
-        else {
-            return MIDDLEWARE_STATUS::ST_ERROR;
+        } else {
+                return MIDDLEWARE_STATUS::ST_ERROR;
         }
     }
     catch (Poco::Exception&) {
         return MIDDLEWARE_STATUS::ST_ERROR;
     }
-	return MIDDLEWARE_STATUS::ST_OK;
+    return MIDDLEWARE_STATUS::ST_OK;
 }
 
 MIDDLEWARE_STATUS Middleware::disconnect(std::shared_ptr<User> user)

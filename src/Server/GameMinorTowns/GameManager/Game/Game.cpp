@@ -1,11 +1,8 @@
 #include "Game.h"
 #include "Poco/UUIDGenerator.h"
 #include "Poco/UUID.h"
-#include "Poco/JSON/Object.h"
-#include "Poco/JSON/Array.h"
-#include "Poco/JSON/Stringifier.h"
-#include "Poco/Dynamic/Var.h"
 #include "User/User.h"
+#include "nlohmann/json.hpp"
 
 Game::Game(std::vector<std::shared_ptr<User>> users)
 {
@@ -150,37 +147,30 @@ void Game::createTowns(std::vector<int> &idTowns, std::vector<std::shared_ptr<Us
 
 void Game::notifyUsersTick()
 {
-	Poco::JSON::Object json;
-	Poco::JSON::Array townsArr;
-	json.set("tick", this->tickCount);
-	json.set("uuid", this->uuid);
+	nlohmann::json jsonObj;
+	jsonObj["tick"] = this->tickCount;
+	jsonObj["uuid"] = this->uuid;
 	for (int it = 0; it < this->towns.size(); ++it) {
-		Poco::JSON::Object objJson;
-		objJson.set("town_id", this->towns[it].getID());
-		objJson.set("username", this->towns[it].getOwnTown()->getUsername());
-		objJson.set("networth", this->towns[it].getTownEconomy().getNetWorth());
-		objJson.set("soldiers", this->armies[it].getCount());
-		objJson.set("node_army", this->armies[it].getNode());
-		townsArr.add(objJson);
+		jsonObj["towns"][it]["town_id"] = this->towns[it].getID();
+		jsonObj["towns"][it]["username"] = this->towns[it].getOwnTown()->getUsername();
+		jsonObj["towns"][it]["networth"] = this->towns[it].getTownEconomy().getNetWorth();
+		jsonObj["towns"][it]["soldiers"] = this->armies[it].getCount();
+		jsonObj["towns"][it]["soldiers"] = this->armies[it].getNode();
 	}
-	json.set("towns", townsArr);
 	for (auto& town : this->towns) {
-		Poco::JSON::Object userJson = json;
-		Poco::JSON::Object objJson;
-		objJson.set("town_id", town.getID());
-		objJson.set("budget", town.getTownEconomy().getBudget());
-		objJson.set("multiplier", town.getTownEconomy().getMultiplier());
-		objJson.set("income", town.getTownEconomy().getTickIncome());
-		objJson.set("charch_id", 0);
-		objJson.set("charch_count", town.getTownBuildings().getCountBuildings(0));
-		objJson.set("charch_price", town.getTownBuildings().getPriceBuildings(0));
-		objJson.set("manufactory_id", 1);
-		objJson.set("manufactory_count", town.getTownBuildings().getCountBuildings(1));
-		objJson.set("manufactory_price", town.getTownBuildings().getPriceBuildings(1));
-		userJson.set("town", objJson);
-		std::ostringstream oss;
-		userJson.stringify(oss);
-		town.getOwnTown()->messagePool.pushBackMessage(oss.str());
+		nlohmann::json uniqueJsonObj;
+		uniqueJsonObj = jsonObj;
+		uniqueJsonObj["town"]["town_id"] = town.getID();
+		uniqueJsonObj["town"]["budget"] = town.getTownEconomy().getBudget();
+		uniqueJsonObj["town"]["multiplier"] = town.getTownEconomy().getMultiplier();
+		uniqueJsonObj["town"]["income"] = town.getTownEconomy().getTickIncome();
+		uniqueJsonObj["town"]["charch_id"] = 0;
+		uniqueJsonObj["town"]["charch_count"] = town.getTownBuildings().getCountBuildings(0);
+		uniqueJsonObj["town"]["charch_price"] = town.getTownBuildings().getPriceBuildings(0);
+		uniqueJsonObj["town"]["manufactory_id"] = 1;
+		uniqueJsonObj["town"]["manufactory_count"] = town.getTownBuildings().getCountBuildings(1);
+		uniqueJsonObj["town"]["manufactory_price"] = town.getTownBuildings().getPriceBuildings(1);
+		town.getOwnTown()->messagePool.pushBackMessage(uniqueJsonObj.dump());
 	}
 }
 
