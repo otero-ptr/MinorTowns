@@ -1,5 +1,6 @@
 #include "GameMap.h"
 #include "nlohmann\json.hpp"
+#include "NodeMap\NodeMapTown.h"
 
 GameMap::GameMap(const int row, const int column) : myMap(row)
 {
@@ -59,6 +60,13 @@ void GameMap::createMapJson()
 		for (int y = 0; y < this->myMap[x].size(); ++y) {
 			jsonObj["map"][x][y]["id"] = this->myMap[x][y]->getID();
 			jsonObj["map"][x][y]["type"] = static_cast<int>(this->myMap[x][y]->getType());
+			if (this->myMap[x][y]->getType() == NODE_TYPE::TOWN) {
+				std::shared_ptr<NodeMapTown> townPtr = std::dynamic_pointer_cast<NodeMapTown>(this->myMap[x][y]);
+				if (townPtr) {
+					jsonObj["map"][x][y]["town_id"] = townPtr->getTownID();
+				}
+
+			}
 		}
 	}
 	this->mapJson = jsonObj.dump();
@@ -68,7 +76,7 @@ std::vector<int> GameMap::placeTowns(std::vector<DimensionMap::SizeMap> &towns)
 {
 	std::vector<int> ids;
 	for (int i = 0; i < towns.size(); ++i) {
-		this->myMap[towns[i].x][towns[i].y]->occupyTown();
+		this->myMap[towns[i].x][towns[i].y] = std::make_shared<NodeMapTown>(i, this->myMap[towns[i].x][towns[i].y]->getID(), NODE_TYPE::TOWN);
 		ids.push_back(this->myMap[towns[i].x][towns[i].y]->getID());
 	}
 	this->createMapJson();

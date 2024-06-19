@@ -193,7 +193,7 @@ set(ACTION_FOREVER_FILES
 list(APPEND SRC_FILES ${ACTION_FOREVER_FILES})
 
 # Add source files to the executable
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+add_executable(${PROJECT_NAME} ${SRC_FILES} "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeType.h" "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeMapTown.h" "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeMapTown.cpp")
 
 
 # Link Poco and ZLIB libraries to the executable
