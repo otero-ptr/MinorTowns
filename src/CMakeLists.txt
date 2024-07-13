@@ -101,6 +101,12 @@ set(ARMY_FILES
 )
 list(APPEND SRC_FILES ${ARMY_FILES})
 
+set(BATTLE_FILES
+    "Server/GameMinorTowns/GameManager/Game/Army/Battle/Battle.h"
+    "Server/GameMinorTowns/GameManager/Game/Army/Battle/Battle.cpp"
+)
+list(APPEND SRC_FILES ${BATTLE_FILES})
+
 set(GAME_SETTINGS_FILES
     "Server/GameMinorTowns/GameManager/Game/GameSettings/GameSettings.h" 
     "Server/GameMinorTowns/GameManager/Game/GameSettings/GameSettings.cpp"
@@ -122,6 +128,9 @@ list(APPEND SRC_FILES ${GAME_MAP_FILES})
 set(NODE_MAP_FILES 
     "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeMap.h" 
     "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeMap.cpp"
+    "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeType.h" 
+    "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeMapTown.h" 
+    "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeMapTown.cpp"
 )
 list(APPEND SRC_FILES ${NODE_MAP_FILES})
 
@@ -193,7 +202,7 @@ set(ACTION_FOREVER_FILES
 list(APPEND SRC_FILES ${ACTION_FOREVER_FILES})
 
 # Add source files to the executable
-add_executable(${PROJECT_NAME} ${SRC_FILES} "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeType.h" "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeMapTown.h" "Server/GameMinorTowns/GameManager/Game/GameMap/NodeMap/NodeMapTown.cpp")
+add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 
 # Link Poco and ZLIB libraries to the executable

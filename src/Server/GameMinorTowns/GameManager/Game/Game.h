@@ -6,6 +6,7 @@
 #include "GameMap/GameMap.h"
 #include "Town/Town.h"
 #include "Army/Army.h"
+#include "Army/Battle/Battle.h"
 #include "GameController/GameController.h"
 #include "GameSettings/GameSettings.h"
 #include "ActionManager/ActionManager.h"
@@ -23,6 +24,7 @@ public:
 	void buildBuildings(std::shared_ptr<User> user, int &buildingType);
 	void raiseArmy(std::shared_ptr<User> user, int &countSoldiers);
 	void disbandArmy(std::shared_ptr<User> user, int &countSoldiers);
+	void attackArmy(std::shared_ptr<User> user);
 	std::string getMapJSON();
 private:
 	void tick();
@@ -35,6 +37,8 @@ private:
 	std::vector<Town> towns;
 
 	std::vector<Army> armies;
+
+	std::list<Battle> battles;
 
 	std::unique_ptr<GameMap> gameMap;
 	std::unique_ptr<ActionManager> actionManager;

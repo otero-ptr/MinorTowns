@@ -3,6 +3,7 @@
 #include "Poco/UUID.h"
 #include "User/User.h"
 #include "nlohmann/json.hpp"
+#include "Army/Battle/Battle.h"
 
 Game::Game(std::vector<std::shared_ptr<User>> users)
 {
@@ -75,6 +76,21 @@ void Game::disbandArmy(std::shared_ptr<User> user, int& countSoldiers)
 	}
 	else {
 		throw std::invalid_argument("The value cannot be less than 1.");
+	}
+}
+
+void Game::attackArmy(std::shared_ptr<User> user)
+{
+	for (int i = 0; i < this->towns.size(); ++i) {
+		if (this->towns[i].getOwnTown() == user) {
+			for (int a = 0; a < this->armies.size(); ++a) {
+				if (this->armies[i].getNode() == this->armies[a].getNode() && i != a 
+					&& this->armies[i].getCount() > 0 && this->armies[a].getCount() > 0) {
+					this->battles.emplace_back(this->armies[a], this->armies[i], this->armies[i].getNode());
+				}
+			}
+			break;
+		}
 	}
 }
 
