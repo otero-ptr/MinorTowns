@@ -13,6 +13,8 @@ find_package(yaml-cpp REQUIRED)
 
 find_package(nlohmann_json CONFIG REQUIRED)
 
+find_package(redis++ CONFIG REQUIRED)
+
 include_directories(Server/)
 
 add_subdirectory("Server")
@@ -206,7 +208,7 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 
 # Link Poco and ZLIB libraries to the executable
-target_link_libraries(${PROJECT_NAME} PUBLIC ${Poco_LIBRARIES} ${ZLIB_LIBRARIES} ${YAML_CPP_LIBRARIES} nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${Poco_LIBRARIES} ${ZLIB_LIBRARIES} ${YAML_CPP_LIBRARIES} nlohmann_json::nlohmann_json redis++::redis++)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET MinorTowns PROPERTY CXX_STANDARD 20)
