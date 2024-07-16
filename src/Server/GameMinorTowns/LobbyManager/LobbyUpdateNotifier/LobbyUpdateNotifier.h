@@ -1,22 +1,23 @@
 #pragma once
-#include <memory>
 #include "User\User.h"
+#include <memory>
 #include <thread>
 #include <unordered_map>
-#include <functional>
+#include <mutex>
 
 class LobbyUpdateNotifier {
 public:
 	LobbyUpdateNotifier() = delete;
-	LobbyUpdateNotifier(std::function<std::string()> f);
+	explicit LobbyUpdateNotifier(std::string& lobby_list);
 	~LobbyUpdateNotifier();
 	void subscribe(std::shared_ptr<User> user);
 	void unsubscribe(std::shared_ptr<User> user);
 private:
 	void notify();
-	std::function<std::string()> getLobbyList;
-	std::string lobbyList;
-	std::unordered_map<std::string, std::shared_ptr<User>> subscribedUsers;
+	std::string& lobby_list;
+	std::string lobby_list_old;
+	std::unordered_map<std::string, std::weak_ptr<User>> subscribed_users;
 	bool active;
-	std::jthread thNotify;
+	std::jthread th_notify;
+	std::mutex mtx;
 };

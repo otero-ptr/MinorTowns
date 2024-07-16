@@ -8,18 +8,18 @@ class User;
 class GameMinorTowns {
 public:
 	GameMinorTowns() = delete;
-	GameMinorTowns(int maxUsers, int cooldownCollector, int cooldownRefresher);
-	void createLobby(std::shared_ptr<User> user,const int maxGameUsers);
-	void joinLobby(std::shared_ptr<User> user,const std::string uuidLobby);
+	GameMinorTowns(int max_users, int cooldown_collector, int cooldown_refresher, std::string redis_uri);
+	void createLobby(std::shared_ptr<User> user,const int max_game_users);
+	void joinLobby(std::shared_ptr<User> user,const std::string uuid_lobby);
 	void leaveLobby(std::shared_ptr<User> user);
-	void buildBuildings(std::shared_ptr<User> user, int buildingType);
+	void buildBuildings(std::shared_ptr<User> user, int building_type);
 	void subscribeUpdateLobby(std::shared_ptr<User> user);
 	void unsubscribeUpdateLobby(std::shared_ptr<User> user);
 
-	void raiseArmy(std::shared_ptr<User> user, int countSoldiers);
-	void disbandArmy(std::shared_ptr<User> user, int countSoldiers);
+	void raiseArmy(std::shared_ptr<User> user, int count_soldiers);
+	void disbandArmy(std::shared_ptr<User> user, int count_soldiers);
 private:
-	int maxUsers;
-	std::unique_ptr<GameManager> gameManager;
-	std::unique_ptr<LobbyManager> lobbyManager;
+	int max_users;
+	std::unique_ptr<GameManager> game_manager;
+	std::unique_ptr<LobbyManager> lobby_manager;
 };

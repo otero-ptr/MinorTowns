@@ -73,17 +73,18 @@ set(LOBBY_MANAGER_FILES
 )
 list(APPEND SRC_FILES ${LOBBY_MANAGER_FILES})
 
+set(LOBBY_MANAGER_UTIL_FILES
+    "Server/GameMinorTowns/LobbyManager/util/gen_uuid.h"
+    "Server/GameMinorTowns/LobbyManager/util/gen_uuid.cpp"
+)
+list(APPEND SRC_FILES ${LOBBY_MANAGER_UTIL_FILES})
+
+
 set(LOBBY_UPDATE_NOTIFIER_FILES
     "Server/GameMinorTowns/LobbyManager/LobbyUpdateNotifier/LobbyUpdateNotifier.h"
     "Server/GameMinorTowns/LobbyManager/LobbyUpdateNotifier/LobbyUpdateNotifier.cpp"
 )
 list(APPEND SRC_FILES ${LOBBY_UPDATE_NOTIFIER_FILES})
-
-set(LOBBY_FILES
-    "Server/GameMinorTowns/LobbyManager/Lobby/Lobby.cpp"
-    "Server/GameMinorTowns/LobbyManager/Lobby/Lobby.h"
-)
-list(APPEND SRC_FILES ${LOBBY_FILES})
 
 set(GAME_MANAGER_FILES
     "Server/GameMinorTowns/GameManager/GameManager.cpp"

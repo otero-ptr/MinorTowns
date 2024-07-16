@@ -10,7 +10,7 @@ public:
 	~Server();
 	void run();
 private:
-	std::shared_ptr<GameMinorTowns> gameMinorTowns;
+	std::shared_ptr<GameMinorTowns> game_minor_towns;
 	std::shared_ptr<Middleware> middleware;
-	std::unique_ptr<WebSocketServer> socketServer;
+	std::unique_ptr<WebSocketServer> socket_server;
 };

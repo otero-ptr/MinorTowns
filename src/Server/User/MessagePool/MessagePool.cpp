@@ -1,5 +1,4 @@
 #include "MessagePool.h"
-#include <iostream>
 
 void MessagePool::pushBackMessage(std::string msg)
 {
