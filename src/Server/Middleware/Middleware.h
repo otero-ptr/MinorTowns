@@ -16,9 +16,9 @@ public:
 	~Middleware();
 
 	std::shared_ptr<User> authorization(std::string username, std::string address, unsigned short port);
-	MIDDLEWARE_STATUS action(std::string jsonMessage, std::shared_ptr<User> user);
+	MIDDLEWARE_STATUS action(std::string json_message, std::shared_ptr<User> user);
 	MIDDLEWARE_STATUS disconnect(std::shared_ptr<User> user);
 private:
-	AuthorizatonValidate authValidate;
-	std::shared_ptr<GameMinorTowns> gameMinorTowns;
+	AuthorizatonValidate auth_validate;
+	std::shared_ptr<GameMinorTowns> game_minor_towns;
 };

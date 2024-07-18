@@ -1,7 +1,7 @@
 #include "LobbyManager.h"
 #include "nlohmann/json.hpp"
 #include "sw\redis++\redis++.h"
-#include "util\gen_uuid.h"
+#include "util/gen_uuid.h"
 
 LobbyManager::LobbyManager(int cooldown_refresher, std::string redis_uri) :
 	redis(std::make_unique<sw::redis::Redis>(redis_uri)),
@@ -152,6 +152,6 @@ void LobbyManager::notifyLobbyUsers(std::string_view uuid_lobby)
 	lobby_data["users_max"] = this->countLobbyMaxUsers(uuid_lobby.data());
 	auto result = this->getLobbyUsers(uuid_lobby.data());
 	for (std::string_view uuid : result) {
-		this->users[uuid.data()]->messagePool.pushBackMessage(lobby_data.dump());
+		this->users[uuid.data()]->message_pool.pushBackMessage(lobby_data.dump());
 	}
 }

@@ -15,15 +15,23 @@ find_package(nlohmann_json CONFIG REQUIRED)
 
 find_package(redis++ CONFIG REQUIRED)
 
-include_directories(Server/)
+include_directories(${CMAKE_SOURCE_DIR}/src/)
+include_directories(${CMAKE_SOURCE_DIR}/src/Server/)
 
 add_subdirectory("Server")
+add_subdirectory("util")
 
 set(MINOR_TOWNS_FILES
     "MinorTowns.cpp"
     "MinorTowns.h"
 )
 list(APPEND SRC_FILES ${MINOR_TOWNS_FILES})
+
+set(UTIL_FILES
+    "util/gen_uuid.h"
+    "util/gen_uuid.cpp"
+)
+list(APPEND SRC_FILES ${UTIL_FILES})
 
 set(SERVER_FILES
     "Server/Server.cpp"
@@ -72,13 +80,6 @@ set(LOBBY_MANAGER_FILES
     "Server/GameMinorTowns/LobbyManager/LobbyManager.h"
 )
 list(APPEND SRC_FILES ${LOBBY_MANAGER_FILES})
-
-set(LOBBY_MANAGER_UTIL_FILES
-    "Server/GameMinorTowns/LobbyManager/util/gen_uuid.h"
-    "Server/GameMinorTowns/LobbyManager/util/gen_uuid.cpp"
-)
-list(APPEND SRC_FILES ${LOBBY_MANAGER_UTIL_FILES})
-
 
 set(LOBBY_UPDATE_NOTIFIER_FILES
     "Server/GameMinorTowns/LobbyManager/LobbyUpdateNotifier/LobbyUpdateNotifier.h"

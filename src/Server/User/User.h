@@ -21,11 +21,10 @@ public:
 	const std::string getUUIDLocation();
 	const std::string getUUID();
 	std::string getUsername();
-	MessagePool messagePool;
+	MessagePool message_pool;
 private:
-	void generateUUID();
-	Location userLocation;
-	std::string uuidLocation;
+	Location user_location;
+	std::string uuid_location;
 	std::string uuid;
 	std::string username;
 	std::string address;

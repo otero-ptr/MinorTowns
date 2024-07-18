@@ -12,40 +12,40 @@ GameController::~GameController()
 
 void GameController::control(const int& tick, const std::vector<Town>& towns)
 {
-	if (!this->gameEnd) {
+	if (!this->game_end) {
 		if (towns.size() == 1) {
-			this->topTown = &towns[0];
-			this->gameEnd = true;
-			this->topTown->getOwnTown()->messagePool.pushBackMessage("{\"win_town\": " + std::to_string(this->topTown->getID()) + "}");
+			this->top_town = &towns[0];
+			this->game_end = true;
+			this->top_town->getOwnTown()->message_pool.pushBackMessage("{\"win_town\": " + std::to_string(this->top_town->getID()) + "}");
 		}
 		if (tick == 0) {
 			for (auto& it : towns) {
-				it.getOwnTown()->messagePool.pushBackMessage("{\"game_phase\": 1}");
+				it.getOwnTown()->message_pool.pushBackMessage("{\"game_phase\": 1}");
 			}
 		}
-		if (tick == this->maxTick) {
+		if (tick == this->max_tick) {
 			for (auto& it : towns) {
-				it.getOwnTown()->messagePool.pushBackMessage("{\"game_phase\": 2}");
+				it.getOwnTown()->message_pool.pushBackMessage("{\"game_phase\": 2}");
 			}
 		}
-		if (tick >= this->maxTick) {
-			if (this->topTown == nullptr || towns[0].getID() != this->topTown->getID()) {
-				this->topTown = &towns[0];
-				this->repeatTick = 0;
+		if (tick >= this->max_tick) {
+			if (this->top_town == nullptr || towns[0].getID() != this->top_town->getID()) {
+				this->top_town = &towns[0];
+				this->repeat_tick = 0;
 				for (auto& it : towns) {
-					it.getOwnTown()->messagePool.pushBackMessage("{\"contender_town\": " + std::to_string(this->topTown->getID()) + "}");
+					it.getOwnTown()->message_pool.pushBackMessage("{\"contender_town\": " + std::to_string(this->top_town->getID()) + "}");
 				}
 			}
-			if (++this->repeatTick > this->maxRepeatTick) {
-				this->gameEnd = true;
+			if (++this->repeat_tick > this->max_repeat_tick) {
+				this->game_end = true;
 				for (auto& it : towns) {
-					it.getOwnTown()->messagePool.pushBackMessage("{\"win_town\": " + std::to_string(this->topTown->getID()) + "}");
+					it.getOwnTown()->message_pool.pushBackMessage("{\"win_town\": " + std::to_string(this->top_town->getID()) + "}");
 				}
 			}
-			if (tick > this->maxTick*2) {
-				this->gameEnd = true;
+			if (tick > this->max_tick*2) {
+				this->game_end = true;
 				for (auto& it : towns) {
-					it.getOwnTown()->messagePool.pushBackMessage("{\"win_town\": " + std::to_string(this->topTown->getID()) + "}");
+					it.getOwnTown()->message_pool.pushBackMessage("{\"win_town\": " + std::to_string(this->top_town->getID()) + "}");
 				}
 			}
 		}
@@ -55,5 +55,5 @@ void GameController::control(const int& tick, const std::vector<Town>& towns)
 
 bool GameController::isGameEnd() const
 {
-	return this->gameEnd;
+	return this->game_end;
 }

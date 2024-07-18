@@ -8,9 +8,9 @@ public:
 	void control(const int& tick, const std::vector<Town> &towns);
 	bool isGameEnd() const;
 private:
-	int maxTick = 240;
-	int maxRepeatTick= 60;
-	int repeatTick = 0;
-	const Town* topTown = nullptr;
-	bool gameEnd = false;
+	int max_tick = 240;
+	int max_repeat_tick= 60;
+	int repeat_tick = 0;
+	const Town* top_town = nullptr;
+	bool game_end = false;
 };

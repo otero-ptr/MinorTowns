@@ -9,18 +9,18 @@ class User;
 class GameManager {
 public:
 	GameManager() = delete;
-	GameManager(int cooldownCollector);
+	GameManager(int cooldown_collector);
 	~GameManager();
 	void createGame(std::vector<std::shared_ptr<User>> users);
 	void getGame() {}
-	void buildBuildings(std::shared_ptr<User> user, int& buildingType);
-	void raiseArmy(std::shared_ptr<User> user, int& countSoldiers);
-	void disbandArmy(std::shared_ptr<User> user, int& countSoldiers);
+	void buildBuildings(std::shared_ptr<User> user, int& building_type);
+	void raiseArmy(std::shared_ptr<User> user, int& count_soldiers);
+	void disbandArmy(std::shared_ptr<User> user, int& count_soldiers);
 private:
 	void CollectorEndedGames();
 	std::unordered_map<std::string, std::unique_ptr<Game>> games;
 
-	int cooldownCollector;
-	bool active;
-	std::jthread thCollector;
+	int cooldown_collector;
+	bool active = true;
+	std::jthread th_collector;
 };

@@ -20,7 +20,7 @@ void LobbyUpdateNotifier::subscribe(std::shared_ptr<User> user)
 	auto it = this->subscribed_users.find(user->getUUID());
 	if (it == this->subscribed_users.end()) {
 		this->subscribed_users.insert(std::make_pair(user->getUUID(), user));
-		user->messagePool.pushBackMessage(this->lobby_list_old);
+		user->message_pool.pushBackMessage(this->lobby_list_old);
 	}
 	this->mtx.unlock();
 }
@@ -47,7 +47,7 @@ void LobbyUpdateNotifier::notify()
 				}
 				else {
 					auto user = it->second.lock();
-					user->messagePool.pushBackMessage(this->lobby_list);
+					user->message_pool.pushBackMessage(this->lobby_list);
 					++it;
 				}
 			}

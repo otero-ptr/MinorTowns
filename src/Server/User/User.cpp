@@ -1,12 +1,13 @@
 #include "User.h"
 #include "Poco/UUIDGenerator.h"
 #include "Poco/UUID.h"
-User::User(std::string username, std::string address)
+#include "util/gen_uuid.h"
+
+User::User(std::string username, std::string address) 
+	: uuid(GenerateUUID()), user_location(MENU),
+	username(username), address(address)
 {
-	this->generateUUID();
-	this->userLocation = MENU;
-	this->username = username;
-	this->address = address;
+
 }
 
 User::~User()
@@ -15,18 +16,18 @@ User::~User()
 
 void User::setLocation(Location l, std::string uuid)
 {
-	this->userLocation = l;
-	this->uuidLocation = uuid;
+	this->user_location = l;
+	this->uuid_location = uuid;
 }
 
 Location User::getLocation()
 {
-	return this->userLocation;
+	return this->user_location;
 }
 
 const std::string User::getUUIDLocation()
 {
-	return this->uuidLocation;
+	return this->uuid_location;
 }
 
 const std::string User::getUUID()
@@ -37,11 +38,4 @@ const std::string User::getUUID()
 std::string User::getUsername()
 {
 	return this->username;
-}
-
-void User::generateUUID()
-{
-	Poco::UUIDGenerator generator;
-	Poco::UUID uuid = generator.create();
-	this->uuid = uuid.toString();
 }

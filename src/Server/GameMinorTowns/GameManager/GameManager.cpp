@@ -1,18 +1,17 @@
 #include "GameManager.h"
 #include <iostream>
 
-GameManager::GameManager(int cooldownCollector)
+GameManager::GameManager(int cooldown_collector) 
+	: cooldown_collector(cooldown_collector)
 {
-	this->cooldownCollector = cooldownCollector;
-	this->active = true;
-	this->thCollector = std::jthread(&GameManager::CollectorEndedGames, this);
+	this->th_collector = std::jthread(&GameManager::CollectorEndedGames, this);
 }
 
 GameManager::~GameManager()
 {
 	this->active = false;
-	if (this->thCollector.joinable()) {
-		this->thCollector.join();
+	if (this->th_collector.joinable()) {
+		this->th_collector.join();
 	}
 }
 
@@ -22,26 +21,26 @@ void GameManager::createGame(std::vector<std::shared_ptr<User>> users)
 
 	for (auto& user : users) {
 		user->setLocation(Location::GAME, game->getUUID());
-		user->messagePool.pushBackMessage(game->getMapJSON());
+		user->message_pool.pushBackMessage(game->getMapJSON());
 	}
 	this->games.insert(std::make_pair(game->getUUID(), std::move(game)));
 
 
 }
 
-void GameManager::buildBuildings(std::shared_ptr<User> user, int& buildingType)
+void GameManager::buildBuildings(std::shared_ptr<User> user, int& building_type)
 {
-	this->games[user->getUUIDLocation()]->buildBuildings(user, buildingType);
+	this->games[user->getUUIDLocation()]->buildBuildings(user, building_type);
 }
 
-void GameManager::raiseArmy(std::shared_ptr<User> user, int& countSoldiers)
+void GameManager::raiseArmy(std::shared_ptr<User> user, int& count_soldiers)
 {
-	this->games[user->getUUIDLocation()]->raiseArmy(user, countSoldiers);
+	this->games[user->getUUIDLocation()]->raiseArmy(user, count_soldiers);
 }
 
-void GameManager::disbandArmy(std::shared_ptr<User> user, int& countSoldiers)
+void GameManager::disbandArmy(std::shared_ptr<User> user, int& count_soldiers)
 {
-	this->games[user->getUUIDLocation()]->disbandArmy(user, countSoldiers);
+	this->games[user->getUUIDLocation()]->disbandArmy(user, count_soldiers);
 }
 
 void GameManager::CollectorEndedGames()
@@ -57,6 +56,6 @@ void GameManager::CollectorEndedGames()
 				++it;
 			}
 		}
-		std::this_thread::sleep_for(std::chrono::seconds(this->cooldownCollector));
+		std::this_thread::sleep_for(std::chrono::seconds(this->cooldown_collector));
 	}
 }
