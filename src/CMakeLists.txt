@@ -205,6 +205,17 @@ set(ACTION_FOREVER_FILES
 )
 list(APPEND SRC_FILES ${ACTION_FOREVER_FILES})
 
+set(REQUEST_HANDLER_FILES
+"Server/request_handler/request_handler.h" 
+"Server/request_handler/request_handler.cpp" 
+"Server/request_handler/params.h" 
+"Server/request_handler/error_info.h" 
+"Server/request_handler/request_result.h"  
+"Server/request_handler/params_validator.h" 
+"Server/request_handler/params_validator.cpp"
+)
+list(APPEND SRC_FILES ${REQUEST_HANDLER_FILES})
+
 # Add source files to the executable
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 

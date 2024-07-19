@@ -4,6 +4,7 @@
 #include "nlohmann\json.hpp"
 #include <iostream>
 #include <Poco\Exception.h>
+#include "request_handler\params_validator.h"
 
 Middleware::Middleware(std::shared_ptr<GameMinorTowns> game)
     : game_minor_towns(game)
@@ -25,90 +26,89 @@ std::shared_ptr<User> Middleware::authorization(std::string username, std::strin
 	return user;
 }
 
-MIDDLEWARE_STATUS Middleware::action(std::string json_message, std::shared_ptr<User> user)
+std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult request_result, std::shared_ptr<User> user)
 {
-    try {
-        nlohmann::json jsonObj = nlohmann::json::parse(json_message);
-        if (jsonObj.contains("action")) {
-            std::cout << "Value of action: " << jsonObj["action"] << std::endl;
-            if (jsonObj["action"].get<std::string>() == "create_game" && user->getLocation() == Location::MENU) {
-                if (jsonObj.contains("params")) {
-                    if (jsonObj["params"].contains("max_users")) {
-                        int maxUsers = jsonObj["params"]["max_users"].get<int>();
-                        if (maxUsers > 0) {
-                            std::thread th(&GameMinorTowns::createLobby, this->game_minor_towns, user, maxUsers);
-                            th.detach();
-                            return MIDDLEWARE_STATUS::ST_OK;
-                        }
-                    }
-                }
-                user->message_pool.pushBackMessage("{\"err\": \"param problem\"}");
-                return MIDDLEWARE_STATUS::ST_ERROR;
+    if (request_result.operation == RequestOperation::CREATE_GAME && user->getLocation() == Location::MENU) {
+        if (request_result.isParams()) {
+            const Params::CreateGame *params = static_cast<const Params::CreateGame*>(request_result.getParams());
+            if (ParamsValidator::validate(params) == nullptr) {
+                return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
             }
-            else if (jsonObj["action"] == "join_lobby" && user->getLocation() == Location::MENU) {
-                if (jsonObj.contains("params")) {
-                    if (jsonObj["params"].contains("uuid")) {
-                        std::string uuid = jsonObj["params"]["uuid"].get<std::string>();
-                        if (!uuid.empty()) {
-                            std::thread th(&GameMinorTowns::joinLobby, this->game_minor_towns, user, uuid);
-                            th.detach();
-                            return MIDDLEWARE_STATUS::ST_OK;
-                        }
-                    }
-                    user->message_pool.pushBackMessage("{\"err\": \"param problem\"}");
-                    return MIDDLEWARE_STATUS::ST_ERROR;
-                }
-            } else if (jsonObj["action"] == "leave_lobby" && user->getLocation() == Location::LOBBY) {
-                    std::thread th(&GameMinorTowns::leaveLobby, this->game_minor_towns, user);
-                    th.detach();
-                    return MIDDLEWARE_STATUS::ST_OK;
-            } else if (jsonObj["action"] == "subscribe_update_lobby" && user->getLocation() == Location::MENU) {
-                    std::thread th(&GameMinorTowns::subscribeUpdateLobby, this->game_minor_towns, user);
-                    th.detach();
-                    return MIDDLEWARE_STATUS::ST_OK;
-            } else if (jsonObj["action"] == "unsubscribe_update_lobby" && user->getLocation() == Location::MENU) {
-                    std::thread th(&GameMinorTowns::unsubscribeUpdateLobby, this->game_minor_towns, user);
-                    th.detach();
-                    return MIDDLEWARE_STATUS::ST_OK;
-            } else if (jsonObj["action"] == "build_buildings" && user->getLocation() == Location::GAME) {
-                    if (jsonObj.contains("params")) {
-                        if (jsonObj["params"].contains("building_id")) {
-                            std::thread th(&GameMinorTowns::buildBuildings, this->game_minor_towns, user, jsonObj["params"]["building_id"].get<int>());
-                            th.detach();
-                            return MIDDLEWARE_STATUS::ST_OK;
-                        }
-                    }
-                    user->message_pool.pushBackMessage("{\"err\": \"param problem\"}");
-                    return MIDDLEWARE_STATUS::ST_ERROR;
-            } else if (jsonObj["action"] == "raise_army" && user->getLocation() == Location::GAME) {
-                    if (jsonObj.contains("params")) {
-                        if (jsonObj["params"].contains("soldiers")) {
-                            std::thread th(&GameMinorTowns::raiseArmy, this->game_minor_towns, user, jsonObj["params"]["soldiers"]);
-                            th.detach();
-                            return MIDDLEWARE_STATUS::ST_OK;
-                        }
-                    }
-                    user->message_pool.pushBackMessage("{\"err\": \"param problem\"}");
-                    return MIDDLEWARE_STATUS::ST_ERROR;
-            } else if (jsonObj["action"] == "disband_army" && user->getLocation() == Location::GAME) {
-                    if (jsonObj.contains("params")) {
-                        if (jsonObj["params"].contains("soldiers")) {
-                            std::thread th(&GameMinorTowns::disbandArmy, this->game_minor_towns, user, jsonObj["params"]["soldiers"]);
-                            th.detach();
-                            return MIDDLEWARE_STATUS::ST_OK;
-                        }
-                    }
-                    user->message_pool.pushBackMessage("{\"err\": \"param problem\"}");
-                    return MIDDLEWARE_STATUS::ST_ERROR;
-            }
-        } else {
-                return MIDDLEWARE_STATUS::ST_ERROR;
+            std::thread th(&GameMinorTowns::createLobby, this->game_minor_towns, user, params->max_users);
+            th.detach();
+            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+        }
+        else {
+            return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
         }
     }
-    catch (Poco::Exception&) {
-        return MIDDLEWARE_STATUS::ST_ERROR;
+    else if (request_result.operation == RequestOperation::JOIN_LOBBY && user->getLocation() == Location::MENU) {
+        if (request_result.isParams()) {
+            const Params::JoinLobby* params = static_cast<const Params::JoinLobby*>(request_result.getParams());
+            if (ParamsValidator::validate(params) == nullptr) {
+                return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
+            }
+            std::thread th(&GameMinorTowns::joinLobby, this->game_minor_towns, user, params->uuid_lobby);
+            th.detach();
+            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+        }
+        else {
+            return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
+        }
+    } else if (request_result.operation == RequestOperation::LEAVE_LOBBY && user->getLocation() == Location::LOBBY) {
+            std::thread th(&GameMinorTowns::leaveLobby, this->game_minor_towns, user);
+            th.detach();
+            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+    } else if (request_result.operation == RequestOperation::SUBSCRIBE_UPDATE && user->getLocation() == Location::MENU) {
+            std::thread th(&GameMinorTowns::subscribeUpdateLobby, this->game_minor_towns, user);
+            th.detach();
+            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+    } else if (request_result.operation == RequestOperation::UNSUBSCRIBE_UPDATE && user->getLocation() == Location::MENU) {
+            std::thread th(&GameMinorTowns::unsubscribeUpdateLobby, this->game_minor_towns, user);
+            th.detach();
+            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+    } else if (request_result.operation == RequestOperation::BUILD_BUILDINGS && user->getLocation() == Location::GAME) {
+            if (request_result.isParams()) {
+                const Params::BuildBuildings* params = static_cast<const Params::BuildBuildings*>(request_result.getParams());
+                if (ParamsValidator::validate(params) == nullptr) {
+                    return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
+                }
+                std::thread th(&GameMinorTowns::buildBuildings, this->game_minor_towns, user, params->building_id);
+                th.detach();
+                return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+            }
+            else {
+                return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
+            }
+    } else if (request_result.operation == RequestOperation::RAISE_ARMY && user->getLocation() == Location::GAME) {
+            if (request_result.isParams()) {
+                const Params::RaiseArmy* params = static_cast<const Params::RaiseArmy*>(request_result.getParams());
+                if (ParamsValidator::validate(params) == nullptr) {
+                    return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
+                }
+                std::thread th(&GameMinorTowns::raiseArmy, this->game_minor_towns, user, params->soldiers);
+                th.detach();
+                return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+            }
+            else {
+                return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
+            }
+    } else if (request_result.operation == RequestOperation::DISBAND_ARMY && user->getLocation() == Location::GAME) {
+            if (request_result.isParams()) {
+                const Params::DisbandArmy* params = static_cast<const Params::DisbandArmy*>(request_result.getParams());
+                if (ParamsValidator::validate(params) == nullptr) {
+                    return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
+                }
+                std::thread th(&GameMinorTowns::disbandArmy, this->game_minor_towns, user, params->soldiers);
+                th.detach();
+                return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+            }
+            else {
+                return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
+            }
+    } else {
+        return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("unknown action"));
     }
-    return MIDDLEWARE_STATUS::ST_OK;
 }
 
 MIDDLEWARE_STATUS Middleware::disconnect(std::shared_ptr<User> user)

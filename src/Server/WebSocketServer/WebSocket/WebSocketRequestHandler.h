@@ -7,32 +7,36 @@
 #include "Poco/DateTimeFormat.h"
 #include "Poco/Net/HTTPRequestHandlerFactory.h"
 #include "Poco/Net/HTTPRequestHandler.h"
-
+#include "request_handler/request_handler.h"
 class Middleware;
 
 class WebSocketRequestHandler : public Poco::Net::HTTPRequestHandler {
 public:
-    WebSocketRequestHandler(std::shared_ptr<Middleware> middleware,const std::string &cors,const int &repeatRequest,const int &timeoutResponse) : middlewareServer(middleware) {
+    WebSocketRequestHandler(std::shared_ptr<Middleware> middleware,const std::string &cors,const int &repeat_request,const int &timeout_response) 
+        : middleware_server(middleware), request_handler(std::make_unique<RequestHandler>()) {
         this->cors = &cors;
-        this->repeatRequest = &repeatRequest;
-        this->timeoutResponse = &timeoutResponse;
+        this->repeat_request = &repeat_request;
+        this->timeout_response = &timeout_response;
     }
     void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 private:
     const std::string *cors;
-    const int *repeatRequest;
-    const int *timeoutResponse;
-    std::shared_ptr<Middleware> middlewareServer;
+    const int *repeat_request;
+    const int *timeout_response;
+    std::shared_ptr<Middleware> middleware_server;
+    std::unique_ptr<RequestHandler> request_handler;
 };
 
 class WebSocketRequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory {
 public:
-    WebSocketRequestHandlerFactory(std::shared_ptr<Middleware> middleware, std::string cors, int repeatRequest, int timeoutResponse) : middlewareServer(middleware),
-        cors(cors), repeatRequest(repeatRequest), timeoutResponse(timeoutResponse) {}
+    WebSocketRequestHandlerFactory(std::shared_ptr<Middleware> middleware, std::string cors, int repeat_request, int timeout_response) 
+        : middleware_server(middleware),
+        cors(cors), repeat_request(repeat_request), timeout_response(timeout_response) {
+    }
     Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest& request);
 private:
     std::string cors;
-    int repeatRequest;
-    int timeoutResponse;
-    std::shared_ptr<Middleware> middlewareServer;
+    int repeat_request;
+    int timeout_response;
+    std::shared_ptr<Middleware> middleware_server;
 };

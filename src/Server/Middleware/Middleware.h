@@ -2,6 +2,7 @@
 #include <memory>
 #include "User/User.h"
 #include "AuthorizatonValidate/AuthorizationValidate.h"
+#include "request_handler\request_result.h"
 
 class GameMinorTowns;
 
@@ -16,7 +17,7 @@ public:
 	~Middleware();
 
 	std::shared_ptr<User> authorization(std::string username, std::string address, unsigned short port);
-	MIDDLEWARE_STATUS action(std::string json_message, std::shared_ptr<User> user);
+	std::pair<MIDDLEWARE_STATUS, std::string> action(RequestResult request_result, std::shared_ptr<User> user);
 	MIDDLEWARE_STATUS disconnect(std::shared_ptr<User> user);
 private:
 	AuthorizatonValidate auth_validate;

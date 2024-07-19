@@ -6,7 +6,9 @@
 #include "BetterWebSocket\BetterWebSocket.h"
 #include <iostream>
 #include "User\User.h"
+
 #include "Middleware\Middleware.h"
+#include "request_handler\request_handler.h"
 
 std::string msg1("Hello! Welcome in server MinorTowns :)");
 std::string msg2("Timeout. Server closed :(");
@@ -36,10 +38,10 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 			return;
 		}
 		std::cout << "WebSocket connection established." << std::endl;
-		BetterWebSocket bws(Poco::Net::WebSocket(request, response), *this->timeoutResponse);
+		BetterWebSocket bws(Poco::Net::WebSocket(request, response), *this->timeout_response);
 		msg = params.begin()->second;
 		if (!msg.empty()) {
-			user = this->middlewareServer->authorization(msg, request.clientAddress().host().toString(), request.clientAddress().port());
+			user = this->middleware_server->authorization(msg, request.clientAddress().host().toString(), request.clientAddress().port());
 			if (user == nullptr) {
 				bws.sendFrame(msg3, Poco::Net::WebSocket::FRAME_TEXT, timeout);
 				bws.close();
@@ -51,7 +53,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 			}
 		}
 		bool sendThreadRun = true;
-		std::jthread sendThread([&user, &bws, &sendThreadRun, repeatRequest = this->repeatRequest]() {
+		std::jthread sendThread([&user, &bws, &sendThreadRun, repeatRequest = this->repeat_request]() {
 				bool timeout = false;
 				do {
 					if (!user->message_pool.isEmpty()) {
@@ -66,7 +68,22 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 			msg = bws.receiveFrame(flags, timeout);
 			if (!timeout) {
 				if (!msg.empty()) {
-					this->middlewareServer->action(msg, user);
+					auto result_handler = this->request_handler->Handler(msg);
+					if (result_handler.has_value()) {
+						if (!result_handler->isError()) {
+							auto result_middleware = this->middleware_server->action(std::move(*result_handler), user);
+							if (result_middleware.first == MIDDLEWARE_STATUS::ST_OK) {
+								user->message_pool.pushBackMessage("ok: " + result_middleware.second);
+							}
+							else if (result_middleware.first == MIDDLEWARE_STATUS::ST_ERROR) {
+								user->message_pool.pushBackMessage("err: " + result_middleware.second);
+							}
+						} else {
+							user->message_pool.pushBackMessage("err: " + result_handler->getErrorInfo()->err_info);
+						}
+					} else {
+						user->message_pool.pushBackMessage("404");
+					}
 				}
 			}
 		} while ((flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
@@ -74,7 +91,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 			sendThreadRun = false;
 			sendThread.join();
 		}
-		this->middlewareServer->disconnect(user);
+		this->middleware_server->disconnect(user);
 		bws.close();
 		std::cout << "WebSocket connection closed." << std::endl;
 	}
@@ -86,8 +103,11 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 		case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_UNSUPPORTED_VERSION:
 			response.set("Sec-WebSocket-Version", Poco::Net::WebSocket::WEBSOCKET_VERSION);
 			// fallthrough
+			break;
 		case Poco::Net::WebSocket::WS_ERR_NO_HANDSHAKE:
+			break;
 		case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_NO_VERSION:
+			break;
 		case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_NO_KEY:
 			response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
 			response.setContentLength(0);
@@ -99,5 +119,5 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 
 Poco::Net::HTTPRequestHandler* WebSocketRequestHandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest& request)
 {
-	return new WebSocketRequestHandler(this->middlewareServer, this->cors, this->repeatRequest, this->timeoutResponse);
+	return new WebSocketRequestHandler(this->middleware_server, this->cors, this->repeat_request, this->timeout_response);
 }
