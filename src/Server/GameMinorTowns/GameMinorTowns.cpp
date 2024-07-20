@@ -20,10 +20,12 @@ void GameMinorTowns::createLobby(std::shared_ptr<User> user,const int max_game_u
 
 void GameMinorTowns::joinLobby(std::shared_ptr<User> user,const std::string uuid_lobby)
 {
-	this->lobby_manager->joinLobby(uuid_lobby, user);
-	if (this->lobby_manager->isLobbyFull(uuid_lobby)) {
-		this->game_manager->createGame(this->lobby_manager->extractLobbyUsers(uuid_lobby));
-		this->lobby_manager->closeLobby(uuid_lobby);
+	if (this->lobby_manager->isLobby(uuid_lobby)){
+		this->lobby_manager->joinLobby(uuid_lobby, user);
+		if (this->lobby_manager->isLobbyFull(uuid_lobby)) {
+			this->game_manager->createGame(this->lobby_manager->extractLobbyUsers(uuid_lobby));
+			this->lobby_manager->closeLobby(uuid_lobby);
+		}
 	}
 }
 

@@ -23,6 +23,7 @@ public:
 	size_t countLobbyMaxUsers(std::string uuid_lobby);
 	bool isLobbyFull(std::string uuid_lobby);
 	bool isLobbyEmpty(std::string uuid_lobby);
+	bool isLobby(std::string uuid_lobby);
 	void closeLobby(std::string uuid_lobby);
 	std::vector<std::string> getLobbyUsers(std::string uuid_lobby);
 	std::vector<std::shared_ptr<User>> extractLobbyUsers(std::string uuid_lobby);

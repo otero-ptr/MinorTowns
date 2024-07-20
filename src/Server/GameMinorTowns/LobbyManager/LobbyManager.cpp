@@ -67,6 +67,11 @@ bool LobbyManager::isLobbyEmpty(std::string uuid_lobby)
 	return this->countLobbyUsers(uuid_lobby) == 0;
 }
 
+bool LobbyManager::isLobby(std::string uuid_lobby)
+{
+	return this->redis->exists(uuid_lobby);
+}
+
 std::vector<std::string> LobbyManager::getLobbyUsers(std::string uuid_lobby)
 {
 	std::vector<std::string> result;
