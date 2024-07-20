@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 
-class AuthorizatonValidate {
-public:
+namespace AuthValidate {
 	bool checkUsername(const std::string &username);
 };

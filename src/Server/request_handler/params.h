@@ -8,7 +8,7 @@ namespace Params {
 	};
 
 	struct CreateGame : public Params {
-		uint32_t max_users;
+		uint8_t max_users;
 	};
 
 	struct JoinLobby : public Params {

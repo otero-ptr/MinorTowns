@@ -5,6 +5,7 @@
 #include <iostream>
 #include <Poco\Exception.h>
 #include "request_handler\params_validator.h"
+#include "AuthorizatonValidate/AuthorizationValidate.h"
 
 Middleware::Middleware(std::shared_ptr<GameMinorTowns> game)
     : game_minor_towns(game)
@@ -18,7 +19,7 @@ Middleware::~Middleware()
 
 std::shared_ptr<User> Middleware::authorization(std::string username, std::string address, unsigned short port)
 {
-    if (this->auth_validate.checkUsername(username)) {
+    if (AuthValidate::checkUsername(username)) {
         return nullptr;
     }
 	std::shared_ptr<User> user;

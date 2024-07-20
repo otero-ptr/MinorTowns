@@ -10,7 +10,7 @@ public:
 private:
 	int max_tick = 240;
 	int max_repeat_tick= 60;
-	int repeat_tick = 0;
 	const Town* top_town = nullptr;
+	int repeat_tick = 0;
 	bool game_end = false;
 };
