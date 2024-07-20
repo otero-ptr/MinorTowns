@@ -10,10 +10,6 @@
 #include "Middleware\Middleware.h"
 #include "request_handler\request_handler.h"
 
-std::string msg1("Hello! Welcome in server MinorTowns :)");
-std::string msg2("Timeout. Server closed :(");
-std::string msg3("Wrong user. Server closed :(");
-
 void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
 	try
@@ -43,13 +39,13 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 		if (!msg.empty()) {
 			user = this->middleware_server->authorization(msg, request.clientAddress().host().toString(), request.clientAddress().port());
 			if (user == nullptr) {
-				bws.sendFrame(msg3, Poco::Net::WebSocket::FRAME_TEXT, timeout);
+				bws.sendResponseMessage(ResponseMessage(Code::NotAcceptable, "Wrong user. Server closed"));
 				bws.close();
 				std::cout << "WebSocket connection closed." << std::endl;
 				return;
 			}
 			else {
-				bws.sendFrame(msg1, Poco::Net::WebSocket::FRAME_TEXT, timeout);
+				bws.sendResponseMessage(ResponseMessage(Code::Accepted, "Hello! Welcome in server MinorTowns"));
 			}
 		}
 		bool sendThreadRun = true;
@@ -57,7 +53,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 				bool timeout = false;
 				do {
 					if (!user->message_pool.isEmpty()) {
-						bws.sendFrame(user->message_pool.popFrontMessage(), Poco::Net::WebSocket::FRAME_TEXT, timeout);
+						bws.sendPushMessage(user->message_pool.popFrontMessage(), timeout);
 					}
 					std::this_thread::sleep_for(std::chrono::milliseconds(*repeatRequest));
 				} while (sendThreadRun);
@@ -73,16 +69,16 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 						if (!result_handler->isError()) {
 							auto result_middleware = this->middleware_server->action(std::move(*result_handler), user);
 							if (result_middleware.first == MIDDLEWARE_STATUS::ST_OK) {
-								user->message_pool.pushBackMessage("ok: " + result_middleware.second);
+								bws.sendResponseMessage(ResponseMessage(Code::OK));
 							}
 							else if (result_middleware.first == MIDDLEWARE_STATUS::ST_ERROR) {
-								user->message_pool.pushBackMessage("err: " + result_middleware.second);
+								bws.sendResponseMessage(ResponseMessage(Code::InternalServerError, result_middleware.second));
 							}
 						} else {
-							user->message_pool.pushBackMessage("err: " + result_handler->getErrorInfo()->err_info);
+							bws.sendResponseMessage(ResponseMessage(Code::InternalServerError, result_handler->getErrorInfo()->err_info));
 						}
 					} else {
-						user->message_pool.pushBackMessage("404");
+						bws.sendResponseMessage(ResponseMessage(Code::NotFound));
 					}
 				}
 			}

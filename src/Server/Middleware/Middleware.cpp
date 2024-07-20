@@ -36,7 +36,7 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
             }
             std::thread th(&GameMinorTowns::createLobby, this->game_minor_towns, user, params->max_users);
             th.detach();
-            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
         }
         else {
             return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
@@ -50,7 +50,7 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
             }
             std::thread th(&GameMinorTowns::joinLobby, this->game_minor_towns, user, params->uuid_lobby);
             th.detach();
-            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
         }
         else {
             return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
@@ -58,15 +58,15 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
     } else if (request_result.operation == RequestOperation::LEAVE_LOBBY && user->getLocation() == Location::LOBBY) {
             std::thread th(&GameMinorTowns::leaveLobby, this->game_minor_towns, user);
             th.detach();
-            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
     } else if (request_result.operation == RequestOperation::SUBSCRIBE_UPDATE && user->getLocation() == Location::MENU) {
             std::thread th(&GameMinorTowns::subscribeUpdateLobby, this->game_minor_towns, user);
             th.detach();
-            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
     } else if (request_result.operation == RequestOperation::UNSUBSCRIBE_UPDATE && user->getLocation() == Location::MENU) {
             std::thread th(&GameMinorTowns::unsubscribeUpdateLobby, this->game_minor_towns, user);
             th.detach();
-            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
     } else if (request_result.operation == RequestOperation::BUILD_BUILDINGS && user->getLocation() == Location::GAME) {
             if (request_result.isParams()) {
                 const Params::BuildBuildings* params = static_cast<const Params::BuildBuildings*>(request_result.getParams());
@@ -75,7 +75,7 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
                 }
                 std::thread th(&GameMinorTowns::buildBuildings, this->game_minor_towns, user, params->building_id);
                 th.detach();
-                return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+                return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
             else {
                 return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
@@ -88,7 +88,7 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
                 }
                 std::thread th(&GameMinorTowns::raiseArmy, this->game_minor_towns, user, params->soldiers);
                 th.detach();
-                return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+                return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
             else {
                 return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
@@ -101,7 +101,7 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
                 }
                 std::thread th(&GameMinorTowns::disbandArmy, this->game_minor_towns, user, params->soldiers);
                 th.detach();
-                return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string("200"));
+                return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
             else {
                 return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));

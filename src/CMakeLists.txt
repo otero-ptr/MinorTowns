@@ -63,6 +63,13 @@ set(BETTER_WEBSOCKET_FILES
 )
 list(APPEND SRC_FILES ${BETTER_WEBSOCKET_FILES})
 
+set(SERVER_MESSAGES_FILES
+    "Server/WebSocketServer/WebSocket/BetterWebSocket/server_messages/http_status_codes.h"
+    "Server/WebSocketServer/WebSocket/BetterWebSocket/server_messages/push_message.h"
+    "Server/WebSocketServer/WebSocket/BetterWebSocket/server_messages/response_message.h"
+)
+list(APPEND SRC_FILES ${SERVER_MESSAGES_FILES})
+
 set(WEBSOCKET_FILES
     "Server/WebSocketServer/WebSocket/WebSocketRequestHandler.cpp"
     "Server/WebSocketServer/WebSocket/WebSocketRequestHandler.h"

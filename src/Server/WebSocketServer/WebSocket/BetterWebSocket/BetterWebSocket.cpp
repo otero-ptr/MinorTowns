@@ -1,5 +1,5 @@
 #include "BetterWebSocket.h"
-#include <iostream>
+#include <nlohmann\json.hpp>
 
 BetterWebSocket::BetterWebSocket(Poco::Net::WebSocket ws, int timeout_sec) : ws(ws)
 {
@@ -49,6 +49,44 @@ int BetterWebSocket::sendFrame(const std::string &msg, int flags, bool& timeout)
 	catch (Poco::TimeoutException& e) {
 		timeout = true;
 		return 0;
+	}
+}
+
+int BetterWebSocket::sendResponseMessage(ResponseMessage response)
+{
+	try {
+		nlohmann::json response_msg;
+		response_msg["code"] = static_cast<int>(response.code);
+		if (!response.body.empty()){
+			response_msg["body"] = response.body;
+		}
+		std::string result_response = response_msg.dump();
+		return this->ws.sendFrame(result_response.c_str(), result_response.size(), Poco::Net::WebSocket::FRAME_TEXT);
+	}
+	catch (Poco::TimeoutException& e) {
+		return 0;
+	}
+	catch (...) {
+		throw;
+	}
+}
+
+int BetterWebSocket::sendPushMessage(PushMessage push, bool& timeout)
+{
+	try {
+		timeout = false;
+		nlohmann::json response_msg;
+		nlohmann::json msg = nlohmann::json::parse(push.body);
+		response_msg["msg"] = msg;
+		std::string result_response = response_msg.dump();
+		return this->ws.sendFrame(result_response.c_str(), result_response.size(), Poco::Net::WebSocket::FRAME_TEXT);
+	}
+	catch (Poco::TimeoutException& e) {
+		timeout = true;
+		return 0;
+	}
+	catch (...) {
+		throw;
 	}
 }
 
