@@ -6,7 +6,6 @@
 #include "BetterWebSocket\BetterWebSocket.h"
 #include <iostream>
 #include "User\User.h"
-
 #include "Middleware\Middleware.h"
 #include "request_handler\request_handler.h"
 
@@ -69,7 +68,7 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 						if (!result_handler->isError()) {
 							auto result_middleware = this->middleware_server->action(std::move(*result_handler), user);
 							if (result_middleware.first == MIDDLEWARE_STATUS::ST_OK) {
-								bws.sendResponseMessage(ResponseMessage(Code::OK));
+								bws.sendResponseMessage(ResponseMessage(Code::OK, result_middleware.second));
 							}
 							else if (result_middleware.first == MIDDLEWARE_STATUS::ST_ERROR) {
 								bws.sendResponseMessage(ResponseMessage(Code::InternalServerError, result_middleware.second));

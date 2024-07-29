@@ -39,7 +39,7 @@ json:
 }
 
 {
-  "action": "create_game",
+  "action": "create_lobby",
   "params": {
     "max_users": 3
   }

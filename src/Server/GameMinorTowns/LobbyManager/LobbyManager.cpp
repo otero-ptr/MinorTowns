@@ -137,6 +137,7 @@ void LobbyManager::refreshListLobby()
 {
 	while (this->active) {
 		nlohmann::json json_list;
+		json_list["lobbies"] = nullptr; // init lobbies
 		for (std::string_view it : this->lobbies) {
 			nlohmann::json json_lobby;
 			json_lobby["uuid_lobby"] = it;
@@ -152,10 +153,14 @@ void LobbyManager::refreshListLobby()
 void LobbyManager::notifyLobbyUsers(std::string_view uuid_lobby)
 {
 	nlohmann::json lobby_data;
-	lobby_data["uuid_lobby"] = uuid_lobby;
-	lobby_data["users_now"] = this->countLobbyUsers(uuid_lobby.data());
-	lobby_data["users_max"] = this->countLobbyMaxUsers(uuid_lobby.data());
+	lobby_data["lobby"]["uuid_lobby"] = uuid_lobby;
+	lobby_data["lobby"]["users_now"] = this->countLobbyUsers(uuid_lobby.data());
+	lobby_data["lobby"]["users_max"] = this->countLobbyMaxUsers(uuid_lobby.data());
 	auto result = this->getLobbyUsers(uuid_lobby.data());
+	size_t index = 0;
+	for (std::string_view uuid : result) {
+		lobby_data["lobby"]["users"][index++] = this->users[uuid.data()]->getUsername();
+	}
 	for (std::string_view uuid : result) {
 		this->users[uuid.data()]->message_pool.pushBackMessage(lobby_data.dump());
 	}

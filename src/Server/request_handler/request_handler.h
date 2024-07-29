@@ -10,7 +10,7 @@ public:
 	~RequestHandler();
 	std::optional<RequestResult> Handler(std::string request);
 private:
-	RequestResult CreateGame(nlohmann::json request_json);
+	RequestResult CreateLobby(nlohmann::json request_json);
 	RequestResult JoinLobby(nlohmann::json request_json);
 	RequestResult LeaveLobby(nlohmann::json request_json);
 	RequestResult SubscribeUpdateLobby(nlohmann::json request_json);

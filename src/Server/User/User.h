@@ -2,7 +2,7 @@
 #include <string>
 #include "MessagePool\MessagePool.h"
 
-enum Location {
+enum class Location {
 	MENU,
 	LOBBY,
 	GAME

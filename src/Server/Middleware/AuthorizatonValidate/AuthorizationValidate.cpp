@@ -1,7 +1,7 @@
 #include "AuthorizationValidate.h"
 #include <regex>
 
-bool AuthorizatonValidate::checkUsername(const std::string &username)
+bool AuthValidate::checkUsername(const std::string &username)
 {
 	if (username.size() < 5 || username.size() > 22) {
 		return true;

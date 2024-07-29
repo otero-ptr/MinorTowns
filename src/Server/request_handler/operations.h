@@ -1,7 +1,8 @@
 #pragma once
 
-enum RequestOperation {
-	CREATE_GAME,
+enum class RequestOperation {
+	NONE,
+	CREATE_LOBBY,
 	JOIN_LOBBY,
 	LEAVE_LOBBY,
 	SUBSCRIBE_UPDATE,

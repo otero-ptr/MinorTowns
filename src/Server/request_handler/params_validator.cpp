@@ -7,7 +7,7 @@ const Params::Params* ParamsValidator::validate(const Params::Params* params)
 	return nullptr;
 }
 
-const Params::CreateGame* ParamsValidator::validate(const Params::CreateGame* params)
+const Params::CreateLobby* ParamsValidator::validate(const Params::CreateLobby* params)
 {
 	if (params->max_users < 2 || params->max_users > 4) {
 		return nullptr;

@@ -7,7 +7,7 @@ namespace Params {
 
 	};
 
-	struct CreateGame : public Params {
+	struct CreateLobby : public Params {
 		uint8_t max_users;
 	};
 

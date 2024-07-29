@@ -2,42 +2,46 @@
 #include "operations.h"
 #include "params.h"
 #include "error_info.h"
+#include <memory>
 
-struct RequestResult {
-private:
-	Params::Params* params = nullptr;
-	ErrorInfo* err_info = nullptr;
+class RequestResult {
 public:
-	RequestOperation operation;
+	RequestResult() 
+		: operation(RequestOperation::NONE), 
+		params(nullptr), err_info(nullptr) {
 
-	RequestResult() = default;
+	}
 	~RequestResult() {
-		if (params) {
-			delete params;
-		}
-		if (err_info) {
-			delete err_info;
-		}
+
 	}		
-	RequestResult(RequestResult&& other)
+	RequestResult(RequestResult&& other) noexcept
 		: operation(other.operation),
-		params(other.params),
-		err_info(other.err_info)
-	{
-		other.params = nullptr;
-		other.err_info = nullptr;
+		params(std::move(other.params)),
+		err_info(std::move(other.err_info)) {
 	}
 	RequestResult(const RequestResult&) = delete;
 	RequestResult& operator=(const RequestResult&) = delete;
 	RequestResult& operator=(RequestResult&&) = delete;
 
-	bool isError() const { return err_info != nullptr; }
+	bool isError() const { return this->operation == RequestOperation::ERROR_OPERATION; }
 	bool isParams() const { return params != nullptr; }
-	const Params::Params* getParams() const { return params; }
-	const ErrorInfo* getErrorInfo() const { return err_info; }
-	void setParams(Params::Params* params) { this->params = params; }
-	void setErrorInfo(ErrorInfo* err_info) {
-		this->operation = RequestOperation::ERROR_OPERATION;
-		this->err_info = err_info;
+
+	const RequestOperation getOperation() const {
+		return this->operation;
 	}
+	const Params::Params* getParams() const { return params.get(); }
+	const ErrorInfo* getErrorInfo() const { return err_info.get(); }
+
+	void setOperation(RequestOperation&& operation) {
+		this->operation = operation;
+	}
+	void setParams(std::unique_ptr<Params::Params> params) { this->params = std::move(params); }
+	void setErrorInfo(std::unique_ptr <ErrorInfo> err_info) {
+		this->operation = RequestOperation::ERROR_OPERATION;
+		this->err_info = std::move(err_info);
+	}
+private:
+	RequestOperation operation;
+	std::unique_ptr<Params::Params> params;
+	std::unique_ptr<ErrorInfo> err_info;
 };
