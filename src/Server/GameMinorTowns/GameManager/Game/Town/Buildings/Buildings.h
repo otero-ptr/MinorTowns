@@ -1,31 +1,24 @@
 #pragma once
-
-enum TypeBuilding {
-	Church = 0,
-	Manufactory = 1,
-	MaxValue = 2
-};
+#include <cstdint>
+#include <mutex>
 
 class Buildings {
 public:
-	Buildings() = delete;
-	Buildings(double priceIncrease);
-	void build(const int& type);
-	void destroy(const int& type);
-	bool isTypeExists(const int& type);
-	int	getCountBuildings(const int& type) const;
-	void setPriceBuildings(const int& type, double value, double modifier);
-	double getPriceBuildings(const int& type) const;
-	double getModifierBuildings(const int& type) const;
-	double getPriceIncrease() const;
-private:
-	int church = 0;
-	int manufactory = 0;
-	double priceChurch;
-	double priceManufactory;
+	Buildings(uint32_t price) 
+	: count(0), price(price) {
 
-	double modifierChurch;
-	double modifierManufactory;
-
-	double priceIncrease;
+	}
+	virtual void build() = 0;
+	virtual void destroy() = 0;
+	const uint32_t getCount() const {
+		return this->count;
+	}
+	const uint32_t getPrice() const {
+		return this->price;
+	}
+	virtual ~Buildings() = default;
+protected:
+	uint32_t count;
+	uint32_t price;
+	std::mutex mtx;
 };
