@@ -8,6 +8,7 @@
 #include "Poco/Net/HTTPRequestHandlerFactory.h"
 #include "Poco/Net/HTTPRequestHandler.h"
 #include "RequestHandler/RequestHandler.h"
+
 class Middleware;
 
 class WebSocketRequestHandler : public Poco::Net::HTTPRequestHandler {

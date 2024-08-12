@@ -8,33 +8,22 @@
 #include "User\User.h"
 #include "Middleware\Middleware.h"
 #include "RequestHandler\RequestHandler.h"
+#include "ConnectionHandler.h"
 
 void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
 	try
 	{
-		std::shared_ptr<User> user;
-		std::string msg;
-		int flags;
-		bool timeout = false;
 		response.set("Access-Control-Allow-Origin", *this->cors);
 		Poco::URI uri(request.getURI());
-		Poco::URI::QueryParameters params = uri.getQueryParameters();
-		if (params.size() != 1) {
-			response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
-			response.setContentLength(0);
-			response.send();
-			return;
-		}
-		if (params.begin()->first != "username" || params.begin()->second.empty()) {
-			response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
-			response.setContentLength(0);
-			response.send();
+		if (!handleConnect(response, uri.getQueryParameters())) {
 			return;
 		}
 		std::cout << "WebSocket connection established." << std::endl;
 		BetterWebSocket bws(Poco::Net::WebSocket(request, response), *this->timeout_response);
-		msg = params.begin()->second;
+		std::string msg;
+		std::shared_ptr<User> user;
+		msg = uri.getQueryParameters().begin()->second;
 		if (!msg.empty()) {
 			user = this->middleware_server->authorization(msg, request.clientAddress().host().toString(), request.clientAddress().port());
 			if (user == nullptr) {
@@ -51,22 +40,23 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 		std::jthread sendThread([&user, &bws, &sendThreadRun, repeatRequest = this->repeat_request]() {
 				bool timeout = false;
 				do {
-					if (!user->message_pool.isEmpty()) {
-						bws.sendPushMessage(user->message_pool.popFrontMessage(), timeout);
+					if (!user->message_pool.empty()) {
+						bws.sendPushMessage(user->message_pool.pop(), timeout);
 					}
 					std::this_thread::sleep_for(std::chrono::milliseconds(*repeatRequest));
 				} while (sendThreadRun);
 			});
-
+		int flags;
 		do
 		{
+			bool timeout = false;
 			msg = bws.receiveFrame(flags, timeout);
 			if (!timeout) {
 				if (!msg.empty()) {
-					auto result_handler = this->request_handler->Handler(msg);
+					auto result_handler = request_handler->Handler(msg);
 					if (result_handler.has_value()) {
 						if (!result_handler->isError()) {
-							auto result_middleware = this->middleware_server->action(std::move(*result_handler), user);
+							auto result_middleware = middleware_server->action(std::move(*result_handler), user);
 							if (result_middleware.first == MIDDLEWARE_STATUS::ST_OK) {
 								bws.sendResponseMessage(ResponseMessage(Code::OK, result_middleware.second));
 							}
@@ -84,9 +74,10 @@ void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reques
 		} while ((flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
 		if (sendThread.joinable()) {
 			sendThreadRun = false;
+			user->message_pool.clear();
 			sendThread.join();
 		}
-		this->middleware_server->disconnect(user);
+		middleware_server->disconnect(user);
 		bws.close();
 		std::cout << "WebSocket connection closed." << std::endl;
 	}

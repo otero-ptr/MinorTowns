@@ -162,6 +162,6 @@ void LobbyManager::notifyLobbyUsers(std::string_view uuid_lobby)
 		lobby_data["lobby"]["users"][index++] = this->users[uuid.data()]->getUsername();
 	}
 	for (std::string_view uuid : result) {
-		this->users[uuid.data()]->message_pool.pushBackMessage(lobby_data.dump());
+		this->users[uuid.data()]->message_pool.push(lobby_data.dump());
 	}
 }

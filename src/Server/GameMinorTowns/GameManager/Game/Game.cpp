@@ -162,14 +162,14 @@ void Game::notifyTick()
 	nlohmann::json common_obj = makeCommonJson();
 	for (auto& town : towns) {
 		nlohmann::json info = createTownJson(town.getData(), common_obj);
-		town.getOwnTown()->message_pool.pushBackMessage(info.dump());
+		town.getOwnTown()->message_pool.push(info.dump());
 	}
 }
 
 void Game::notifyMap()
 {
 	for (auto& town : towns) {
-		town.getOwnTown()->message_pool.pushBackMessage(this->game_map->getMapJson());
+		town.getOwnTown()->message_pool.push(this->game_map->getMapJson());
 	}
 }
 
@@ -178,7 +178,7 @@ void Game::notifyTable()
 	nlohmann::json common_obj;
 	common_obj["table"] = makeTableJson();
 	for (auto& town : towns) {
-		town.getOwnTown()->message_pool.pushBackMessage(common_obj.dump());
+		town.getOwnTown()->message_pool.push(common_obj.dump());
 	}
 }
 

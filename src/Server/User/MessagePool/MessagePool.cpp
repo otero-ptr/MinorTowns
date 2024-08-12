@@ -1,20 +1,30 @@
 #include "MessagePool.h"
 
-void MessagePool::pushBackMessage(std::string msg)
+void MessagePool::push(std::string msg)
 {
+	std::lock_guard<std::mutex> guard(mtx);
 	if (!msg.empty()) {
-		this->pool.push(msg);
+		pool.push(msg);
 	}
 }
 
-std::string MessagePool::popFrontMessage()
+std::string MessagePool::pop()
 {
-	std::string msg = this->pool.front();
-	this->pool.pop();
+	std::lock_guard<std::mutex> guard(mtx);
+	std::string msg = pool.front();
+	pool.pop();
 	return msg;
 }
 
-bool MessagePool::isEmpty()
+bool MessagePool::empty() const
 {
-	return this->pool.empty();
+	return pool.empty();
+}
+
+void MessagePool::clear()
+{
+	std::lock_guard<std::mutex> guard(mtx);
+	while (!pool.empty()) {
+		pool.pop();
+	}
 }

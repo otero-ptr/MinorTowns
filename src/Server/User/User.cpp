@@ -14,28 +14,33 @@ User::~User()
 {
 }
 
+bool User::operator==(const User& other)
+{
+	return username == other.username && address == other.address && uuid == other.uuid;
+}
+
 void User::setLocation(Location l, std::string uuid)
 {
-	this->user_location = l;
-	this->uuid_location = uuid;
+	user_location = l;
+	uuid_location = uuid;
 }
 
-Location User::getLocation()
+Location User::getLocation() const
 {
-	return this->user_location;
+	return user_location;
 }
 
-const std::string User::getUUIDLocation()
+const std::string User::getUUIDLocation() const
 {
-	return this->uuid_location;
+	return uuid_location;
 }
 
-const std::string User::getUUID()
+const std::string User::getUUID() const
 {
-	return this->uuid;
+	return uuid;
 }
 
-std::string User::getUsername()
+std::string User::getUsername() const
 {
-	return this->username;
+	return username;
 }
