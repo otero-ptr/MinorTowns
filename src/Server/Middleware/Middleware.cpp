@@ -35,7 +35,7 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
             if (ParamsValidator::validate(params) == nullptr) {
                 return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
             }
-            auto result = std::async(&GameMinorTowns::createLobby, this->game_minor_towns, user, params->max_users);
+            auto result = std::async(&GameMinorTowns::createLobby, game_minor_towns, std::ref(user), params->max_users);
             result.wait();
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
         }
@@ -49,7 +49,7 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
             if (ParamsValidator::validate(params) == nullptr) {
                 return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
             }
-            auto result = std::async(&GameMinorTowns::joinLobby, this->game_minor_towns, user, params->uuid_lobby);
+            auto result = std::async(&GameMinorTowns::joinLobby, game_minor_towns, std::ref(user), params->uuid_lobby);
             result.wait();
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
         }
@@ -57,15 +57,15 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
             return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
         }
     } else if (request_result.getOperation() == RequestOperation::LEAVE_LOBBY && user->getLocation() == Location::LOBBY) {
-            auto result = std::async(&GameMinorTowns::leaveLobby, this->game_minor_towns, user);
+            auto result = std::async(&GameMinorTowns::leaveLobby, game_minor_towns, std::ref(user));
             result.wait();
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
     } else if (request_result.getOperation() == RequestOperation::SUBSCRIBE_UPDATE && user->getLocation() == Location::MENU) {
-            auto result = std::async(&GameMinorTowns::subscribeUpdateLobby, this->game_minor_towns, user);
+            auto result = std::async(&GameMinorTowns::subscribeUpdateLobby, game_minor_towns, std::ref(user));
             result.wait();
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
     } else if (request_result.getOperation() == RequestOperation::UNSUBSCRIBE_UPDATE && user->getLocation() == Location::MENU) {
-            auto result = std::async(&GameMinorTowns::unsubscribeUpdateLobby, this->game_minor_towns, user);
+            auto result = std::async(&GameMinorTowns::unsubscribeUpdateLobby, game_minor_towns, std::ref(user));
             result.wait();
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
     } else if (request_result.getOperation() == RequestOperation::BUILD_BUILDINGS && user->getLocation() == Location::GAME) {
@@ -74,7 +74,7 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
                 if (ParamsValidator::validate(params) == nullptr) {
                     return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
                 }
-                auto result = std::async(&GameMinorTowns::buildBuildings, this->game_minor_towns, user, params->building_id);
+                auto result = std::async(&GameMinorTowns::buildBuildings, game_minor_towns, std::ref(user), params->building_id);
                 result.wait();
                 return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
@@ -87,7 +87,7 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
                 if (ParamsValidator::validate(params) == nullptr) {
                     return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
                 }
-                auto result = std::async(&GameMinorTowns::raiseArmy, this->game_minor_towns, user, params->soldiers);
+                auto result = std::async(&GameMinorTowns::raiseArmy, game_minor_towns, std::ref(user), params->soldiers);
                 result.wait();
                 return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
@@ -100,7 +100,7 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
                 if (ParamsValidator::validate(params) == nullptr) {
                     return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
                 }
-                auto result = std::async(&GameMinorTowns::disbandArmy, this->game_minor_towns, user, params->soldiers);
+                auto result = std::async(&GameMinorTowns::disbandArmy, game_minor_towns, std::ref(user), params->soldiers);
                 result.wait();
                 return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
@@ -114,18 +114,17 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
 
 MIDDLEWARE_STATUS Middleware::disconnect(std::shared_ptr<User> user)
 {
-    auto location = user->getLocation();
-    if (location == Location::MENU) {
-        std::thread th(&GameMinorTowns::unsubscribeUpdateLobby, this->game_minor_towns, user);
-        th.detach();
+    if (user->getLocation() == Location::MENU) {
+        auto result = std::async(&GameMinorTowns::unsubscribeUpdateLobby, game_minor_towns, std::ref(user));
+        result.wait();
         return MIDDLEWARE_STATUS::ST_OK;
     }
-    else if (location == Location::LOBBY) {
-        std::thread th(&GameMinorTowns::leaveLobby, this->game_minor_towns, user);
-        th.detach();
+    else if (user->getLocation() == Location::LOBBY) {
+        auto result = std::async(&GameMinorTowns::leaveLobby, game_minor_towns, std::ref(user));
+        result.wait();
         return MIDDLEWARE_STATUS::ST_OK;
     }
-    else if (location == Location::GAME) {
+    else if (user->getLocation() == Location::GAME) {
         
         return MIDDLEWARE_STATUS::ST_OK;
     }

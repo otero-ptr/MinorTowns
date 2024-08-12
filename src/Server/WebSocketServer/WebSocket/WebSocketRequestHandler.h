@@ -8,29 +8,45 @@
 #include "Poco/Net/HTTPRequestHandlerFactory.h"
 #include "Poco/Net/HTTPRequestHandler.h"
 #include "RequestHandler/RequestHandler.h"
+#include "Poco/URI.h"
+#include "User/User.h"
+#include "BetterWebSocket/BetterWebSocket.h"
 
 class Middleware;
 
 class WebSocketRequestHandler : public Poco::Net::HTTPRequestHandler {
 public:
-    WebSocketRequestHandler(std::shared_ptr<Middleware> middleware,const std::string &cors,const int &repeat_request,const int &timeout_response) 
-        : middleware_server(middleware), request_handler(std::make_unique<RequestHandler>()) {
-        this->cors = &cors;
-        this->repeat_request = &repeat_request;
-        this->timeout_response = &timeout_response;
+    WebSocketRequestHandler(std::shared_ptr<Middleware> middleware,
+        const std::string &cors, const int &repeat_request, const int &timeout_response) 
+        : cors(cors), repeat_request(repeat_request), 
+        timeout_response(timeout_response), middleware_server(middleware), 
+        request_handler(std::make_unique<RequestHandler>()) {
+
     }
-    void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
+    ~WebSocketRequestHandler();
+    void handleRequest(Poco::Net::HTTPServerRequest& request, 
+        Poco::Net::HTTPServerResponse& response);
 private:
-    const std::string *cors;
-    const int *repeat_request;
-    const int *timeout_response;
+    bool handleConnect(Poco::Net::HTTPServerResponse& response, 
+        const Poco::URI::QueryParameters& params);
+
+    void runRequestThread();
+    const std::string_view cors;
+    const int repeat_request;
+    const int timeout_response;
     std::shared_ptr<Middleware> middleware_server;
     std::unique_ptr<RequestHandler> request_handler;
+
+    std::shared_ptr<User> user;
+    std::unique_ptr<BetterWebSocket> bws;
+
+    std::jthread th_request;
 };
 
 class WebSocketRequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory {
 public:
-    WebSocketRequestHandlerFactory(std::shared_ptr<Middleware> middleware, std::string cors, int repeat_request, int timeout_response) 
+    WebSocketRequestHandlerFactory(std::shared_ptr<Middleware> middleware, 
+        std::string cors, int repeat_request, int timeout_response) 
         : middleware_server(middleware),
         cors(cors), repeat_request(repeat_request), timeout_response(timeout_response) {
     }

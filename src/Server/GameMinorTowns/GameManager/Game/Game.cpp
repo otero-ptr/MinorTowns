@@ -3,10 +3,9 @@
 #include "User/User.h"
 #include "Army/Battle/Battle.h"
 #include "GameController/GameNotify.h"
-#include <iostream>
 
 
-Game::Game(std::vector<std::shared_ptr<User>> users, std::shared_ptr<GameSettings> settings) :
+Game::Game(std::vector<std::weak_ptr<User>> users, std::shared_ptr<GameSettings> settings) :
 	game_controller(settings->getMaxTick(), settings->getRepeatTick()),
 	uuid(GenerateUUID()), action_manager(std::make_unique<ActionManager>()),
 	cooldown_tick(settings->getCooldownTick())
@@ -19,7 +18,6 @@ Game::Game(std::vector<std::shared_ptr<User>> users, std::shared_ptr<GameSetting
 
 Game::~Game()
 {
-	this->active = false;
 	if (this->th_tick.joinable()) {
 		this->th_tick.join();
 	}
@@ -28,7 +26,7 @@ Game::~Game()
 void Game::start()
 {
 	this->game_controller.notify(users, GameNotify::GAME_START);
-	this->th_tick = std::jthread(&Game::tick, this);
+	this->th_tick = std::jthread(&Game::tick, this, th_tick.get_stop_token());
 }
 
 void Game::prepare(std::shared_ptr<GameSettings> settings)
@@ -43,17 +41,17 @@ void Game::prepare(std::shared_ptr<GameSettings> settings)
 
 const std::string Game::getUUID()
 {
-	return this->uuid;
+	return uuid;
 }
 
 bool Game::isActive()
 {
-	return this->active;
+	return th_tick.get_stop_token().stop_requested();
 }
 
-void Game::buildBuildings(std::shared_ptr<User> user, int& building_type)
+void Game::buildBuildings(std::shared_ptr<User>& user, int& building_type)
 {
-	for (auto& town : this->towns) {
+	for (auto& town : towns) {
 		if (town.getOwnTown() == user) {
 			town.buildBuilding(static_cast<TypeBuildings>(building_type));
 			break;
@@ -61,12 +59,12 @@ void Game::buildBuildings(std::shared_ptr<User> user, int& building_type)
 	}
 }
 
-void Game::raiseArmy(std::shared_ptr<User> user, int& count_soldiers)
+void Game::raiseArmy(std::shared_ptr<User>& user, int& count_soldiers)
 {
 	if (count_soldiers > 0) {
-		for (int i = 0; i < this->towns.size(); ++i) {
-			if (this->towns[i].getOwnTown() == user) {
-				this->armies[i].merge(count_soldiers);
+		for (int i = 0; i < towns.size(); ++i) {
+			if (towns[i].getOwnTown() == user) {
+				armies[i].merge(count_soldiers);
 				break;
 			}
 		}
@@ -76,12 +74,12 @@ void Game::raiseArmy(std::shared_ptr<User> user, int& count_soldiers)
 	}
 }
 
-void Game::disbandArmy(std::shared_ptr<User> user, int& count_soldiers)
+void Game::disbandArmy(std::shared_ptr<User>& user, int& count_soldiers)
 {
 	if (count_soldiers > 0) {
-		for (int i = 0; i < this->towns.size(); ++i) {
-			if (this->towns[i].getOwnTown() == user) {
-				this->armies[i].merge(count_soldiers);
+		for (int i = 0; i < towns.size(); ++i) {
+			if (towns[i].getOwnTown() == user) {
+				armies[i].merge(count_soldiers);
 				break;
 			}
 		}
@@ -91,14 +89,14 @@ void Game::disbandArmy(std::shared_ptr<User> user, int& count_soldiers)
 	}
 }
 
-void Game::attackArmy(std::shared_ptr<User> user)
+void Game::attackArmy(std::shared_ptr<User>& user)
 {
-	for (int i = 0; i < this->towns.size(); ++i) {
-		if (this->towns[i].getOwnTown() == user) {
-			for (int a = 0; a < this->armies.size(); ++a) {
-				if (this->armies[i].getNode() == this->armies[a].getNode() && i != a 
-					&& this->armies[i].getCount() > 0 && this->armies[a].getCount() > 0) {
-					this->battles.emplace_back(this->armies[a], this->armies[i], this->armies[i].getNode());
+	for (int i = 0; i < towns.size(); ++i) {
+		if (towns[i].getOwnTown() == user) {
+			for (int a = 0; a < armies.size(); ++a) {
+				if (armies[i].getNode() == armies[a].getNode() && i != a 
+					&& armies[i].getCount() > 0 && armies[a].getCount() > 0) {
+					battles.emplace_back(armies[a], armies[i], armies[i].getNode());
 				}
 			}
 			break;
@@ -106,34 +104,34 @@ void Game::attackArmy(std::shared_ptr<User> user)
 	}
 }
 
-void Game::tick()
+void Game::tick(std::stop_token token)
 {
 	// start zero tick
-	this->notifyTick(); 
-	this->game_controller.control(this->tick_count, this->towns);
+	notifyTick(); 
+	game_controller.control(tick_count, towns);
 	std::this_thread::sleep_for(std::chrono::milliseconds(cooldown_tick));
 	// end zero tick
 
-	while (this->active) {
+	while (!token.stop_requested()) {
 		auto start = std::chrono::steady_clock::now();
 		++tick_count;
 		for (auto& town : towns) {
 			town.TownTickProcessing();
 		}
 
-		std::sort(this->towns.rbegin(), this->towns.rend());
+		std::sort(towns.rbegin(), towns.rend());
 
-		this->notifyTick();
+		notifyTick();
 
-		this->game_controller.control(this->tick_count, this->towns);
+		game_controller.control(tick_count, towns);
 		
-		this->action_manager->doActions();
+		action_manager->doActions();
 
-		if (this->game_controller.isGameEnd()) {
-			for (auto& town : this->towns) {
+		if (game_controller.isGameEnd()) {
+			for (auto& town : towns) {
 				town.getOwnTown()->setLocation(Location::MENU, "menu");
 			}
-			this->active = false;
+			th_tick.request_stop();
 			break;
 		}
 
@@ -146,14 +144,14 @@ void Game::tick()
 
 void Game::createTowns(std::vector<int> &id_towns, std::shared_ptr<GameSettings> settings)
 {
-	this->towns.reserve(this->users.size());
-	this->armies.reserve(this->users.size());
+	towns.reserve(users.size());
+	armies.reserve(users.size());
 
-	for (int i = 0; i < this->users.size(); i++) {
+	for (int i = 0; i < users.size(); i++) {
 		
-		this->towns.emplace_back(i, this->users[i].lock(), id_towns[i], settings->makeEconomy(),
+		towns.emplace_back(i, users[i].lock(), id_towns[i], settings->makeEconomy(),
 			settings->makeCharch(), settings->makeManufactory());
-		this->armies.emplace_back(0, id_towns[i]);
+		armies.emplace_back(0, id_towns[i]);
 	}
 }
 
@@ -169,7 +167,7 @@ void Game::notifyTick()
 void Game::notifyMap()
 {
 	for (auto& town : towns) {
-		town.getOwnTown()->message_pool.push(this->game_map->getMapJson());
+		town.getOwnTown()->message_pool.push(game_map->getMapJson());
 	}
 }
 
@@ -185,8 +183,8 @@ void Game::notifyTable()
 nlohmann::json Game::makeCommonJson()
 {
 	nlohmann::json common_obj;
-	common_obj["tick"] = this->tick_count;
-	common_obj["uuid"] = this->uuid;
+	common_obj["tick"] = tick_count;
+	common_obj["uuid"] = uuid;
 	for (size_t it = 0; it < towns.size(); ++it) {
 		auto result = towns[it].getData();
 		common_obj["towns"][it]["town_id"] = result.town_id;
@@ -230,6 +228,6 @@ std::vector<int> Game::createMap(size_t countUser)
 {
 	auto sizeMap = DimensionMap::detect(countUser);
 	auto posTowns = DimensionMap::placeTowns(countUser, sizeMap);
-	this->game_map = std::make_unique<GameMap>(sizeMap);
-	return this->game_map->placeTowns(posTowns);
+	game_map = std::make_unique<GameMap>(sizeMap);
+	return game_map->placeTowns(posTowns);
 }

@@ -73,7 +73,6 @@ list(APPEND SRC_FILES ${SERVER_MESSAGES_FILES})
 set(WEBSOCKET_FILES
     "Server/WebSocketServer/WebSocket/WebSocketRequestHandler.cpp"
     "Server/WebSocketServer/WebSocket/WebSocketRequestHandler.h"
-    "Server/WebSocketServer/WebSocket/ConnectionHandler.h"
 )
 list(APPEND SRC_FILES ${WEBSOCKET_FILES})
 

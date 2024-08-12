@@ -1,58 +1,56 @@
 #include "LobbyUpdateNotifier.h"
 
-LobbyUpdateNotifier::LobbyUpdateNotifier(std::string& lobby_list) : lobby_list(lobby_list), lobby_list_old(lobby_list)
-{
-	this->active = true;
-	this->th_notify = std::jthread(&LobbyUpdateNotifier::notify, this);
+LobbyUpdateNotifier::LobbyUpdateNotifier(std::string& lobby_list) 
+	: lobby_list(lobby_list), lobby_list_old(lobby_list),
+	th_notify(std::jthread([this](std::stop_token token) { notify(token); })) {
+
 }
 
 LobbyUpdateNotifier::~LobbyUpdateNotifier()
 {
-	this->active = false;
-	if (this->th_notify.joinable()) {
-		this->th_notify.join();
+	if (th_notify.joinable()) {
+		th_notify.request_stop();
+		th_notify.join();
 	}
 }
 
-void LobbyUpdateNotifier::subscribe(std::shared_ptr<User> user)
+void LobbyUpdateNotifier::subscribe(std::shared_ptr<User>& user)
 {
-	this->mtx.lock();
-	auto it = this->subscribed_users.find(user->getUUID());
-	if (it == this->subscribed_users.end()) {
-		this->subscribed_users.insert(std::make_pair(user->getUUID(), user));
-		user->message_pool.push(this->lobby_list_old);
+	std::lock_guard<std::mutex> lock(mtx);
+	auto it = users.find(user->getUUID());
+	if (it == users.end()) {
+		users.insert(std::make_pair(user->getUUID(), user));
+		user->message_pool.push(lobby_list_old);
 	}
-	this->mtx.unlock();
 }
 
-void LobbyUpdateNotifier::unsubscribe(std::shared_ptr<User> user)
+void LobbyUpdateNotifier::unsubscribe(std::shared_ptr<User>& user)
 {
-	this->mtx.lock();
-	auto it = this->subscribed_users.find(user->getUUID());
-	if (it != this->subscribed_users.end()) {
-		this->subscribed_users.erase(user->getUUID());
+	std::lock_guard<std::mutex> lock(mtx);
+	auto it = users.find(user->getUUID());
+	if (it != users.end()) {
+		users.erase(user->getUUID());
 	}
-	this->mtx.unlock();
 }
 
-void LobbyUpdateNotifier::notify()
+void LobbyUpdateNotifier::notify(std::stop_token token)
 {
-	while (this->active) {
-		this->mtx.lock();
-		if (this->lobby_list_old != this->lobby_list) {;
-			this->lobby_list_old = this->lobby_list;
-			for (auto it = subscribed_users.begin(); it != subscribed_users.end();) {
+	while (!token.stop_requested()) {
+		mtx.lock();
+		if (lobby_list_old != lobby_list) {;
+			lobby_list_old = lobby_list;
+			for (auto it = users.begin(); it != users.end();) {
 				if (it->second.expired()) {
-					it = subscribed_users.erase(it);
+					it = users.erase(it);
 				}
 				else {
 					auto user = it->second.lock();
-					user->message_pool.push(this->lobby_list);
+					user->message_pool.push(lobby_list);
 					++it;
 				}
 			}
 		}
-		this->mtx.unlock();
+		mtx.unlock();
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 }

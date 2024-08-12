@@ -11,23 +11,31 @@ BetterWebSocket::~BetterWebSocket()
 {
 }
 
-std::string BetterWebSocket::receiveFrame(int& flags, bool& timeout)
+BetterFrame BetterWebSocket::receiveFrame()
 {
-	char buffer[1024];
-	int n;
 	try {
-		n = this->ws.receiveFrame(buffer, sizeof(buffer), std::ref(flags));
-	}
+		char buffer[1024];
+		int flags = 0;
+		int n = this->ws.receiveFrame(buffer, sizeof(buffer), flags);
+		if (n < 1) {
+			return BetterFrame{ std::string(),
+				(flags & Poco::Net::WebSocket::FRAME_OP_BITMASK),
+				false, false };
+		}
+		buffer[n] = '\0';
+		return BetterFrame{ std::string(buffer),
+			(flags & Poco::Net::WebSocket::FRAME_OP_BITMASK),
+			false, true };
+		}
 	catch (Poco::TimeoutException& e) {
-		timeout = true;
-		return std::string(); // return empty string, equal timeout;
+		return BetterFrame{ 
+			std::string(), 
+			0, 
+			true, false };
 	}
-	timeout = false;
-	if (n < 1) {
-		return std::string();
+	catch (...) {
+		throw;
 	}
-	buffer[n] = '\0';
-	return std::string(buffer);
 }
 
 int BetterWebSocket::receiveFrame(void* buffer, int length, int& flags)
