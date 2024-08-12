@@ -1,7 +1,9 @@
 #include "GameController.h"
+#include "GameNotify.h"
+#include <string>
 
-GameController::GameController()
-{
+GameController::GameController(const int max_tick, const int max_repeat_tick)
+	: max_tick(max_tick), max_repeat_tick(max_repeat_tick) {
 
 }
 
@@ -51,6 +53,15 @@ void GameController::control(const int& tick, const std::vector<Town>& towns)
 		}
 	}
 
+}
+
+void GameController::notify(const std::vector<std::weak_ptr<User>>& users, GameNotify&& game_notify)
+{
+	for (auto& it : users) {
+		if (auto user = it.lock()) {
+			user->message_pool.pushBackMessage("{\"game_notify\": " + std::to_string(static_cast<int>(game_notify)) + "}");
+		}
+	}
 }
 
 bool GameController::isGameEnd() const
