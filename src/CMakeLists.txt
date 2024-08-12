@@ -73,6 +73,7 @@ list(APPEND SRC_FILES ${SERVER_MESSAGES_FILES})
 set(WEBSOCKET_FILES
     "Server/WebSocketServer/WebSocket/WebSocketRequestHandler.cpp"
     "Server/WebSocketServer/WebSocket/WebSocketRequestHandler.h"
+    "Server/WebSocketServer/WebSocket/ConnectionHandler.h"
 )
 list(APPEND SRC_FILES ${WEBSOCKET_FILES})
 
@@ -243,7 +244,7 @@ list(APPEND SRC_FILES ${REQUEST_HANDLER_FILES})
 # set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=undefined")
 
 # Add source files to the executable
-add_executable(${PROJECT_NAME} ${SRC_FILES} "Server/WebSocketServer/WebSocket/ConnectionHandler.h")
+add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 
 # Link Poco and ZLIB libraries to the executable
