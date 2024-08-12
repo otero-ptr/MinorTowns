@@ -7,7 +7,7 @@
 #include <iostream>
 #include "User\User.h"
 #include "Middleware\Middleware.h"
-#include "request_handler\request_handler.h"
+#include "RequestHandler\RequestHandler.h"
 
 void WebSocketRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {

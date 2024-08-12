@@ -1,7 +1,7 @@
 #pragma once
 #include "Poco/Net/WebSocket.h"
-#include "server_messages\push_message.h"
-#include "server_messages\response_message.h"
+#include "ServerMessages\PushMessage.h"
+#include "ServerMessages\ResponseMessage.h"
 
 class BetterWebSocket {
 public:

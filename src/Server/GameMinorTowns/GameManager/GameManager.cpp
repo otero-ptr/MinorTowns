@@ -2,7 +2,8 @@
 #include <iostream>
 
 GameManager::GameManager(int cooldown_collector) 
-	: cooldown_collector(cooldown_collector)
+	: cooldown_collector(cooldown_collector),
+	game_settings(std::make_shared<GameSettings>())
 {
 	this->th_collector = std::jthread(&GameManager::CollectorEndedGames, this);
 }
@@ -17,15 +18,13 @@ GameManager::~GameManager()
 
 void GameManager::createGame(std::vector<std::shared_ptr<User>> users)
 {
-	std::unique_ptr<Game> game = std::make_unique<Game>(users);
-
+	std::unique_ptr<Game> game = std::make_unique<Game>(users, game_settings);
 	for (auto& user : users) {
 		user->setLocation(Location::GAME, game->getUUID());
-		user->message_pool.pushBackMessage(game->getMapJSON());
 	}
+	game->prepare(game_settings);
+	game->start();
 	this->games.insert(std::make_pair(game->getUUID(), std::move(game)));
-
-
 }
 
 void GameManager::buildBuildings(std::shared_ptr<User> user, int& building_type)

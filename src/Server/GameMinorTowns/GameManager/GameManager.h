@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <memory>
 #include "Game/Game.h"
-
+#include "GameSettings/GameSettings.h"
 class User;
 
 class GameManager {
@@ -18,6 +18,7 @@ public:
 	void disbandArmy(std::shared_ptr<User> user, int& count_soldiers);
 private:
 	void CollectorEndedGames();
+	std::shared_ptr<GameSettings> game_settings;
 	std::unordered_map<std::string, std::unique_ptr<Game>> games;
 
 	int cooldown_collector;

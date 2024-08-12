@@ -64,9 +64,9 @@ set(BETTER_WEBSOCKET_FILES
 list(APPEND SRC_FILES ${BETTER_WEBSOCKET_FILES})
 
 set(SERVER_MESSAGES_FILES
-    "Server/WebSocketServer/WebSocket/BetterWebSocket/server_messages/http_status_codes.h"
-    "Server/WebSocketServer/WebSocket/BetterWebSocket/server_messages/push_message.h"
-    "Server/WebSocketServer/WebSocket/BetterWebSocket/server_messages/response_message.h"
+    "Server/WebSocketServer/WebSocket/BetterWebSocket/ServerMessages/HttpStatusCodes.h"
+    "Server/WebSocketServer/WebSocket/BetterWebSocket/ServerMessages/PushMessage.h"
+    "Server/WebSocketServer/WebSocket/BetterWebSocket/ServerMessages/ResponseMessage.h"
 )
 list(APPEND SRC_FILES ${SERVER_MESSAGES_FILES})
 
@@ -119,14 +119,15 @@ set(BATTLE_FILES
 list(APPEND SRC_FILES ${BATTLE_FILES})
 
 set(GAME_SETTINGS_FILES
-    "Server/GameMinorTowns/GameManager/Game/GameSettings/GameSettings.h" 
-    "Server/GameMinorTowns/GameManager/Game/GameSettings/GameSettings.cpp"
+    "Server/GameMinorTowns/GameManager/GameSettings/GameSettings.h" 
+    "Server/GameMinorTowns/GameManager/GameSettings/GameSettings.cpp"
 )
 list(APPEND SRC_FILES ${GAME_SETTINGS_FILES})
 
 set(GAME_CONTROLLER_FILES
     "Server/GameMinorTowns/GameManager/Game/GameController/GameController.h" 
     "Server/GameMinorTowns/GameManager/Game/GameController/GameController.cpp"
+    "Server/GameMinorTowns/GameManager/Game/GameController/GameNotify.h"
 )
 list(APPEND SRC_FILES ${GAME_CONTROLLER_FILES})
 
@@ -158,8 +159,10 @@ set(ECONOMY_FILES
 list(APPEND SRC_FILES ${ECONOMY_FILES})
 
 set(BUILDINGS_FILES 
-    "Server/GameMinorTowns/GameManager/Game/Town/Buildings/Buildings.h" 
-    "Server/GameMinorTowns/GameManager/Game/Town/Buildings/Buildings.cpp"
+    "Server/GameMinorTowns/GameManager/Game/Town/Buildings/Buildings.h"
+     "Server/GameMinorTowns/GameManager/Game/Town/Buildings/Charch.h"
+     "Server/GameMinorTowns/GameManager/Game/Town/Buildings/Manufactory.h"
+     "Server/GameMinorTowns/GameManager/Game/Town/Buildings/TypeBuildings.h"
 )
 list(APPEND SRC_FILES ${BUILDINGS_FILES})
 
@@ -213,13 +216,13 @@ set(ACTION_FOREVER_FILES
 list(APPEND SRC_FILES ${ACTION_FOREVER_FILES})
 
 set(REQUEST_HANDLER_FILES
-"Server/request_handler/request_handler.h" 
-"Server/request_handler/request_handler.cpp" 
-"Server/request_handler/params.h" 
-"Server/request_handler/error_info.h" 
-"Server/request_handler/request_result.h"  
-"Server/request_handler/params_validator.h" 
-"Server/request_handler/params_validator.cpp"
+"Server/RequestHandler/RequestHandler.h" 
+"Server/RequestHandler/RequestHandler.cpp" 
+"Server/RequestHandler/Params.h" 
+"Server/RequestHandler/ErrorInfo.h" 
+"Server/RequestHandler/RequestResult.h"  
+"Server/RequestHandler/ParamsValidator.h" 
+"Server/RequestHandler/ParamsValidator.cpp"
 )
 list(APPEND SRC_FILES ${REQUEST_HANDLER_FILES})
 

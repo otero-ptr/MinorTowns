@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include "User/User.h"
-#include "request_handler\request_result.h"
+#include "RequestHandler\RequestResult.h"
 
 class GameMinorTowns;
 

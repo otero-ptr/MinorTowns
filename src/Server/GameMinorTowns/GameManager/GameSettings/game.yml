@@ -5,7 +5,7 @@ game:
     
   economy:
     start_budget: 100.0
-    start_income: 10.0
+    start_income: 10
     start_multiplier: 1.0
       
   buildings:

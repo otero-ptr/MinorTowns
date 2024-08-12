@@ -1,10 +1,13 @@
 #include "Town.h"
 
-Town::Town(int townId, std::shared_ptr<User> user, int capitalNode, Economy economy, Buildings buildings) : economy(economy), buildings(buildings)
-{
-	this->id = townId;
-	this->own = user;
-	this->capitalNode = capitalNode;
+Town::Town(int id, std::shared_ptr<User> user, int capital_node, 
+	std::unique_ptr<Economy> economy, 
+	std::unique_ptr<Charch> charch, 
+	std::unique_ptr<Manufactory> manufactory)
+	: id(id), capital_node(capital_node),
+	economy(std::move(economy)), charch(std::move(charch)), 
+	manufactory(std::move(manufactory)), own(user) {
+
 }
 
 Town::~Town()
@@ -13,61 +16,82 @@ Town::~Town()
 
 const int Town::getCapitalNodeId()
 {
-	return this->capitalNode;
+	return capital_node;
 }
 
 void Town::TownTickProcessing()
 {
-	this->economy.income(this->economy.getTickIncome() * this->economy.getMultiplier());
+	economy->add(static_cast<int32_t>(std::ceil(
+		economy->getIncome() * economy->getMultiplier()
+	))); // potential problem
 }
 
-void Town::buildBuilding(const int& buildingType)
+void Town::buildBuilding(const TypeBuildings type_building)
 {
-	if (this->buildings.isTypeExists(buildingType)) {
-		if (this->economy.getBudget() >= this->buildings.getPriceBuildings(buildingType)) {
-			this->economy.expenseBuild(this->buildings.getPriceBuildings(buildingType));
-			this->buildings.build(buildingType);
-			this->buildings.setPriceBuildings(buildingType, this->buildings.getPriceBuildings(buildingType) * this->buildings.getPriceIncrease(), this->buildings.getModifierBuildings(buildingType));
-			if (buildingType == TypeBuilding::Church) {
-				this->economy.setMultiplier(this->economy.getMultiplier() + this->buildings.getCountBuildings(TypeBuilding::Church) * this->buildings.getModifierBuildings(buildingType)); // church multiplier 0.1
-			}
-			else if (buildingType == TypeBuilding::Manufactory) {
-				this->economy.setTickIncome(this->economy.getTickIncome() + this->buildings.getModifierBuildings(buildingType)); // manufactory income 10
-			}
+	if (type_building == TypeBuildings::Charch) {
+		if (economy->getBudget() >= charch->getPrice()) {
+			economy->expenseBuild(charch->getPrice());
+			charch->build();
+			economy->setMultiplier(charch->getModifier());
+		}
+	} else if (type_building == TypeBuildings::Manufactory) {
+		if (economy->getBudget() >= manufactory->getPrice()) {
+			economy->expenseBuild(manufactory->getPrice());
+			manufactory->build();
+			economy->setIncome(manufactory->getIncome());
 		}
 	}
 }
 
-void Town::destroyBuilding(const int& buildingType)
+void Town::destroyBuilding(const TypeBuildings type_building)
 {
-	if (this->buildings.isTypeExists(buildingType)) {
-		if (0 < this->buildings.getCountBuildings(buildingType)) {
-			this->buildings.destroy(buildingType);
+	if (type_building == TypeBuildings::Charch) {
+		if (0 < charch->getCount()) {
+			charch->destroy();
+		}
+	}
+	else if (type_building == TypeBuildings::Manufactory) {
+		if (0 < manufactory->getCount()) {
+			manufactory->destroy();
 		}
 	}
 }
 
 std::shared_ptr<User> Town::getOwnTown() const
 {
-	return this->own;
-}
-
-const Economy& Town::getTownEconomy()
-{
-	return this->economy;
-}
-
-const Buildings& Town::getTownBuildings()
-{
-	return this->buildings;
+	return own;
 }
 
 const int Town::getID() const
 {
-	return this->id;
+	return id;
 }
 
 bool Town::operator<(const Town& other) const
 {
-	return this->economy.getNetWorth() < other.economy.getNetWorth();
+	return economy->getNetWorth() < other.economy->getNetWorth();
+}
+
+const TownData Town::getData() const
+{
+	TownData data;
+	data.town_id = id;
+	data.username = own->getUsername();
+	data.economy.budget = economy->getBudget();
+	data.economy.net_worth = economy->getNetWorth();
+	data.economy.income = economy->getIncome();
+	data.economy.multiplier = economy->getMultiplier();
+
+	data.charch.count = charch->getCount();
+	data.charch.price = charch->getPrice();
+	data.charch.bonus = charch->getModifier();
+
+	data.manufactory.count = manufactory->getCount();
+	data.manufactory.price = manufactory->getPrice();
+	data.manufactory.bonus = manufactory->getIncome();
+
+	data.army.cost = 0;
+	data.army.count_soldiers = 0;
+	data.army.locate_node = 0;
+	return data;
 }

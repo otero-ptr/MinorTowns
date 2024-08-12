@@ -1,1 +1,1 @@
-add_subdirectory("server_messages")
+add_subdirectory("ServerMessages")

@@ -10,8 +10,8 @@ namespace DimensionMap {
 		int x;
 		int y;
 	};
-	DimensionMap::SizeMap detect(const int players);
-	std::vector<DimensionMap::SizeMap> placeTowns(const int players, DimensionMap::SizeMap size);
+	DimensionMap::SizeMap detect(const size_t players);
+	std::vector<DimensionMap::SizeMap> placeTowns(const size_t players, DimensionMap::SizeMap size);
 }
 
 class GameMap {
@@ -30,6 +30,6 @@ private:
 	void createMapJson();
 	int row_nodes;
 	int column_nodes;
-	std::vector<std::vector<std::shared_ptr<NodeMap>>> myMap;
-	std::string mapJson;
+	std::vector<std::vector<std::shared_ptr<NodeMap>>> map;
+	std::string map_json;
 };

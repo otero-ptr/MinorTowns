@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <optional>
-#include "request_result.h"
+#include "RequestResult.h"
 #include "nlohmann\json.hpp"
 
 class RequestHandler {

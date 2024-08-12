@@ -7,7 +7,7 @@
 #include "Poco/DateTimeFormat.h"
 #include "Poco/Net/HTTPRequestHandlerFactory.h"
 #include "Poco/Net/HTTPRequestHandler.h"
-#include "request_handler/request_handler.h"
+#include "RequestHandler/RequestHandler.h"
 class Middleware;
 
 class WebSocketRequestHandler : public Poco::Net::HTTPRequestHandler {

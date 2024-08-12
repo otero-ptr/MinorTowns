@@ -1,6 +1,5 @@
 add_subdirectory("GameMap")
 add_subdirectory("Town")
-add_subdirectory("GameSettings")
 add_subdirectory("GameController")
 add_subdirectory("Army")
 add_subdirectory("ActionManager")

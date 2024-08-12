@@ -1,7 +1,7 @@
 #pragma once
 #include "operations.h"
 #include "params.h"
-#include "error_info.h"
+#include "ErrorInfo.h"
 #include <memory>
 
 class RequestResult {

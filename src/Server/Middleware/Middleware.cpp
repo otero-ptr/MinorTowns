@@ -3,7 +3,7 @@
 #include <thread>
 #include "nlohmann\json.hpp"
 #include <Poco\Exception.h>
-#include "request_handler\params_validator.h"
+#include "RequestHandler\ParamsValidator.h"
 #include "AuthorizatonValidate/AuthorizationValidate.h"
 #include "future"
 

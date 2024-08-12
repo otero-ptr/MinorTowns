@@ -1,6 +1,6 @@
 #pragma once
 
-enum NODE_TYPE {
+enum class NODE_TYPE {
 	NONE,
 	DEFAULT,
 	TOWN
