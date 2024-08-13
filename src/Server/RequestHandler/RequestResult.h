@@ -29,8 +29,8 @@ public:
 	const RequestOperation getOperation() const {
 		return this->operation;
 	}
-	const Params::Params* getParams() const { return params.get(); }
-	const ErrorInfo* getErrorInfo() const { return err_info.get(); }
+	std::weak_ptr<Params::Params> getParams() const { return params; }
+	std::weak_ptr<ErrorInfo> getErrorInfo() const { return err_info; }
 
 	void setOperation(RequestOperation&& operation) {
 		this->operation = operation;
@@ -42,6 +42,6 @@ public:
 	}
 private:
 	RequestOperation operation;
-	std::unique_ptr<Params::Params> params;
-	std::unique_ptr<ErrorInfo> err_info;
+	std::shared_ptr<Params::Params> params;
+	std::shared_ptr<ErrorInfo> err_info;
 };

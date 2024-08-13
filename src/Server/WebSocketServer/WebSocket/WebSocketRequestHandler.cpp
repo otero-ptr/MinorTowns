@@ -136,7 +136,7 @@ void WebSocketRequestHandler::runProcessingClientMessages()
 				auto result_handler = request_handler->Handler(text);
 				if (result_handler.has_value()) {
 					if (!result_handler->isError()) {
-						auto result_middleware = middleware_server->action(std::move(*result_handler), user);
+						auto result_middleware = middleware_server->action(std::move(result_handler.value()), user);
 						if (result_middleware.first == MIDDLEWARE_STATUS::ST_OK) {
 							bws->sendResponseMessage(ResponseMessage(Code::OK, result_middleware.second));
 						}
@@ -145,7 +145,10 @@ void WebSocketRequestHandler::runProcessingClientMessages()
 						}
 					}
 					else {
-						bws->sendResponseMessage(ResponseMessage(Code::InternalServerError, result_handler->getErrorInfo()->err_info));
+						auto err = result_handler->getErrorInfo().lock();
+						if (err) {
+							bws->sendResponseMessage(ResponseMessage(Code::InternalServerError, err->err_info));
+						}
 					}
 				}
 				else {

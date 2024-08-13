@@ -2,49 +2,49 @@
 #include <algorithm>
 #include <cctype>  
 
-const Params::Params* ParamsValidator::validate(const Params::Params* params)
+bool ParamsValidator::validate(std::shared_ptr<Params::Params>& params)
 {
-	return nullptr;
+	return false;
 }
 
-const Params::CreateLobby* ParamsValidator::validate(const Params::CreateLobby* params)
+bool ParamsValidator::validate(std::shared_ptr<Params::CreateLobby>& params)
 {
 	if (params->max_users < 2 || params->max_users > 4) {
-		return nullptr;
+		return false;
 	}
-	return params;
+	return true;
 }
 
-const Params::JoinLobby* ParamsValidator::validate(const Params::JoinLobby* params)
+bool ParamsValidator::validate(std::shared_ptr<Params::JoinLobby>& params)
 {
 	if (params->uuid_lobby.length() != 36) {
-		return nullptr;
+		return false;
 	}
 	if (!tool::isValidString(params->uuid_lobby)) {
-		return nullptr;
+		return false;
 	}
-	return params;
+	return true;
 }
 
-const Params::RaiseArmy* ParamsValidator::validate(const Params::RaiseArmy* params)
+bool ParamsValidator::validate(std::shared_ptr<Params::RaiseArmy>& params)
 {
 	if (params->soldiers < 0 || params->soldiers > 1'000'000) {
-		return nullptr;
+		return false;
 	}
-	return params;
+	return true;
 }
 
-const Params::DisbandArmy* ParamsValidator::validate(const Params::DisbandArmy* params)
+bool ParamsValidator::validate(std::shared_ptr<Params::DisbandArmy>& params)
 {
 	if (params->soldiers < 0 || params->soldiers > 1'000'000) {
-		return nullptr;
+		return false;
 	}
-	return params;
+	return true;
 }
 
-const Params::BuildBuildings* ParamsValidator::validate(const Params::BuildBuildings* params)
+bool ParamsValidator::validate(std::shared_ptr<Params::BuildBuildings>& params)
 {
-	return params;
+	return true;
 }
 
 bool ParamsValidator::tool::isValidCharacter(char c)

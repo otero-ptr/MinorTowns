@@ -12,7 +12,7 @@ enum MIDDLEWARE_STATUS {
 
 class Middleware {
 public:
-	Middleware(std::shared_ptr<GameMinorTowns> game);
+	explicit Middleware(std::shared_ptr<GameMinorTowns> game);
 	~Middleware();
 
 	std::shared_ptr<User> authorization(std::string username, std::string address, unsigned short port);

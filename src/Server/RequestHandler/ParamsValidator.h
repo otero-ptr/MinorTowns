@@ -1,15 +1,16 @@
 #pragma once
 #include "params.h"
+#include <memory>
 
 namespace ParamsValidator {
 	namespace tool {
 		bool isValidCharacter(char c);
 		bool isValidString(const std::string& str);
 	};
-	const Params::Params* validate(const Params::Params* params);
-	const Params::CreateLobby* validate(const Params::CreateLobby* params);
-	const Params::JoinLobby* validate(const Params::JoinLobby* params);
-	const Params::RaiseArmy* validate(const Params::RaiseArmy* params);
-	const Params::DisbandArmy* validate(const Params::DisbandArmy* params);
-	const Params::BuildBuildings* validate(const Params::BuildBuildings* params);
+	bool validate(std::shared_ptr<Params::Params>& params);
+	bool validate(std::shared_ptr<Params::CreateLobby>& params);
+	bool validate(std::shared_ptr<Params::JoinLobby>& params);
+	bool validate(std::shared_ptr<Params::RaiseArmy>& params);
+	bool validate(std::shared_ptr<Params::DisbandArmy>& params);
+	bool validate(std::shared_ptr<Params::BuildBuildings>& params);
 };

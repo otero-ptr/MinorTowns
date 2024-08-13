@@ -8,13 +8,12 @@
 #include "future"
 
 Middleware::Middleware(std::shared_ptr<GameMinorTowns> game)
-    : game_minor_towns(game)
-{
+    : game_minor_towns(game) {
 
 }
 
-Middleware::~Middleware()
-{
+Middleware::~Middleware() {
+
 }
 
 std::shared_ptr<User> Middleware::authorization(std::string username, std::string address, unsigned short port)
@@ -31,11 +30,12 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
 {
     if (request_result.getOperation() == RequestOperation::CREATE_LOBBY && user->getLocation() == Location::MENU) {
         if (request_result.isParams()) {
-            const Params::CreateLobby *params = static_cast<const Params::CreateLobby*>(request_result.getParams());
-            if (ParamsValidator::validate(params) == nullptr) {
+            auto params = request_result.getParams().lock();
+            auto lobby_params = std::static_pointer_cast<Params::CreateLobby>(params);
+            if (ParamsValidator::validate(lobby_params)) {
                 return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
             }
-            auto result = std::async(&GameMinorTowns::createLobby, game_minor_towns, std::ref(user), params->max_users);
+            auto result = std::async(&GameMinorTowns::createLobby, game_minor_towns, std::ref(user), lobby_params->max_users);
             result.wait();
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
         }
@@ -45,11 +45,12 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
     }
     else if (request_result.getOperation() == RequestOperation::JOIN_LOBBY && user->getLocation() == Location::MENU) {
         if (request_result.isParams()) {
-            const Params::JoinLobby* params = static_cast<const Params::JoinLobby*>(request_result.getParams());
-            if (ParamsValidator::validate(params) == nullptr) {
+            auto params = request_result.getParams().lock();
+            auto join_lobby_params = std::static_pointer_cast<Params::JoinLobby>(params);
+            if (ParamsValidator::validate(join_lobby_params)) {
                 return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
             }
-            auto result = std::async(&GameMinorTowns::joinLobby, game_minor_towns, std::ref(user), params->uuid_lobby);
+            auto result = std::async(&GameMinorTowns::joinLobby, game_minor_towns, std::ref(user), join_lobby_params->uuid_lobby);
             result.wait();
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
         }
@@ -70,11 +71,12 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
     } else if (request_result.getOperation() == RequestOperation::BUILD_BUILDINGS && user->getLocation() == Location::GAME) {
             if (request_result.isParams()) {
-                const Params::BuildBuildings* params = static_cast<const Params::BuildBuildings*>(request_result.getParams());
-                if (ParamsValidator::validate(params) == nullptr) {
+                auto params = request_result.getParams().lock();
+                auto buildings_params = std::static_pointer_cast<Params::BuildBuildings>(params);
+                if (ParamsValidator::validate(buildings_params)) {
                     return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
                 }
-                auto result = std::async(&GameMinorTowns::buildBuildings, game_minor_towns, std::ref(user), params->building_id);
+                auto result = std::async(&GameMinorTowns::buildBuildings, game_minor_towns, std::ref(user), buildings_params->building_id);
                 result.wait();
                 return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
@@ -83,11 +85,12 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
             }
     } else if (request_result.getOperation() == RequestOperation::RAISE_ARMY && user->getLocation() == Location::GAME) {
             if (request_result.isParams()) {
-                const Params::RaiseArmy* params = static_cast<const Params::RaiseArmy*>(request_result.getParams());
-                if (ParamsValidator::validate(params) == nullptr) {
+                auto params = request_result.getParams().lock();
+                auto raise_params = std::static_pointer_cast<Params::RaiseArmy>(params);
+                if (ParamsValidator::validate(raise_params)) {
                     return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
                 }
-                auto result = std::async(&GameMinorTowns::raiseArmy, game_minor_towns, std::ref(user), params->soldiers);
+                auto result = std::async(&GameMinorTowns::raiseArmy, game_minor_towns, std::ref(user), raise_params->soldiers);
                 result.wait();
                 return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
@@ -96,11 +99,12 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
             }
     } else if (request_result.getOperation() == RequestOperation::DISBAND_ARMY && user->getLocation() == Location::GAME) {
             if (request_result.isParams()) {
-                const Params::DisbandArmy* params = static_cast<const Params::DisbandArmy*>(request_result.getParams());
-                if (ParamsValidator::validate(params) == nullptr) {
+                auto params = request_result.getParams().lock();
+                auto disband_params = std::static_pointer_cast<Params::DisbandArmy>(params);
+                if (ParamsValidator::validate(disband_params)) {
                     return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("failed validation"));
                 }
-                auto result = std::async(&GameMinorTowns::disbandArmy, game_minor_towns, std::ref(user), params->soldiers);
+                auto result = std::async(&GameMinorTowns::disbandArmy, game_minor_towns, std::ref(user), disband_params->soldiers);
                 result.wait();
                 return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
