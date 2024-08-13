@@ -1,24 +1,39 @@
-﻿#include <iostream>
-#include "Server/Server.h"
-
+﻿#include <memory>
+#include "WebSocketServer/WebSocketServer.h"
+#include "WebSocketServer/GameMinorTowns/GameMinorTowns.h"
+#include "WebSocketServer/Middleware/Middleware.h"
+#include "LogManager/LogManager.h"
+#include "LogManager/log.h"
+#include "yaml-cpp/yaml.h"
+#include <iostream>
 
 int main() {
-	Server serv;
-	serv.run();
+	Logger::LogManager log_manager;
+	log_manager.initialize();
+	LOGGER_INFO("START");
+
+	std::shared_ptr<GameMinorTowns> game_minor_towns;
+	std::shared_ptr<Middleware> middleware;
+	std::unique_ptr<WebSocketServer> socket_server;
+
+	YAML::Node config = YAML::LoadFile("server.yml");
+
+	middleware = std::make_shared<Middleware>(std::make_shared<GameMinorTowns>(
+		config["max_users"].as<int>(), config["manager"]["game"]["collector"].as<int>(),
+		config["manager"]["lobby"]["refresher"].as<int>(),
+		config["manager"]["redis_uri"].as<std::string>()));
+
+	socket_server = std::make_unique<WebSocketServer>(
+		config["server"]["port"].as<int>(),
+		config["server"]["max_clients"].as<int>(),
+		config["client"]["cors"].as<std::string>(),
+		config["client"]["repeat_request"].as<int>(),
+		config["client"]["timeout_response"].as<int>(),
+		std::move(middleware));
+
+	socket_server->runServer();
+
+	LOGGER_INFO("END");
+	log_manager.shutdown();
 	return 0;
 }
-
-
-/* for game test
-	#include "GameMinorTowns\GameManager\Game\Game.h"
- 	std::shared_ptr<User> user1 = std::make_shared<User>("user1", "address");
-	std::shared_ptr<User> user2 = std::make_shared<User>("user2", "address");
-	std::shared_ptr<User> user3 = std::make_shared<User>("user3", "address");
-	std::shared_ptr<User> user4 = std::make_shared<User>("user4", "address");
-	std::vector< std::shared_ptr<User>> users;
-	users.push_back(user1);
-	users.push_back(user2);
-	users.push_back(user3);
-	users.push_back(user4);
-	Game game(users);
-*/
