@@ -9,9 +9,9 @@
 
 WebSocketRequestHandler::~WebSocketRequestHandler()
 {
-	if (th_request.joinable()) {
-		th_request.request_stop();
-		th_request.join();
+	if (th_server_messages.joinable()) {
+		th_server_messages.request_stop();
+		th_server_messages.join();
 	}
 	middleware_server->disconnect(user);
 	user->message_pool.clear();
@@ -24,60 +24,12 @@ void WebSocketRequestHandler::handleRequest(
 	Poco::Net::HTTPServerResponse& response) {
 	try
 	{
-		response.set("Access-Control-Allow-Origin", cors.data());
-		Poco::URI uri(request.getURI());
-		if (!handleConnect(response, uri.getQueryParameters())) {
+		std::cout << "WebSocket connection established." << std::endl;
+		if (!connectionAuthorization(request, response)) {
 			return;
 		}
-		std::cout << "WebSocket connection established." << std::endl;
-		bws = std::make_unique<BetterWebSocket>(Poco::Net::WebSocket(request, response), timeout_response);
-		std::string username = uri.getQueryParameters().begin()->second;
-		if (!username.empty()) {
-			user = this->middleware_server->authorization(username, 
-				request.clientAddress().host().toString(), 
-				request.clientAddress().port());
-			if (user == nullptr) {
-				bws->sendResponseMessage(ResponseMessage(Code::NotAcceptable, "Wrong user. Server closed"));
-				bws->close();
-				return;
-			}
-			else {
-				bws->sendResponseMessage(ResponseMessage(Code::Accepted, "Hello! Welcome in server MinorTowns"));
-			}
-		}
-		runRequestThread();
-		while (true) {
-			auto [text, flags, timeout, frame] = bws->receiveFrame();
-			if (!frame) {
-				continue;
-			}
-			if (timeout) {
-				break;
-			}
-			if (flags == Poco::Net::WebSocket::FRAME_OP_CLOSE) {
-				break;
-			}
-			if (!timeout) {
-				if (!text.empty()) {
-					auto result_handler = request_handler->Handler(text);
-					if (result_handler.has_value()) {
-						if (!result_handler->isError()) {
-							auto result_middleware = middleware_server->action(std::move(*result_handler), user);
-							if (result_middleware.first == MIDDLEWARE_STATUS::ST_OK) {
-								bws->sendResponseMessage(ResponseMessage(Code::OK, result_middleware.second));
-							}
-							else if (result_middleware.first == MIDDLEWARE_STATUS::ST_ERROR) {
-								bws->sendResponseMessage(ResponseMessage(Code::InternalServerError, result_middleware.second));
-							}
-						} else {
-							bws->sendResponseMessage(ResponseMessage(Code::InternalServerError, result_handler->getErrorInfo()->err_info));
-						}
-					} else {
-						bws->sendResponseMessage(ResponseMessage(Code::NotFound));
-					}
-				}
-			}
-		}
+		runProcessingServerMessagesThread();
+		runProcessingClientMessages();
 	}
 	catch (Poco::Net::WebSocketException& exc)
 	{
@@ -110,7 +62,32 @@ Poco::Net::HTTPRequestHandler* WebSocketRequestHandlerFactory::createRequestHand
 	return new WebSocketRequestHandler(this->middleware_server, this->cors, this->repeat_request, this->timeout_response);
 }
 
-bool WebSocketRequestHandler::handleConnect(
+bool WebSocketRequestHandler::connectionAuthorization(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
+{
+	response.set("Access-Control-Allow-Origin", cors.data());
+	Poco::URI uri(request.getURI());
+	if (!handleParams(response, uri.getQueryParameters())) {
+		return false;
+	}
+	bws = std::make_unique<BetterWebSocket>(Poco::Net::WebSocket(request, response), timeout_response);
+	std::string username = uri.getQueryParameters().begin()->second;
+	if (!username.empty()) {
+		user = this->middleware_server->authorization(username,
+			request.clientAddress().host().toString(),
+			request.clientAddress().port());
+		if (user == nullptr) {
+			bws->sendResponseMessage(ResponseMessage(Code::NotAcceptable, "Wrong user. Server closed"));
+			bws->close();
+			return false;
+		}
+		else {
+			bws->sendResponseMessage(ResponseMessage(Code::Accepted, "Hello! Welcome in server MinorTowns"));
+		}
+	}
+	return true;
+}
+
+bool WebSocketRequestHandler::handleParams(
 	Poco::Net::HTTPServerResponse& response, 
 	const Poco::URI::QueryParameters& params) {
 		bool status = true;
@@ -128,9 +105,9 @@ bool WebSocketRequestHandler::handleConnect(
 		return status;
 }
 
-void WebSocketRequestHandler::runRequestThread()
+void WebSocketRequestHandler::runProcessingServerMessagesThread()
 {
-	th_request = std::jthread([this](std::stop_token token) {
+	th_server_messages = std::jthread([this](std::stop_token token) {
 		bool timeout = false;
 		while (!token.stop_requested()) {
 			if (!user->message_pool.empty()) {
@@ -139,4 +116,42 @@ void WebSocketRequestHandler::runRequestThread()
 			std::this_thread::sleep_for(std::chrono::milliseconds(repeat_request));
 		};
 	});
+}
+
+void WebSocketRequestHandler::runProcessingClientMessages()
+{
+	while (true) {
+		auto [text, flags, timeout, frame] = bws->receiveFrame();
+		if (!frame) {
+			continue;
+		}
+		if (timeout) {
+			break;
+		}
+		if (flags == Poco::Net::WebSocket::FRAME_OP_CLOSE) {
+			break;
+		}
+		if (!timeout) {
+			if (!text.empty()) {
+				auto result_handler = request_handler->Handler(text);
+				if (result_handler.has_value()) {
+					if (!result_handler->isError()) {
+						auto result_middleware = middleware_server->action(std::move(*result_handler), user);
+						if (result_middleware.first == MIDDLEWARE_STATUS::ST_OK) {
+							bws->sendResponseMessage(ResponseMessage(Code::OK, result_middleware.second));
+						}
+						else if (result_middleware.first == MIDDLEWARE_STATUS::ST_ERROR) {
+							bws->sendResponseMessage(ResponseMessage(Code::InternalServerError, result_middleware.second));
+						}
+					}
+					else {
+						bws->sendResponseMessage(ResponseMessage(Code::InternalServerError, result_handler->getErrorInfo()->err_info));
+					}
+				}
+				else {
+					bws->sendResponseMessage(ResponseMessage(Code::NotFound));
+				}
+			}
+		}
+	}
 }

@@ -27,10 +27,13 @@ public:
     void handleRequest(Poco::Net::HTTPServerRequest& request, 
         Poco::Net::HTTPServerResponse& response);
 private:
-    bool handleConnect(Poco::Net::HTTPServerResponse& response, 
+    bool connectionAuthorization(Poco::Net::HTTPServerRequest& request,
+        Poco::Net::HTTPServerResponse& response);
+    bool handleParams(Poco::Net::HTTPServerResponse& response, 
         const Poco::URI::QueryParameters& params);
 
-    void runRequestThread();
+    void runProcessingServerMessagesThread();
+    void runProcessingClientMessages();
     const std::string_view cors;
     const int repeat_request;
     const int timeout_response;
@@ -40,7 +43,7 @@ private:
     std::shared_ptr<User> user;
     std::unique_ptr<BetterWebSocket> bws;
 
-    std::jthread th_request;
+    std::jthread th_server_messages;
 };
 
 class WebSocketRequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory {
