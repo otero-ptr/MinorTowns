@@ -7,12 +7,12 @@
 #include "Poco/DateTimeFormat.h"
 #include "Poco/Net/HTTPRequestHandlerFactory.h"
 #include "Poco/Net/HTTPRequestHandler.h"
-#include "RequestHandler/RequestHandler.h"
 #include "Poco/URI.h"
-#include "User/User.h"
+#include "RequestHandler.h"
 #include "BetterWebSocket/BetterWebSocket.h"
 
 class Middleware;
+class User;
 
 class WebSocketRequestHandler : public Poco::Net::HTTPRequestHandler {
 public:

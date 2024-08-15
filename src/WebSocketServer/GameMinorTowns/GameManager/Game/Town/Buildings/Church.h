@@ -2,9 +2,9 @@
 #include "Buildings.h"
 #include <cmath>
 
-class Charch : public Buildings {
+class Church : public Buildings {
 public:
-	Charch(float step_multiplier, float increase_modifier, uint32_t price )
+	Church(float step_multiplier, float increase_modifier, uint32_t price )
 	: Buildings(price), multiplier(1.0),
 		step_multiplier(step_multiplier),
 		increase_modifier(increase_modifier) {

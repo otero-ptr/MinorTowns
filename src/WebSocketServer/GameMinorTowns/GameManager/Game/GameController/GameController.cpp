@@ -1,5 +1,8 @@
 #include "GameController.h"
 #include "GameNotify.h"
+#include "Town/Town.h"
+#include "User.h"
+#include <vector>
 #include <string>
 
 GameController::GameController(const int max_tick, const int max_repeat_tick)

@@ -7,9 +7,8 @@
 #include "Town/Town.h"
 #include "Army/Army.h"
 #include "Army/Battle/Battle.h"
+#include "GameSettings/GameSettings.h"
 #include "GameController/GameController.h"
-#include "ActionManager/ActionManager.h"
-#include "GameMinorTowns/GameManager/GameSettings/GameSettings.h"
 #include "nlohmann/json.hpp"
 
 class User;
@@ -46,7 +45,6 @@ private:
 	std::vector<Army> armies;
 	std::list<Battle> battles;
 	std::unique_ptr<GameMap> game_map;
-	std::unique_ptr<ActionManager> action_manager;
 
 	const int cooldown_tick;
 	int tick_count = 0;

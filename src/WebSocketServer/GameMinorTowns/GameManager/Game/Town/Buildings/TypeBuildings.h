@@ -1,6 +1,6 @@
 #pragma once
 
 enum class TypeBuildings {
-	Charch,
+	Church,
 	Manufactory
 };

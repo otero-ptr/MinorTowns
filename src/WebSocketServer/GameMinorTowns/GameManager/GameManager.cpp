@@ -1,5 +1,6 @@
 #include "GameManager.h"
-#include <iostream>
+#include "Game/GameSettings/GameSettings.h"
+#include "User.h"
 
 GameManager::GameManager(int cooldown_collector) 
 	: game_settings(std::make_shared<GameSettings>()),

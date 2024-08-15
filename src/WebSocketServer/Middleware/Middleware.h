@@ -1,9 +1,10 @@
 #pragma once
 #include <memory>
-#include "User/User.h"
-#include "RequestHandler\RequestResult.h"
+#include <string>
 
 class GameMinorTowns;
+class User;
+class RequestResult;
 
 enum MIDDLEWARE_STATUS {
 	ST_OK,

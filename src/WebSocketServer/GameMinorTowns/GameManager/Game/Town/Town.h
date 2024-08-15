@@ -1,10 +1,11 @@
 #pragma once
 #include <memory>
 #include "Economy\Economy.h"
-#include "Buildings\Charch.h"
+#include "Buildings\Church.h"
 #include "Buildings\Manufactory.h"
 #include "Buildings\TypeBuildings.h"
-#include "User\User.h"
+
+class User;
 
 struct TownData {
 	uint8_t town_id;
@@ -37,7 +38,7 @@ public:
 	Town() = delete;
 	Town(int id, std::shared_ptr<User> user, 
 		int capital_node, std::unique_ptr<Economy> economy,
-		std::unique_ptr<Charch> charch, 
+		std::unique_ptr<Church> charch, 
 		std::unique_ptr<Manufactory> manufactory);
 	~Town();
 	const int getCapitalNodeId();
@@ -55,7 +56,7 @@ private:
 	int id;
 	int capital_node;
 	std::unique_ptr<Economy> economy;
-	std::unique_ptr<Charch> charch;
+	std::unique_ptr<Church> church;
 	std::unique_ptr<Manufactory> manufactory;
 	std::shared_ptr<User> own;
 };

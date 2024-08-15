@@ -2,14 +2,14 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
-#include "User/User.h"
-#include "LobbyUpdateNotifier\LobbyUpdateNotifier.h"
+#include "LobbyUpdateNotifier/LobbyUpdateNotifier.h"
 
 namespace sw {
 	namespace redis {
 		class Redis;
 	}
 }
+class User;
 
 class LobbyManager {
 public:

@@ -4,8 +4,9 @@
 #include "Poco/Net/WebSocket.h"
 #include "Poco/URI.h"
 #include <iostream>
-#include "Middleware\Middleware.h"
-#include "RequestHandler\RequestHandler.h"
+#include "User.h"
+#include "Middleware.h"
+#include "RequestHandler.h"
 
 WebSocketRequestHandler::~WebSocketRequestHandler()
 {

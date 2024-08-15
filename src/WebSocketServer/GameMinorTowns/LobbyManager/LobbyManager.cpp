@@ -1,7 +1,8 @@
 #include "LobbyManager.h"
 #include "nlohmann/json.hpp"
 #include "sw/redis++/redis++.h"
-#include "util/gen_uuid.h"
+#include "User.h"
+#include "gen_uuid.h"
 
 LobbyManager::LobbyManager(int cooldown_refresher, std::string redis_uri) :
 	redis(std::make_unique<sw::redis::Redis>(redis_uri)),

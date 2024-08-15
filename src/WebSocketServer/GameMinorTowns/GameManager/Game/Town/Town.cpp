@@ -1,11 +1,12 @@
 #include "Town.h"
+#include "User.h"
 
 Town::Town(int id, std::shared_ptr<User> user, int capital_node, 
 	std::unique_ptr<Economy> economy, 
-	std::unique_ptr<Charch> charch, 
+	std::unique_ptr<Church> charch, 
 	std::unique_ptr<Manufactory> manufactory)
 	: id(id), capital_node(capital_node),
-	economy(std::move(economy)), charch(std::move(charch)), 
+	economy(std::move(economy)), church(std::move(charch)), 
 	manufactory(std::move(manufactory)), own(user) {
 
 }
@@ -28,11 +29,11 @@ void Town::TownTickProcessing()
 
 void Town::buildBuilding(const TypeBuildings type_building)
 {
-	if (type_building == TypeBuildings::Charch) {
-		if (economy->getBudget() >= charch->getPrice()) {
-			economy->expenseBuild(charch->getPrice());
-			charch->build();
-			economy->setMultiplier(charch->getModifier());
+	if (type_building == TypeBuildings::Church) {
+		if (economy->getBudget() >= church->getPrice()) {
+			economy->expenseBuild(church->getPrice());
+			church->build();
+			economy->setMultiplier(church->getModifier());
 		}
 	} else if (type_building == TypeBuildings::Manufactory) {
 		if (economy->getBudget() >= manufactory->getPrice()) {
@@ -45,9 +46,9 @@ void Town::buildBuilding(const TypeBuildings type_building)
 
 void Town::destroyBuilding(const TypeBuildings type_building)
 {
-	if (type_building == TypeBuildings::Charch) {
-		if (0 < charch->getCount()) {
-			charch->destroy();
+	if (type_building == TypeBuildings::Church) {
+		if (0 < church->getCount()) {
+			church->destroy();
 		}
 	}
 	else if (type_building == TypeBuildings::Manufactory) {
@@ -82,9 +83,9 @@ const TownData Town::getData() const
 	data.economy.income = economy->getIncome();
 	data.economy.multiplier = economy->getMultiplier();
 
-	data.charch.count = charch->getCount();
-	data.charch.price = charch->getPrice();
-	data.charch.bonus = charch->getModifier();
+	data.charch.count = church->getCount();
+	data.charch.price = church->getPrice();
+	data.charch.bonus = church->getModifier();
 
 	data.manufactory.count = manufactory->getCount();
 	data.manufactory.price = manufactory->getPrice();

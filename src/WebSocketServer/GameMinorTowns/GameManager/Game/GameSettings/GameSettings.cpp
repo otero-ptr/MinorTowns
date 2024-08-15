@@ -22,9 +22,9 @@ std::unique_ptr<Economy> GameSettings::makeEconomy() {
 		economy.start_multiplier);
 }
 
-std::unique_ptr<Charch> GameSettings::makeCharch()
+std::unique_ptr<Church> GameSettings::makeChurch()
 {
-	return std::make_unique<Charch>(buildings.modifier_church, buildings.price_increase, buildings.price_church);
+	return std::make_unique<Church>(buildings.modifier_church, buildings.price_increase, buildings.price_church);
 }
 
 std::unique_ptr<Manufactory> GameSettings::makeManufactory()

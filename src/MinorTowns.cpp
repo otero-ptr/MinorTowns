@@ -5,7 +5,7 @@
 #include "LogManager/LogManager.h"
 #include "LogManager/log.h"
 #include "yaml-cpp/yaml.h"
-#include <iostream>
+#include <optional>
 
 int main() {
 	Logger::LogManager log_manager;

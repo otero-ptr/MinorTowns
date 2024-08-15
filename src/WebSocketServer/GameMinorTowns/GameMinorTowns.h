@@ -1,9 +1,8 @@
 #pragma once
 #include <memory>
 #include <string>
-#include "GameMinorTowns\GameManager\GameManager.h"
-#include "GameMinorTowns\LobbyManager\LobbyManager.h"
-class User;
+#include "GameManager/GameManager.h"
+#include "LobbyManager/LobbyManager.h"
 
 class GameMinorTowns {
 public:

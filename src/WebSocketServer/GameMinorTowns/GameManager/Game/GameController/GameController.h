@@ -1,6 +1,9 @@
 #pragma once
-#include "GameMinorTowns\GameManager\Game\Town\Town.h"
 #include "GameNotify.h"
+#include <memory>
+#include <vector>
+#include "Town.h"
+//class Town;
 
 class GameController {
 public:

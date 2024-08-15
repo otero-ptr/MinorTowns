@@ -1,12 +1,13 @@
 #pragma once
-#include "GameMinorTowns\GameManager\Game\Town\Buildings\Charch.h"
-#include "GameMinorTowns\GameManager\Game\Town\Buildings\Manufactory.h"
-#include "GameMinorTowns\GameManager\Game\Town\Economy\Economy.h"
+#include "Buildings\Church.h"
+#include "Buildings\Manufactory.h"
+#include "Economy\Economy.h"
+
 class GameSettings {
 public:
 	GameSettings();
 	std::unique_ptr<Economy> makeEconomy();
-	std::unique_ptr<Charch> makeCharch();
+	std::unique_ptr<Church> makeChurch();
 	std::unique_ptr<Manufactory> makeManufactory();
 	int getCooldownTick();
 	int getMaxTick();

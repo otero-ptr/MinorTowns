@@ -3,8 +3,9 @@
 #include <unordered_map>
 #include <memory>
 #include "Game/Game.h"
-#include "GameSettings/GameSettings.h"
+
 class User;
+class GameSettings;
 
 class GameManager {
 public:

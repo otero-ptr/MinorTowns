@@ -1,11 +1,11 @@
 #include "Middleware.h"
-#include "GameMinorTowns/GameMinorTowns.h"
 #include <thread>
-#include "nlohmann\json.hpp"
-#include <Poco\Exception.h>
-#include "RequestHandler\ParamsValidator.h"
-#include "AuthorizatonValidate/AuthorizationValidate.h"
-#include "future"
+#include "GameMinorTowns.h"
+#include "ParamsValidator.h"
+#include "AuthorizationValidate/AuthorizationValidate.h"
+#include "User.h"
+#include "RequestResult.h"
+#include <future>
 
 Middleware::Middleware(std::shared_ptr<GameMinorTowns> game)
     : game_minor_towns(game) {

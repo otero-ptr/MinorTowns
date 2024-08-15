@@ -1,4 +1,5 @@
 #include "LobbyUpdateNotifier.h"
+#include "User.h"
 
 LobbyUpdateNotifier::LobbyUpdateNotifier(std::string& lobby_list) 
 	: lobby_list(lobby_list), lobby_list_old(lobby_list),

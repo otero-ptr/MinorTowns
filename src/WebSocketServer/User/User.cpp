@@ -1,7 +1,5 @@
 #include "User.h"
-#include "Poco/UUIDGenerator.h"
-#include "Poco/UUID.h"
-#include "util/gen_uuid.h"
+#include "gen_uuid.h"
 
 User::User(std::string username, std::string address) 
 	: uuid(GenerateUUID()), user_location(Location::MENU),

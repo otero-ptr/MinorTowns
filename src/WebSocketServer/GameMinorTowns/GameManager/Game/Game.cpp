@@ -1,13 +1,14 @@
 #include "Game.h"
-#include "util/gen_uuid.h"
-#include "User/User.h"
+#include "gen_uuid.h"
+#include "User.h"
 #include "Army/Battle/Battle.h"
 #include "GameController/GameNotify.h"
+#include "GameSettings.h"
 
 
 Game::Game(std::vector<std::weak_ptr<User>> users, std::shared_ptr<GameSettings> settings) :
 	game_controller(settings->getMaxTick(), settings->getRepeatTick()),
-	uuid(GenerateUUID()), action_manager(std::make_unique<ActionManager>()),
+	uuid(GenerateUUID()),
 	cooldown_tick(settings->getCooldownTick())
 {
 	this->users.reserve(users.size());
@@ -124,8 +125,6 @@ void Game::tick(std::stop_token token)
 		notifyTick();
 
 		game_controller.control(tick_count, towns);
-		
-		action_manager->doActions();
 
 		if (game_controller.isGameEnd()) {
 			for (auto& town : towns) {
@@ -150,7 +149,7 @@ void Game::createTowns(std::vector<int> &id_towns, std::shared_ptr<GameSettings>
 	for (int i = 0; i < users.size(); i++) {
 		
 		towns.emplace_back(i, users[i].lock(), id_towns[i], settings->makeEconomy(),
-			settings->makeCharch(), settings->makeManufactory());
+			settings->makeChurch(), settings->makeManufactory());
 		armies.emplace_back(0, id_towns[i]);
 	}
 }

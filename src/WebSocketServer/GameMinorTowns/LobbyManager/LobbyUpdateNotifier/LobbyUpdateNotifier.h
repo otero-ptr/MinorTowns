@@ -1,9 +1,10 @@
 #pragma once
-#include "User\User.h"
 #include <memory>
 #include <thread>
 #include <unordered_map>
 #include <mutex>
+
+class User;
 
 class LobbyUpdateNotifier {
 public:
