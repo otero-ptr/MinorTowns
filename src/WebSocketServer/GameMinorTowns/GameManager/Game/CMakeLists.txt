@@ -46,6 +46,7 @@ set(LIB
 	User
 	GameSettings
 	Town
+	spdlog::spdlog
 )
 
 add_library(Game STATIC ${SRC})

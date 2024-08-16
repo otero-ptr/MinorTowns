@@ -1,5 +1,6 @@
 set(INC
 	.
+	${CMAKE_SOURCE_DIR}/src/LogManager
 )
 
 set(INC_SYS
@@ -19,6 +20,7 @@ set(SRC
 
 set(LIB
 	nlohmann_json::nlohmann_json
+	LogManager
 )
 
 add_library(RequestHandler STATIC ${SRC})

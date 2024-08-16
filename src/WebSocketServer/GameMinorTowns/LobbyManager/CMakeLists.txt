@@ -3,6 +3,7 @@ set(INC
 	LobbyUpdateNotifier
 	${CMAKE_SOURCE_DIR}/src/util
 	${CMAKE_SOURCE_DIR}/src/WebSocketServer/User
+	${CMAKE_SOURCE_DIR}/src/LogManager
 )
 
 set(INC_SYS
@@ -20,6 +21,7 @@ set(LIB
 	redis++::redis++
 	User
 	Util
+	LogManager
 )
 
 add_library(LobbyManager STATIC ${SRC})

@@ -1,6 +1,6 @@
 #pragma once
 
 enum class TypeBuildings {
-	Church,
-	Manufactory
+	Church = 0,
+	Manufactory = 1
 };

@@ -3,6 +3,7 @@ add_subdirectory("Game")
 set(INC
 	.
 	${CMAKE_SOURCE_DIR}/src/WebSocketServer/User
+	${CMAKE_SOURCE_DIR}/src/LogManager
 )
 
 set(INC_SYS
@@ -17,6 +18,7 @@ set(SRC
 set(LIB
 	User
 	Game
+	LogManager
 )
 
 add_library(GameManager STATIC ${SRC})

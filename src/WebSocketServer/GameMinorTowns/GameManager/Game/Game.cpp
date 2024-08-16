@@ -5,14 +5,32 @@
 #include "GameController/GameNotify.h"
 #include "GameSettings.h"
 
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
-Game::Game(std::vector<std::weak_ptr<User>> users, std::shared_ptr<GameSettings> settings) :
+Game::Game(std::vector<std::shared_ptr<User>> users, std::shared_ptr<GameSettings> settings) :
 	game_controller(settings->getMaxTick(), settings->getRepeatTick()),
 	uuid(GenerateUUID()),
-	cooldown_tick(settings->getCooldownTick())
+	cooldown_tick(settings->getCooldownTick()),
+	logger(std::make_unique<spdlog::logger>(uuid))
 {
+	auto log_file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("Logs/Game/game[" + uuid + "].log", true);
+	log_file_sink->set_pattern("%^[%l] [%d-%m-%Y %H:%M:%S.%e] [%t] %v%$");
+	logger->sinks().push_back(log_file_sink);
+	logger->set_level(spdlog::level::trace);
+	logger->flush_on(spdlog::level::trace);
+
+	logger->info("Game created");
+	logger->info("game uuid: " + uuid);
+	logger->info("Game settings:");
+	logger->info("max tick: " + std::to_string(settings->getMaxTick()));
+	logger->info("repeat tick: " + std::to_string(settings->getRepeatTick()));
+	logger->info("cooldown tick: " + std::to_string(settings->getCooldownTick()));
+
+	logger->info("users count: " + std::to_string(users.size()));
 	this->users.reserve(users.size());
 	for (auto& user : users) {
+		logger->info("username: " + user->getUsername() + " \t[" + user->getUUID() + "]");
 		this->users.push_back(user);
 	}
 }
@@ -22,21 +40,28 @@ Game::~Game()
 	if (this->th_tick.joinable()) {
 		this->th_tick.join();
 	}
+	logger->info("Game end");
 }
 
 void Game::start()
 {
+	logger->info("Game start");
 	this->game_controller.notify(users, GameNotify::GAME_START);
 	this->th_tick = std::jthread(&Game::tick, this, th_tick.get_stop_token());
 }
 
 void Game::prepare(std::shared_ptr<GameSettings> settings)
 {
+	logger->info("Game prepare");
 	game_controller.notify(users, GameNotify::GAME_STARTING);
+	logger->info("Create map");
 	std::vector<int> idTowns = createMap(users.size());
+	logger->info("Create towns");
 	createTowns(idTowns, settings);
 
+	logger->info("Notify map");
 	notifyMap();
+	logger->info("Notify table");
 	notifyTable();
 }
 
@@ -54,6 +79,7 @@ void Game::buildBuildings(std::shared_ptr<User>& user, int& building_type)
 {
 	for (auto& town : towns) {
 		if (town.getOwnTown() == user) {
+			logger->info(user->getUsername() + "[" + user->getUUID() + "] built a building " + std::to_string(building_type));
 			town.buildBuilding(static_cast<TypeBuildings>(building_type));
 			break;
 		}
@@ -108,6 +134,7 @@ void Game::attackArmy(std::shared_ptr<User>& user)
 void Game::tick(std::stop_token token)
 {
 	// start zero tick
+	logger->trace("zero tick");
 	notifyTick(); 
 	game_controller.control(tick_count, towns);
 	std::this_thread::sleep_for(std::chrono::milliseconds(cooldown_tick));
@@ -122,6 +149,7 @@ void Game::tick(std::stop_token token)
 
 		std::sort(towns.rbegin(), towns.rend());
 
+		logger->trace("tick " + std::to_string(tick_count));
 		notifyTick();
 
 		game_controller.control(tick_count, towns);
@@ -145,9 +173,8 @@ void Game::createTowns(std::vector<int> &id_towns, std::shared_ptr<GameSettings>
 {
 	towns.reserve(users.size());
 	armies.reserve(users.size());
-
+	
 	for (int i = 0; i < users.size(); i++) {
-		
 		towns.emplace_back(i, users[i].lock(), id_towns[i], settings->makeEconomy(),
 			settings->makeChurch(), settings->makeManufactory());
 		armies.emplace_back(0, id_towns[i]);
@@ -174,6 +201,7 @@ void Game::notifyTable()
 {
 	nlohmann::json common_obj;
 	common_obj["table"] = makeTableJson();
+	logger->info("game table: " + common_obj.dump());
 	for (auto& town : towns) {
 		town.getOwnTown()->message_pool.push(common_obj.dump());
 	}
@@ -223,10 +251,17 @@ nlohmann::json Game::createTownJson(const TownData&& data, const nlohmann::json&
 	return unique_obj;
 }
 
-std::vector<int> Game::createMap(size_t countUser)
+std::vector<int> Game::createMap(size_t count_user)
 {
-	auto sizeMap = DimensionMap::detect(countUser);
-	auto posTowns = DimensionMap::placeTowns(countUser, sizeMap);
-	game_map = std::make_unique<GameMap>(sizeMap);
-	return game_map->placeTowns(posTowns);
+	auto size_map = DimensionMap::detect(count_user);
+	logger->info("Map size: " + std::to_string(size_map.x) + 
+		"x" + std::to_string(size_map.y));
+	auto pos_towns = DimensionMap::placeTowns(count_user, size_map);
+	for (auto &[x,y] : pos_towns) {
+		logger->info("pos town: " + std::to_string(x) + "x" + std::to_string(y));
+	}
+	game_map = std::make_unique<GameMap>(size_map);
+	auto result = game_map->placeTowns(pos_towns);
+	logger->info("map: " + game_map->getMapJson());
+	return result;
 }

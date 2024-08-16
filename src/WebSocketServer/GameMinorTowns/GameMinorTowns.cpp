@@ -1,5 +1,5 @@
 #include "GameMinorTowns.h"
-#include "../User/User.h"
+#include "User.h"
 
 GameMinorTowns::GameMinorTowns(int max_users, int cooldown_collector, int cooldown_refresher, std::string redis_uri) 
 	: max_users(max_users),

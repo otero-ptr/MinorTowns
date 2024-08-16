@@ -1,5 +1,5 @@
 #include "RequestHandler.h"
-#include <iostream>
+#include "log.h"
 
 RequestHandler::RequestHandler()
 {
@@ -14,7 +14,7 @@ std::optional<RequestResult> RequestHandler::Handler(std::string request)
     try {
         nlohmann::json request_json = nlohmann::json::parse(request);
         if (request_json.contains("action")) {
-            std::cout << "Value of action: " << request_json["action"] << std::endl;
+            LOGGER_INFO("Action [" + request_json["action"].get<std::string>() + "]");
             if (request_json["action"]== "create_lobby") {
                 return this->CreateLobby(request_json);
             }
@@ -39,19 +39,23 @@ std::optional<RequestResult> RequestHandler::Handler(std::string request)
             else if (request_json["action"] == "disband_army") {
                 return this->DisbandArmy(request_json);
             } else {
+                LOGGER_WARN("Action doesn't exist");
                 return std::nullopt;
             }
         }
         else {
+            LOGGER_ERROR("Action not specified");
             return std::nullopt;
         }
     }
     catch (std::exception& ex) {
+        LOGGER_ERROR("Request Handler Error: " + std::string(ex.what()));
         RequestResult request_result;
         request_result.setErrorInfo(std::make_unique<ErrorInfo>(ex.what()));
         return request_result;
     }
     catch (...) {
+        LOGGER_ERROR("Request Handler Error: unknown error");
         RequestResult request_result;
         request_result.setErrorInfo(std::make_unique<ErrorInfo>("unknown error"));
         return request_result;

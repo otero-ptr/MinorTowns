@@ -3,7 +3,7 @@
 #include "Poco/Net/NetException.h"
 #include "Poco/Net/WebSocket.h"
 #include "Poco/URI.h"
-#include <iostream>
+#include "log.h"
 #include "User.h"
 #include "Middleware.h"
 #include "RequestHandler.h"
@@ -14,10 +14,12 @@ WebSocketRequestHandler::~WebSocketRequestHandler()
 		th_server_messages.request_stop();
 		th_server_messages.join();
 	}
-	middleware_server->disconnect(user);
-	user->message_pool.clear();
-	bws->close();
-	std::cout << "WebSocket connection closed." << std::endl;
+	if (user != nullptr) {
+		middleware_server->disconnect(user);
+		user->message_pool.clear();
+		bws->close();
+	}
+	LOGGER_INFO("WebSocket connection closed");
 }
 
 void WebSocketRequestHandler::handleRequest(
@@ -25,16 +27,20 @@ void WebSocketRequestHandler::handleRequest(
 	Poco::Net::HTTPServerResponse& response) {
 	try
 	{
-		std::cout << "WebSocket connection established." << std::endl;
+		LOGGER_INFO("WebSocket connection established");
 		if (!connectionAuthorization(request, response)) {
-			return;
+			LOGGER_ERROR("WebSocket connection is not authorized");
+			return ;
+		} else {
+			LOGGER_INFO("Client: " + request.clientAddress().toString());
+			LOGGER_INFO("username: " + user->getUsername() + " uuid: " + user->getUUID());
 		}
 		runProcessingServerMessagesThread();
 		runProcessingClientMessages();
 	}
 	catch (Poco::Net::WebSocketException& exc)
 	{
-		std::cout << exc.message() << std::endl;
+		LOGGER_ERROR("Ecxeption code: " + std::to_string(exc.code()) + " msg: " + exc.message());
 		switch (exc.code())
 		{
 		case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_UNSUPPORTED_VERSION:
@@ -53,7 +59,7 @@ void WebSocketRequestHandler::handleRequest(
 		}
 	}
 	catch (...) {
-		std::cout << "something else" << std::endl;
+		LOGGER_ERROR("some problem")
 	}
 }
 
@@ -68,6 +74,7 @@ bool WebSocketRequestHandler::connectionAuthorization(Poco::Net::HTTPServerReque
 	response.set("Access-Control-Allow-Origin", cors.data());
 	Poco::URI uri(request.getURI());
 	if (!handleParams(response, uri.getQueryParameters())) {
+		LOGGER_ERROR("Parameters are missing");
 		return false;
 	}
 	bws = std::make_unique<BetterWebSocket>(Poco::Net::WebSocket(request, response), timeout_response);
@@ -77,7 +84,7 @@ bool WebSocketRequestHandler::connectionAuthorization(Poco::Net::HTTPServerReque
 			request.clientAddress().host().toString(),
 			request.clientAddress().port());
 		if (user == nullptr) {
-			bws->sendResponseMessage(ResponseMessage(Code::NotAcceptable, "Wrong user. Server closed"));
+			bws->sendResponseMessage(ResponseMessage(Code::NotAcceptable, "Wrong user"));
 			bws->close();
 			return false;
 		}
@@ -91,19 +98,15 @@ bool WebSocketRequestHandler::connectionAuthorization(Poco::Net::HTTPServerReque
 bool WebSocketRequestHandler::handleParams(
 	Poco::Net::HTTPServerResponse& response, 
 	const Poco::URI::QueryParameters& params) {
-		bool status = true;
 		if (params.size() != 1) {
+			LOGGER_TRACE("Invalid number of parameters");
 			return false;
 		}
 		if (params.begin()->first != "username" || params.begin()->second.empty()) {
+			LOGGER_TRACE("Parameters are incorrect");
 			return false;
 		}
-		if (!status) {
-			response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
-			response.setContentLength(0);
-			response.send();
-		}
-		return status;
+		return true;
 }
 
 void WebSocketRequestHandler::runProcessingServerMessagesThread()

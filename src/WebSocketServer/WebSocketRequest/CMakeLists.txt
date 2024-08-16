@@ -4,6 +4,7 @@ set(INC
 	BetterWebSocket/ServerMessages
 	${CMAKE_SOURCE_DIR}/src/WebSocketServer/Middleware
 	${CMAKE_SOURCE_DIR}/src/WebSocketServer/User
+	${CMAKE_SOURCE_DIR}/src/LogManager
 )
 
 set(INC_SYS
@@ -26,6 +27,7 @@ set(LIB
 	User
 	Middleware
 	RequestHandler
+	LogManager
 )
 
 add_library(WebSocketRequest STATIC ${SRC})

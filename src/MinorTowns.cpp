@@ -16,13 +16,16 @@ int main() {
 	std::shared_ptr<Middleware> middleware;
 	std::unique_ptr<WebSocketServer> socket_server;
 
+	LOGGER_INFO("OPEN server.yml");
 	YAML::Node config = YAML::LoadFile("server.yml");
 
+	LOGGER_INFO("make middleware");
 	middleware = std::make_shared<Middleware>(std::make_shared<GameMinorTowns>(
 		config["max_users"].as<int>(), config["manager"]["game"]["collector"].as<int>(),
 		config["manager"]["lobby"]["refresher"].as<int>(),
 		config["manager"]["redis_uri"].as<std::string>()));
 
+	LOGGER_INFO("make websocket server");
 	socket_server = std::make_unique<WebSocketServer>(
 		config["server"]["port"].as<int>(),
 		config["server"]["max_clients"].as<int>(),
@@ -31,6 +34,7 @@ int main() {
 		config["client"]["timeout_response"].as<int>(),
 		std::move(middleware));
 
+	LOGGER_INFO("run server");
 	socket_server->runServer();
 
 	LOGGER_INFO("END");

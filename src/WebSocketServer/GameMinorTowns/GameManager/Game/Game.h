@@ -11,12 +11,14 @@
 #include "GameController/GameController.h"
 #include "nlohmann/json.hpp"
 
+#include "spdlog/spdlog.h"
+
 class User;
 
 class Game {
 public:
 	Game() = delete;
-	explicit Game(std::vector<std::weak_ptr<User>> users, std::shared_ptr<GameSettings> settings);
+	explicit Game(std::vector<std::shared_ptr<User>> users, std::shared_ptr<GameSettings> settings);
 	~Game();
 	void start();
 	void prepare(std::shared_ptr<GameSettings> settings);
@@ -49,4 +51,6 @@ private:
 	const int cooldown_tick;
 	int tick_count = 0;
 	std::jthread th_tick;
+
+	std::unique_ptr<spdlog::logger> logger;
 };

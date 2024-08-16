@@ -3,6 +3,7 @@
 #include "sw/redis++/redis++.h"
 #include "User.h"
 #include "gen_uuid.h"
+#include "log.h"
 
 LobbyManager::LobbyManager(int cooldown_refresher, std::string redis_uri) :
 	redis(std::make_unique<sw::redis::Redis>(redis_uri)),
@@ -20,11 +21,12 @@ LobbyManager::~LobbyManager()
 	}
 }
 
-std::string LobbyManager::createLobby(size_t count)
+std::string LobbyManager::createLobby(uint8_t count)
 {
 	std::string uuid(GenerateUUID());
 	redis->hset(uuid, "maxUser", std::to_string(count));
 	lobbies.push_back(uuid);
+	LOGGER_INFO("Lobby[" + uuid + "]" + " created [" + std::to_string(count) + "users]")
 	return uuid;
 }
 
@@ -38,6 +40,7 @@ void LobbyManager::joinLobby(std::string uuid_lobby, std::shared_ptr<User>& user
 		users.insert(std::make_pair(user->getUUID(), user));
 		user->setLocation(Location::LOBBY, uuid_lobby);
 		notifyLobbyUsers(uuid_lobby);
+		LOGGER_INFO("User[" + user->getUUID() + "] joined -> lobby[" + uuid_lobby + "]");
 	}
 }
 
@@ -49,8 +52,9 @@ void LobbyManager::leaveLobby(std::shared_ptr<User>& user)
 	if (redis->sismember(user->getUUIDLocation() + ":users", user->getUUID())) {
 		redis->srem(user->getUUIDLocation() + ":users", user->getUUID());
 		users.erase(user->getUUID());
-		notifyLobbyUsers(user->getUUIDLocation());
+		LOGGER_INFO("User[" + user->getUUID() + "] left -> lobby[" + user->getUUIDLocation() + "]");
 		user->setLocation(Location::MENU, "menu");
+		notifyLobbyUsers(user->getUUIDLocation());
 	}
 }
 
@@ -82,9 +86,9 @@ std::vector<std::string> LobbyManager::getLobbyUsers(std::string uuid_lobby)
 	return result;
 }
 
-std::vector<std::weak_ptr<User>> LobbyManager::extractLobbyUsers(std::string uuid_lobby)
+std::vector<std::shared_ptr<User>> LobbyManager::extractLobbyUsers(std::string uuid_lobby)
 {
-	std::vector<std::weak_ptr<User>> result;
+	std::vector<std::shared_ptr<User>> result;
 	std::vector<std::string> uuid_users = getLobbyUsers(uuid_lobby);
 	result.reserve(uuid_users.size());
 	for (std::string_view uuid_user : uuid_users) {
@@ -92,7 +96,7 @@ std::vector<std::weak_ptr<User>> LobbyManager::extractLobbyUsers(std::string uui
 		if (iter != users.end()) {
 			auto user = users[uuid_user.data()];
 			if (!user.expired()) {
-				result.push_back(user);
+				result.push_back(user.lock());
 			}
 		}
 	}
@@ -121,15 +125,16 @@ void LobbyManager::closeLobby(std::string uuid_lobby)
 		redis->del(uuid_lobby);
 		redis->del(uuid_lobby + ":users");
 		lobbies.remove(uuid_lobby);
+		LOGGER_INFO("Lobby[" + uuid_lobby + "]" + " closed");
 	}
 }
 
-size_t LobbyManager::countLobbyUsers(std::string uuid_lobby)
+uint8_t LobbyManager::countLobbyUsers(std::string uuid_lobby)
 {
 	return redis->scard(uuid_lobby + ":users");
 }
 
-size_t LobbyManager::countLobbyMaxUsers(std::string uuid_lobby)
+uint8_t LobbyManager::countLobbyMaxUsers(std::string uuid_lobby)
 {
 	return std::stoi(redis->hget(uuid_lobby, "maxUser").value());
 }

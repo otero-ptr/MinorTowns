@@ -16,17 +16,17 @@ public:
 	LobbyManager() = delete;
 	explicit LobbyManager(int cooldown_refresher, std::string redis_uri);
 	~LobbyManager();
-	std::string createLobby(size_t count);
+	std::string createLobby(uint8_t count);
 	void joinLobby(std::string uuid_lobby, std::shared_ptr<User>& user);
 	void leaveLobby(std::shared_ptr<User>& user);
-	size_t countLobbyUsers(std::string uuid_lobby);
-	size_t countLobbyMaxUsers(std::string uuid_lobby);
+	uint8_t countLobbyUsers(std::string uuid_lobby);
+	uint8_t countLobbyMaxUsers(std::string uuid_lobby);
 	bool isLobbyFull(std::string uuid_lobby);
 	bool isLobbyEmpty(std::string uuid_lobby);
 	bool isLobby(std::string uuid_lobby);
 	void closeLobby(std::string uuid_lobby);
 	std::vector<std::string> getLobbyUsers(std::string uuid_lobby);
-	std::vector<std::weak_ptr<User>> extractLobbyUsers(std::string uuid_lobby);
+	std::vector<std::shared_ptr<User>> extractLobbyUsers(std::string uuid_lobby);
 	void subscribeLobbyUpdate(std::shared_ptr<User>& user);
 	void unsubscribeLobbyUpdate(std::shared_ptr<User>& user);
 private:

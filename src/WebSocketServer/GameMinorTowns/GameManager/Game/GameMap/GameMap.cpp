@@ -104,6 +104,7 @@ DimensionMap::SizeMap DimensionMap::detect(const size_t players)
 	else if (players == 4) {
 		return SizeMap(5, 5);
 	}
+	return SizeMap(0, 0);
 }
 
 std::vector<DimensionMap::SizeMap> DimensionMap::placeTowns(const size_t players, DimensionMap::SizeMap size)

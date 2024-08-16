@@ -7,9 +7,9 @@ set(INC_SYS
 )
 
 set(SRC
+	log.h
 	LogManager.h
 	LogManager.cpp
-	log.h
 )
 
 set(LIB

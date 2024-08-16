@@ -1,5 +1,6 @@
 #include "LobbyUpdateNotifier.h"
 #include "User.h"
+#include "log.h"
 
 LobbyUpdateNotifier::LobbyUpdateNotifier(std::string& lobby_list) 
 	: lobby_list(lobby_list), lobby_list_old(lobby_list),
@@ -22,6 +23,7 @@ void LobbyUpdateNotifier::subscribe(std::shared_ptr<User>& user)
 	if (it == users.end()) {
 		users.insert(std::make_pair(user->getUUID(), user));
 		user->message_pool.push(lobby_list_old);
+		LOGGER_INFO("User[" + user->getUUID() + "] subscribed");
 	}
 }
 
@@ -31,6 +33,7 @@ void LobbyUpdateNotifier::unsubscribe(std::shared_ptr<User>& user)
 	auto it = users.find(user->getUUID());
 	if (it != users.end()) {
 		users.erase(user->getUUID());
+		LOGGER_INFO("User[" + user->getUUID() + "] unsubscribed");
 	}
 }
 
@@ -40,6 +43,7 @@ void LobbyUpdateNotifier::notify(std::stop_token token)
 		mtx.lock();
 		if (lobby_list_old != lobby_list) {;
 			lobby_list_old = lobby_list;
+
 			for (auto it = users.begin(); it != users.end();) {
 				if (it->second.expired()) {
 					it = users.erase(it);
@@ -50,6 +54,7 @@ void LobbyUpdateNotifier::notify(std::stop_token token)
 					++it;
 				}
 			}
+			LOGGER_INFO(std::to_string(users.size()) + " users were notified");
 		}
 		mtx.unlock();
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));

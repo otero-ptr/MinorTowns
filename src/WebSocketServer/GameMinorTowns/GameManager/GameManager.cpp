@@ -1,11 +1,12 @@
 #include "GameManager.h"
 #include "Game/GameSettings/GameSettings.h"
 #include "User.h"
+#include "log.h"
 
 GameManager::GameManager(int cooldown_collector) 
 	: game_settings(std::make_shared<GameSettings>()),
 	cooldown_collector(cooldown_collector),
-	th_collector(std::jthread([this](std::stop_token token) { collectEndedGames(token); }))
+	th_collector(std::jthread([this](std::stop_token token) { collectingEndedGames(token); }))
 {
 }
 
@@ -17,14 +18,11 @@ GameManager::~GameManager()
 	}
 }
 
-void GameManager::createGame(std::vector<std::weak_ptr<User>>&& users)
+void GameManager::createGame(std::vector<std::shared_ptr<User>>&& users)
 {
 	std::unique_ptr<Game> new_game = std::make_unique<Game>(users, game_settings);
 	for (auto& user : users) {
-		auto shared_user = user.lock();
-		if (shared_user) {
-			shared_user->setLocation(Location::GAME, new_game->getUUID());
-		}
+		user->setLocation(Location::GAME, new_game->getUUID());
 	}
 	new_game->prepare(game_settings);
 	new_game->start();
@@ -46,9 +44,10 @@ void GameManager::disbandArmy(std::shared_ptr<User>& user, int& count_soldiers)
 	this->games[user->getUUIDLocation()]->disbandArmy(user, count_soldiers);
 }
 
-void GameManager::collectEndedGames(std::stop_token token)
+void GameManager::collectingEndedGames(std::stop_token token)
 {
 	while (!token.stop_requested()) {
+		LOGGER_INFO("Collecting ended games")
 		for (auto it = games.begin(); it != games.end();)
 		{
 			if (!it->second->isActive())
@@ -59,6 +58,6 @@ void GameManager::collectEndedGames(std::stop_token token)
 				++it;
 			}
 		}
-		std::this_thread::sleep_for(std::chrono::seconds(cooldown_collector));
+		std::this_thread::sleep_for(std::chrono::milliseconds(cooldown_collector));
 	}
 }
