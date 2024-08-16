@@ -14,10 +14,10 @@ public:
 	void notify(const std::vector<std::weak_ptr<User>>& users, GameNotify&& game_notify);
 	bool isGameEnd() const;
 private:
-	const Town* top_town = nullptr;
 	const int max_tick;
 	const int max_repeat_tick;
 	int repeat_tick = 0;
 	bool game_start = false;
 	bool game_end = false;
+	int8_t contender_id = -1;
 };

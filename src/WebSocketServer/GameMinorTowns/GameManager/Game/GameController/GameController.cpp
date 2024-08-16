@@ -17,40 +17,42 @@ GameController::~GameController()
 
 void GameController::control(const int& tick, const std::vector<Town>& towns)
 {
-	if (!this->game_end) {
+	if (!game_end) {
 		if (towns.size() == 1) {
-			this->top_town = &towns[0];
-			this->game_end = true;
-			this->top_town->getOwnTown()->message_pool.push("{\"win_town\": " + std::to_string(this->top_town->getID()) + "}");
+			contender_id = towns[0].getID();
+			game_end = true;
+			for (auto& it : towns) {
+				it.getOwnTown()->message_pool.push("{\"win_town\": " + std::to_string(contender_id) + "}");
+			}
 		}
 		if (tick == 0) {
 			for (auto& it : towns) {
 				it.getOwnTown()->message_pool.push("{\"game_phase\": 1}");
 			}
 		}
-		if (tick == this->max_tick) {
+		if (tick == max_tick) {
 			for (auto& it : towns) {
 				it.getOwnTown()->message_pool.push("{\"game_phase\": 2}");
 			}
 		}
-		if (tick >= this->max_tick) {
-			if (this->top_town == nullptr || towns[0].getID() != this->top_town->getID()) {
-				this->top_town = &towns[0];
-				this->repeat_tick = 0;
+		if (tick >= max_tick) {
+			if (contender_id == -1 || towns[0].getID() != contender_id) {
+				contender_id = towns[0].getID();
+				repeat_tick = 0;
 				for (auto& it : towns) {
-					it.getOwnTown()->message_pool.push("{\"contender_town\": " + std::to_string(this->top_town->getID()) + "}");
+					it.getOwnTown()->message_pool.push("{\"contender_town\": " + std::to_string(contender_id) + "}");
 				}
 			}
-			if (++this->repeat_tick > this->max_repeat_tick) {
-				this->game_end = true;
+			if (++repeat_tick > max_repeat_tick) {
+				game_end = true;
 				for (auto& it : towns) {
-					it.getOwnTown()->message_pool.push("{\"win_town\": " + std::to_string(this->top_town->getID()) + "}");
+					it.getOwnTown()->message_pool.push("{\"win_town\": " + std::to_string(contender_id) + "}");
 				}
 			}
-			if (tick > this->max_tick*2) {
-				this->game_end = true;
+			if (tick > max_tick*2) {
+				game_end = true;
 				for (auto& it : towns) {
-					it.getOwnTown()->message_pool.push("{\"win_town\": " + std::to_string(this->top_town->getID()) + "}");
+					it.getOwnTown()->message_pool.push("{\"win_town\": " + std::to_string(contender_id) + "}");
 				}
 			}
 		}
@@ -69,5 +71,5 @@ void GameController::notify(const std::vector<std::weak_ptr<User>>& users, GameN
 
 bool GameController::isGameEnd() const
 {
-	return this->game_end;
+	return game_end;
 }

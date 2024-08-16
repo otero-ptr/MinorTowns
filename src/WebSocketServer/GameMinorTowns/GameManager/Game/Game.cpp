@@ -30,7 +30,7 @@ Game::Game(std::vector<std::shared_ptr<User>> users, std::shared_ptr<GameSetting
 	logger->info("users count: " + std::to_string(users.size()));
 	this->users.reserve(users.size());
 	for (auto& user : users) {
-		logger->info("username: " + user->getUsername() + " \t[" + user->getUUID() + "]");
+		logger->info("username: " + user->getUsername() + " [" + user->getUUID() + "]");
 		this->users.push_back(user);
 	}
 }
