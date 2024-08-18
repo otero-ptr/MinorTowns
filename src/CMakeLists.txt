@@ -49,11 +49,3 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 # Link libraries to the executable
 target_link_libraries(${PROJECT_NAME} PUBLIC ${YAML_CPP_LIBRARIES} WebSocketServer LogManager)
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET MinorTowns PROPERTY
-    CXX_STANDARD 20
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO)
-endif()
-
-# TODO: Add tests and install targets if needed.
