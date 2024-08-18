@@ -1,4 +1,5 @@
 #include "GameManager.h"
+#include "GameManager.h"
 #include "Game/GameSettings/GameSettings.h"
 #include "User.h"
 #include "log.h"
@@ -31,17 +32,34 @@ void GameManager::createGame(std::vector<std::shared_ptr<User>>&& users)
 
 void GameManager::buildBuildings(std::shared_ptr<User>& user, int& building_type)
 {
-	this->games[user->getUUIDLocation()]->buildBuildings(user, building_type);
+	auto it = games.find(user->getUUIDLocation());
+	if (it != games.end()) {
+		it->second->buildBuildings(user, building_type);
+	}
 }
 
 void GameManager::raiseArmy(std::shared_ptr<User>& user, int& count_soldiers)
 {
-	this->games[user->getUUIDLocation()]->raiseArmy(user, count_soldiers);
+	auto it = games.find(user->getUUIDLocation());
+	if (it != games.end()) {
+		it->second->raiseArmy(user, count_soldiers);
+	}
 }
 
 void GameManager::disbandArmy(std::shared_ptr<User>& user, int& count_soldiers)
 {
-	this->games[user->getUUIDLocation()]->disbandArmy(user, count_soldiers);
+	auto it = games.find(user->getUUIDLocation());
+	if (it != games.end()) {
+		it->second->disbandArmy(user, count_soldiers);
+	}
+}
+
+void GameManager::leftGame(std::shared_ptr<User>& user)
+{
+	auto it = games.find(user->getUUIDLocation());
+	if (it != games.end()) {
+		it->second->defeated(user);
+	}
 }
 
 void GameManager::collectingEndedGames(std::stop_token token)

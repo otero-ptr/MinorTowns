@@ -45,6 +45,7 @@ Game::~Game()
 
 void Game::start()
 {
+	std::lock_guard<std::mutex> lock(mtx);
 	logger->info("Game start");
 	this->game_controller.notify(users, GameNotify::GAME_START);
 	this->th_tick = std::jthread(&Game::tick, this, th_tick.get_stop_token());
@@ -52,6 +53,7 @@ void Game::start()
 
 void Game::prepare(std::shared_ptr<GameSettings> settings)
 {
+	std::lock_guard<std::mutex> lock(mtx);
 	logger->info("Game prepare");
 	game_controller.notify(users, GameNotify::GAME_STARTING);
 	logger->info("Create map");
@@ -72,7 +74,13 @@ const std::string Game::getUUID()
 
 bool Game::isActive()
 {
-	return th_tick.get_stop_token().stop_requested();
+	/*
+	If a stop request has been made, 
+	the method returns true, otherwise - false
+	true - game active
+	false - game inactive
+	*/
+	return !th_tick.get_stop_token().stop_requested(); 
 }
 
 void Game::buildBuildings(std::shared_ptr<User>& user, int& building_type)
@@ -88,6 +96,7 @@ void Game::buildBuildings(std::shared_ptr<User>& user, int& building_type)
 
 void Game::raiseArmy(std::shared_ptr<User>& user, int& count_soldiers)
 {
+	std::lock_guard<std::mutex> lock(mtx);
 	if (count_soldiers > 0) {
 		for (int i = 0; i < towns.size(); ++i) {
 			if (towns[i].getOwnTown() == user) {
@@ -103,6 +112,7 @@ void Game::raiseArmy(std::shared_ptr<User>& user, int& count_soldiers)
 
 void Game::disbandArmy(std::shared_ptr<User>& user, int& count_soldiers)
 {
+	std::lock_guard<std::mutex> lock(mtx);
 	if (count_soldiers > 0) {
 		for (int i = 0; i < towns.size(); ++i) {
 			if (towns[i].getOwnTown() == user) {
@@ -131,17 +141,37 @@ void Game::attackArmy(std::shared_ptr<User>& user)
 	}
 }
 
+void Game::defeated(std::shared_ptr<User>& user) {
+	std::lock_guard<std::mutex> lock(mtx);
+	logger->info("user:" + user->getUsername() + "defeated");
+	auto it_user = std::find(users.begin(), users.end(), user);
+	if (it_user != users.end()) {
+		logger->info("user:" + user->getUsername() + " remove user");
+		users.erase(it_user);
+		users.shrink_to_fit();
+	}
+	auto it_town = std::find_if(towns.begin(), towns.end(), [&user](const Town& town) {return town.getOwnTown() == user; });
+	if (it_town != towns.end()) {
+		logger->info("user:" + user->getUsername() + " remove town");
+		towns.erase(it_town);
+		towns.shrink_to_fit();
+	}
+}
+
 void Game::tick(std::stop_token token)
 {
 	// start zero tick
 	logger->trace("zero tick");
+	mtx.lock();
 	notifyTick(); 
 	game_controller.control(tick_count, towns);
+	mtx.unlock();
 	std::this_thread::sleep_for(std::chrono::milliseconds(cooldown_tick));
 	// end zero tick
 
 	while (!token.stop_requested()) {
 		auto start = std::chrono::steady_clock::now();
+		mtx.lock();
 		++tick_count;
 		for (auto& town : towns) {
 			town.TownTickProcessing();
@@ -159,8 +189,10 @@ void Game::tick(std::stop_token token)
 				town.getOwnTown()->setLocation(Location::MENU, "menu");
 			}
 			th_tick.request_stop();
+			mtx.unlock();
 			break;
 		}
+		mtx.unlock();
 
 		auto end = std::chrono::steady_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -175,7 +207,7 @@ void Game::createTowns(std::vector<int> &id_towns, std::shared_ptr<GameSettings>
 	armies.reserve(users.size());
 	
 	for (int i = 0; i < users.size(); i++) {
-		towns.emplace_back(i, users[i].lock(), id_towns[i], settings->makeEconomy(),
+		towns.emplace_back(i, users[i], id_towns[i], settings->makeEconomy(),
 			settings->makeChurch(), settings->makeManufactory());
 		armies.emplace_back(0, id_towns[i]);
 	}

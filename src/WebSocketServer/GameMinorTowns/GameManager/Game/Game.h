@@ -28,6 +28,7 @@ public:
 	void raiseArmy(std::shared_ptr<User>& user, int &count_soldiers);
 	void disbandArmy(std::shared_ptr<User>& user, int &count_soldiers);
 	void attackArmy(std::shared_ptr<User>& user);
+	void defeated(std::shared_ptr<User>& user);
 private:
 	void tick(std::stop_token token);
 	std::vector<int> createMap(size_t count_user);
@@ -43,7 +44,7 @@ private:
 	GameController game_controller;
 	std::string uuid;
 	std::vector<Town> towns;
-	std::vector<std::weak_ptr<User>> users;
+	std::vector<std::shared_ptr<User>> users;
 	std::vector<Army> armies;
 	std::list<Battle> battles;
 	std::unique_ptr<GameMap> game_map;
@@ -53,4 +54,6 @@ private:
 	std::jthread th_tick;
 
 	std::unique_ptr<spdlog::logger> logger;
+
+	std::mutex mtx;
 };

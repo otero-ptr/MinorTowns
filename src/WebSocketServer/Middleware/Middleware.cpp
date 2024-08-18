@@ -129,7 +129,8 @@ MIDDLEWARE_STATUS Middleware::disconnect(std::shared_ptr<User> user)
         return MIDDLEWARE_STATUS::ST_OK;
     }
     else if (user->getLocation() == Location::GAME) {
-        
+        auto result = std::async(&GameMinorTowns::leftGame, game_minor_towns, std::ref(user));
+        result.wait();
         return MIDDLEWARE_STATUS::ST_OK;
     }
     return MIDDLEWARE_STATUS::ST_ERROR;

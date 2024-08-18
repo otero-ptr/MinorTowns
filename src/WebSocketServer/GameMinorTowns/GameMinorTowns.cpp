@@ -38,6 +38,10 @@ void GameMinorTowns::leaveLobby(std::shared_ptr<User>& user)
 	}
 }
 
+void GameMinorTowns::leftGame(std::shared_ptr<User>& user) {
+	game_manager->leftGame(user);
+}
+
 void GameMinorTowns::buildBuildings(std::shared_ptr<User>& user, int buildingType)
 {
 	this->game_manager->buildBuildings(user, buildingType);

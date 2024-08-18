@@ -3,7 +3,6 @@
 #include <memory>
 #include <vector>
 #include "Town.h"
-//class Town;
 
 class GameController {
 public:
@@ -11,7 +10,7 @@ public:
 	GameController(const int max_tick,const int max_repeat_tick);
 	~GameController();
 	void control(const int& tick, const std::vector<Town> &towns);
-	void notify(const std::vector<std::weak_ptr<User>>& users, GameNotify&& game_notify);
+	void notify(const std::vector<std::shared_ptr<User>>& users, GameNotify&& game_notify);
 	bool isGameEnd() const;
 private:
 	const int max_tick;

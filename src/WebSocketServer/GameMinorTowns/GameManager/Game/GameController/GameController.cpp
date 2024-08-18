@@ -60,12 +60,10 @@ void GameController::control(const int& tick, const std::vector<Town>& towns)
 
 }
 
-void GameController::notify(const std::vector<std::weak_ptr<User>>& users, GameNotify&& game_notify)
+void GameController::notify(const std::vector<std::shared_ptr<User>>& users, GameNotify&& game_notify)
 {
-	for (auto& it : users) {
-		if (auto user = it.lock()) {
-			user->message_pool.push("{\"game_notify\": " + std::to_string(static_cast<int>(game_notify)) + "}");
-		}
+	for (auto& user : users) {
+		user->message_pool.push("{\"game_notify\": " + std::to_string(static_cast<int>(game_notify)) + "}");
 	}
 }
 
