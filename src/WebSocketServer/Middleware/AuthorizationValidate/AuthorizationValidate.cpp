@@ -3,7 +3,7 @@
 
 bool AuthValidate::checkUsername(const std::string &username)
 {
-	if (username.size() < 5 || username.size() > 22) {
+	if (username.size() < 4 || username.size() > 14) {
 		return true;
 	}
 	if (!std::regex_match(username, std::regex("^[a-zA-Z0-9_]+$"))) {
