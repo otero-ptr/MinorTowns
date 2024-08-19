@@ -137,23 +137,18 @@ void WebSocketRequestHandler::runProcessingClientMessages()
 		}
 		if (!timeout) {
 			if (!text.empty()) {
-				auto result_handler = request_handler->Handler(text);
-				if (result_handler.has_value()) {
-					if (!result_handler->isError()) {
-						auto result_middleware = middleware_server->action(std::move(result_handler.value()), user);
-						if (result_middleware.first == MIDDLEWARE_STATUS::ST_OK) {
-							bws->sendResponseMessage(ResponseMessage(Code::OK, result_middleware.second));
-						}
-						else if (result_middleware.first == MIDDLEWARE_STATUS::ST_ERROR) {
-							bws->sendResponseMessage(ResponseMessage(Code::InternalServerError, result_middleware.second));
-						}
+				auto result_handler = RequestHandler::Handler(text);
+				if (std::holds_alternative<RequestResult>(result_handler)) {
+					auto result_middleware = middleware_server->action(std::move(std::get<RequestResult>(result_handler)), user);
+					if (result_middleware.first == MIDDLEWARE_STATUS::ST_OK) {
+						bws->sendResponseMessage(ResponseMessage(Code::OK, result_middleware.second));
 					}
-					else {
-						auto err = result_handler->getErrorInfo().lock();
-						if (err) {
-							bws->sendResponseMessage(ResponseMessage(Code::InternalServerError, err->err_info));
-						}
+					else if (result_middleware.first == MIDDLEWARE_STATUS::ST_ERROR) {
+						bws->sendResponseMessage(ResponseMessage(Code::InternalServerError, result_middleware.second));
 					}
+				}
+				else if (std::holds_alternative<RequestError>(result_handler)){
+					bws->sendResponseMessage(ResponseMessage(Code::InternalServerError, std::get<RequestError>(result_handler).err));
 				}
 				else {
 					bws->sendResponseMessage(ResponseMessage(Code::NotFound));

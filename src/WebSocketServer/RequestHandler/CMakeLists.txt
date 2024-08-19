@@ -1,6 +1,5 @@
 set(INC
 	.
-	${CMAKE_SOURCE_DIR}/src/LogManager
 )
 
 set(INC_SYS
@@ -8,7 +7,6 @@ set(INC_SYS
 )
 
 set(SRC
-	ErrorInfo.h
 	Operations.h
 	Params.h
 	ParamsValidator.h
@@ -16,11 +14,11 @@ set(SRC
 	RequestHandler.h
 	RequestHandler.cpp
 	RequestResult.h
+	RequestError.h
 )
 
 set(LIB
 	nlohmann_json::nlohmann_json
-	LogManager
 )
 
 add_library(RequestHandler STATIC ${SRC})

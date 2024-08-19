@@ -1,14 +1,18 @@
 #pragma once
 #include "operations.h"
 #include "params.h"
-#include "ErrorInfo.h"
 #include <memory>
 
 class RequestResult {
 public:
-	RequestResult() 
-		: operation(RequestOperation::NONE), 
-		params(nullptr), err_info(nullptr) {
+	RequestResult(RequestOperation&& operation)
+		: operation(operation),
+		params(nullptr) {
+
+	}
+	RequestResult(RequestOperation&& operation, std::shared_ptr<Params::Params> params)
+		: operation(operation),
+		params(params) {
 
 	}
 	~RequestResult() {
@@ -16,32 +20,18 @@ public:
 	}		
 	RequestResult(RequestResult&& other) noexcept
 		: operation(other.operation),
-		params(std::move(other.params)),
-		err_info(std::move(other.err_info)) {
+		params(std::move(other.params)) {
 	}
 	RequestResult(const RequestResult&) = delete;
 	RequestResult& operator=(const RequestResult&) = delete;
 	RequestResult& operator=(RequestResult&&) = delete;
 
-	bool isError() const { return this->operation == RequestOperation::ERROR_OPERATION; }
-	bool isParams() const { return params != nullptr; }
-
 	const RequestOperation getOperation() const {
-		return this->operation;
+		return operation;
 	}
+	bool isParams() const { return params != nullptr; }
 	std::weak_ptr<Params::Params> getParams() const { return params; }
-	std::weak_ptr<ErrorInfo> getErrorInfo() const { return err_info; }
-
-	void setOperation(RequestOperation&& operation) {
-		this->operation = operation;
-	}
-	void setParams(std::unique_ptr<Params::Params> params) { this->params = std::move(params); }
-	void setErrorInfo(std::unique_ptr <ErrorInfo> err_info) {
-		this->operation = RequestOperation::ERROR_OPERATION;
-		this->err_info = std::move(err_info);
-	}
 private:
 	RequestOperation operation;
 	std::shared_ptr<Params::Params> params;
-	std::shared_ptr<ErrorInfo> err_info;
 };

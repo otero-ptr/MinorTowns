@@ -1,21 +1,21 @@
 #pragma once
 #include <string>
-#include <optional>
+#include <variant>
 #include "RequestResult.h"
+#include "RequestError.h"
 #include "nlohmann\json.hpp"
 
 class RequestHandler {
 public:
-	RequestHandler();
-	~RequestHandler();
-	std::optional<RequestResult> Handler(std::string request);
+	static std::variant<RequestResult, RequestError> Handler(std::string request);
 private:
-	RequestResult CreateLobby(nlohmann::json request_json);
-	RequestResult JoinLobby(nlohmann::json request_json);
-	RequestResult LeaveLobby(nlohmann::json request_json);
-	RequestResult SubscribeUpdateLobby(nlohmann::json request_json);
-	RequestResult UnsubscribeUpdateLobby(nlohmann::json request_json);
-	RequestResult BuildBuildings(nlohmann::json request_json);
-	RequestResult RaiseArmy(nlohmann::json request_json);
-	RequestResult DisbandArmy(nlohmann::json request_json);
+	RequestHandler();
+	static std::variant<RequestResult, RequestError> CreateLobby(nlohmann::json request_json);
+	static std::variant<RequestResult, RequestError> JoinLobby(nlohmann::json request_json);
+	static std::variant<RequestResult, RequestError> LeaveLobby(nlohmann::json request_json);
+	static std::variant<RequestResult, RequestError> SubscribeUpdateLobby(nlohmann::json request_json);
+	static std::variant<RequestResult, RequestError> UnsubscribeUpdateLobby(nlohmann::json request_json);
+	static std::variant<RequestResult, RequestError> BuildBuildings(nlohmann::json request_json);
+	static std::variant<RequestResult, RequestError> RaiseArmy(nlohmann::json request_json);
+	static std::variant<RequestResult, RequestError> DisbandArmy(nlohmann::json request_json);
 };

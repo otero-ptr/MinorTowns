@@ -4,47 +4,47 @@
 
 bool ParamsValidator::validate(std::shared_ptr<Params::Params>& params)
 {
-	return true;
+	return false;
 }
 
 bool ParamsValidator::validate(std::shared_ptr<Params::CreateLobby>& params)
 {
 	if (params->max_users < 2 || params->max_users > 4) {
-		return true;
+		return false;
 	}
-	return false;
+	return true;
 }
 
 bool ParamsValidator::validate(std::shared_ptr<Params::JoinLobby>& params)
 {
 	if (params->uuid_lobby.length() != 36) {
-		return true;
+		return false;
 	}
 	if (!tool::isValidString(params->uuid_lobby)) {
-		return true;
+		return false;
 	}
-	return false;
+	return true;
 }
 
 bool ParamsValidator::validate(std::shared_ptr<Params::RaiseArmy>& params)
 {
 	if (params->soldiers < 0 || params->soldiers > 1'000'000) {
-		return true;
+		return false;
 	}
-	return false;
+	return true;
 }
 
 bool ParamsValidator::validate(std::shared_ptr<Params::DisbandArmy>& params)
 {
 	if (params->soldiers < 0 || params->soldiers > 1'000'000) {
-		return true;
+		return false;
 	}
-	return false;
+	return true;
 }
 
 bool ParamsValidator::validate(std::shared_ptr<Params::BuildBuildings>& params)
 {
-	return false;
+	return true;
 }
 
 bool ParamsValidator::tool::isValidCharacter(char c)

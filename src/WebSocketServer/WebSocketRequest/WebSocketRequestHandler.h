@@ -19,8 +19,7 @@ public:
     WebSocketRequestHandler(std::shared_ptr<Middleware> middleware,
         const std::string &cors, const int &repeat_request, const int &timeout_response) 
         : cors(cors), repeat_request(repeat_request), 
-        timeout_response(timeout_response), middleware_server(middleware), 
-        request_handler(std::make_unique<RequestHandler>()) {
+        timeout_response(timeout_response), middleware_server(middleware) {
 
     }
     ~WebSocketRequestHandler();
@@ -38,7 +37,6 @@ private:
     const int repeat_request;
     const int timeout_response;
     std::shared_ptr<Middleware> middleware_server;
-    std::unique_ptr<RequestHandler> request_handler;
 
     std::shared_ptr<User> user;
     std::unique_ptr<BetterWebSocket> bws;

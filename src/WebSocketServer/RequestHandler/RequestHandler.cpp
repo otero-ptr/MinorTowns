@@ -1,176 +1,154 @@
 #include "RequestHandler.h"
-#include "log.h"
+#include "ParamsValidator.h"
 
 RequestHandler::RequestHandler()
 {
 }
 
-RequestHandler::~RequestHandler()
-{
-}
-
-std::optional<RequestResult> RequestHandler::Handler(std::string request)
+std::variant<RequestResult, RequestError> RequestHandler::Handler(std::string request)
 {
     try {
         nlohmann::json request_json = nlohmann::json::parse(request);
         if (request_json.contains("action")) {
-            LOGGER_INFO("Action [" + request_json["action"].get<std::string>() + "]");
             if (request_json["action"]== "create_lobby") {
-                return this->CreateLobby(request_json);
+                return CreateLobby(request_json);
             }
             else if (request_json["action"] == "join_lobby") {
-                return this->JoinLobby(request_json);
+                return JoinLobby(request_json);
             }
             else if (request_json["action"] == "leave_lobby") {
-                return this->LeaveLobby(request_json);
+                return LeaveLobby(request_json);
             }
             else if (request_json["action"] == "subscribe_update_lobby") {
-                return this->SubscribeUpdateLobby(request_json);
+                return SubscribeUpdateLobby(request_json);
             }
             else if (request_json["action"] == "unsubscribe_update_lobby") {
-                return this->UnsubscribeUpdateLobby(request_json);
+                return UnsubscribeUpdateLobby(request_json);
             }
             else if (request_json["action"] == "build_buildings") {
-                return this->BuildBuildings(request_json);
+                return BuildBuildings(request_json);
             }
             else if (request_json["action"] == "raise_army") {
-                return this->RaiseArmy(request_json);
+                return RaiseArmy(request_json);
             }
             else if (request_json["action"] == "disband_army") {
-                return this->DisbandArmy(request_json);
+                return DisbandArmy(request_json);
             } else {
-                LOGGER_WARN("Action doesn't exist");
-                return std::nullopt;
+                return RequestError("Action doesn't exist");
             }
         }
         else {
-            LOGGER_ERROR("Action not specified");
-            return std::nullopt;
+            return RequestError("Action not specified");
         }
     }
     catch (std::exception& ex) {
-        LOGGER_ERROR("Request Handler Error: " + std::string(ex.what()));
-        RequestResult request_result;
-        request_result.setErrorInfo(std::make_unique<ErrorInfo>(ex.what()));
-        return request_result;
+        
+        return RequestError(ex.what());
     }
     catch (...) {
-        LOGGER_ERROR("Request Handler Error: unknown error");
-        RequestResult request_result;
-        request_result.setErrorInfo(std::make_unique<ErrorInfo>("unknown error"));
-        return request_result;
+        return RequestError("unknown handler error");
     }
 }
 
-RequestResult RequestHandler::CreateLobby(nlohmann::json request_json)
+std::variant<RequestResult, RequestError> RequestHandler::CreateLobby(nlohmann::json request_json)
 {
-    RequestResult request_result;
-    request_result.setOperation(RequestOperation::CREATE_LOBBY);
     if (request_json.contains("params")) {
-        std::unique_ptr params = std::make_unique<Params::CreateLobby>();
+        std::shared_ptr params = std::make_shared<Params::CreateLobby>();
         if (request_json["params"].contains("max_users")) {
             params->max_users = request_json["params"]["max_users"].get<uint32_t>();
         } else {
-            request_result.setErrorInfo(std::make_unique<ErrorInfo>("field max_users missing"));
-            return request_result;
+            return RequestError("field max_users missing");
         }
-        request_result.setParams(std::move(params));
+        if (!ParamsValidator::validate(params)) {
+            return RequestError("failed validation");
+        }
+        return RequestResult(RequestOperation::CREATE_LOBBY, std::move(params));
     } else {
-        request_result.setErrorInfo(std::make_unique<ErrorInfo>("missing parameters"));
+        return RequestError("missing parameters");
     }
-    return request_result;
 }
 
-RequestResult RequestHandler::JoinLobby(nlohmann::json request_json)
+std::variant<RequestResult, RequestError> RequestHandler::JoinLobby(nlohmann::json request_json)
 {
-    RequestResult request_result;
-    request_result.setOperation(RequestOperation::JOIN_LOBBY);
     if (request_json.contains("params")) {
-        std::unique_ptr params = std::make_unique<Params::JoinLobby>();
+        std::shared_ptr params = std::make_shared<Params::JoinLobby>();
         if (request_json["params"].contains("uuid")) {
             params->uuid_lobby = request_json["params"]["uuid"].get<std::string>();
         } else {
-            request_result.setErrorInfo(std::make_unique<ErrorInfo>("field uuid missing"));
-            return request_result;
+            return RequestError("field uuid missing");
         }
-        request_result.setParams(std::move(params));
+        if (!ParamsValidator::validate(params)) {
+            return RequestError("failed validation");
+        }
+        return RequestResult(RequestOperation::JOIN_LOBBY, std::move(params));
     } else {
-        request_result.setErrorInfo(std::make_unique<ErrorInfo>("missing parameters"));
+        return RequestError("missing parameters");
     }
-    return request_result;
 }
 
-RequestResult RequestHandler::LeaveLobby(nlohmann::json request_json)
+std::variant<RequestResult, RequestError> RequestHandler::LeaveLobby(nlohmann::json request_json)
 {
-    RequestResult request_result;
-    request_result.setOperation(RequestOperation::LEAVE_LOBBY);
-    return request_result;
+    return RequestResult(RequestOperation::LEAVE_LOBBY);
 }
 
-RequestResult RequestHandler::SubscribeUpdateLobby(nlohmann::json request_json)
+std::variant<RequestResult, RequestError> RequestHandler::SubscribeUpdateLobby(nlohmann::json request_json)
 {
-    RequestResult request_result;
-    request_result.setOperation(RequestOperation::SUBSCRIBE_UPDATE);
-    return request_result;
+    return RequestResult(RequestOperation::SUBSCRIBE_UPDATE);
 }
 
-RequestResult RequestHandler::UnsubscribeUpdateLobby(nlohmann::json request_json)
+std::variant<RequestResult, RequestError> RequestHandler::UnsubscribeUpdateLobby(nlohmann::json request_json)
 {
-    RequestResult request_result;
-    request_result.setOperation(RequestOperation::UNSUBSCRIBE_UPDATE);
-    return request_result;
+    return RequestResult(RequestOperation::UNSUBSCRIBE_UPDATE);
 }
 
-RequestResult RequestHandler::BuildBuildings(nlohmann::json request_json)
+std::variant<RequestResult, RequestError> RequestHandler::BuildBuildings(nlohmann::json request_json)
 {
-    RequestResult request_result;
-    request_result.setOperation(RequestOperation::BUILD_BUILDINGS);
     if (request_json.contains("params")) {
-        std::unique_ptr params = std::make_unique<Params::BuildBuildings>();
+        std::shared_ptr params = std::make_shared<Params::BuildBuildings>();
         if (request_json["params"].contains("building_id")) {
             params->building_id = request_json["params"]["building_id"].get<uint32_t>();
         }
-        request_result.setParams(std::move(params));
+        if (!ParamsValidator::validate(params)) {
+            return RequestError("failed validation");
+        }
+        return RequestResult(RequestOperation::BUILD_BUILDINGS, std::move(params));
     } else {
-        request_result.setErrorInfo(std::make_unique<ErrorInfo>("missing parameters"));
+        return RequestError("missing parameters");
     }
-    return request_result;
 }
 
-RequestResult RequestHandler::RaiseArmy(nlohmann::json request_json)
+std::variant<RequestResult, RequestError> RequestHandler::RaiseArmy(nlohmann::json request_json)
 {
-    RequestResult request_result;
-    request_result.setOperation(RequestOperation::RAISE_ARMY);
     if (request_json.contains("params")) {
-        std::unique_ptr params = std::make_unique<Params::RaiseArmy>();
+        std::shared_ptr params = std::make_shared<Params::RaiseArmy>();
         if (request_json["params"].contains("soldiers")) {
             params->soldiers = request_json["params"]["soldiers"].get<uint32_t>();
         } else {
-            request_result.setErrorInfo(std::make_unique<ErrorInfo>("field soldiers missing"));
-            return request_result;
+            return RequestError("field soldiers missing");
         }
-        request_result.setParams(std::move(params));
+        if (!ParamsValidator::validate(params)) {
+            return RequestError("failed validation");
+        }
+        return RequestResult(RequestOperation::RAISE_ARMY,std::move(params));
     } else {
-        request_result.setErrorInfo(std::make_unique<ErrorInfo>("missing parameters"));
+        return RequestError("missing parameters");
     }
-    return request_result;
 }
 
-RequestResult RequestHandler::DisbandArmy(nlohmann::json request_json)
+std::variant<RequestResult, RequestError> RequestHandler::DisbandArmy(nlohmann::json request_json)
 {
-    RequestResult request_result;
-    request_result.setOperation(RequestOperation::DISBAND_ARMY);
     if (request_json.contains("params")) {
-        std::unique_ptr params = std::make_unique<Params::DisbandArmy>();
+        std::shared_ptr params = std::make_shared<Params::DisbandArmy>();
         if (request_json["params"].contains("soldiers")) {
             params->soldiers = request_json["params"]["soldiers"].get<uint32_t>();
         } else {
-            request_result.setErrorInfo(std::make_unique<ErrorInfo>("field soldiers missing"));
-            return request_result;
+            return RequestError("field soldiers missing");
         }
-        request_result.setParams(std::move(params));
+        if (!ParamsValidator::validate(params)) {
+            return RequestError("failed validation");
+        }
+        return RequestResult(RequestOperation::DISBAND_ARMY, std::move(params));
     } else {
-        request_result.setErrorInfo(std::make_unique<ErrorInfo>("missing parameters"));
+        return RequestError("missing parameters");
     }
-    return request_result;
 }
