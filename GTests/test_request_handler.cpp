@@ -1,6 +1,5 @@
 #include <gtest\gtest.h>
 #include "RequestHandler.h"
-#include <iostream>
 
 TEST(RequestHandlerTest, CreateLobby) {
     std::string request = "{ \"action\": \"create_lobby\", \"params\" : { \"max_users\": 3}}";

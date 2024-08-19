@@ -28,7 +28,7 @@ bool ParamsValidator::validate(std::shared_ptr<Params::JoinLobby>& params)
 
 bool ParamsValidator::validate(std::shared_ptr<Params::RaiseArmy>& params)
 {
-	if (params->soldiers < 0 || params->soldiers > 1'000'000) {
+	if (params->soldiers < 1 || params->soldiers > 100'000) {
 		return false;
 	}
 	return true;
@@ -36,7 +36,7 @@ bool ParamsValidator::validate(std::shared_ptr<Params::RaiseArmy>& params)
 
 bool ParamsValidator::validate(std::shared_ptr<Params::DisbandArmy>& params)
 {
-	if (params->soldiers < 0 || params->soldiers > 1'000'000) {
+	if (params->soldiers < 1 || params->soldiers > 100'000) {
 		return false;
 	}
 	return true;

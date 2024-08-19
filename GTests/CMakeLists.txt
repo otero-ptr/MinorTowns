@@ -9,7 +9,8 @@ set(INC
 add_executable(${PROJECT_NAME}Tests 
 test_main.cpp 
 test_user.cpp 
-test_request_handler.cpp)
+test_request_handler.cpp
+test_params_validator.cpp)
 
 target_include_directories(${PROJECT_NAME}Tests PRIVATE ${INC})
 
