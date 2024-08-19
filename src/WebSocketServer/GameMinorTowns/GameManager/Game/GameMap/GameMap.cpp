@@ -4,35 +4,35 @@
 
 GameMap::GameMap(const int row, const int column) : map(row)
 {
-	this->row_nodes = row;
-	this->column_nodes = column;
-	this->generate();
+	row_nodes = row;
+	column_nodes = column;
+	generate();
 }
 
 GameMap::GameMap(DimensionMap::SizeMap size) : map(size.x)
 {
-	this->row_nodes = size.x;
-	this->column_nodes = size.y;
-	this->generate();
+	row_nodes = size.x;
+	column_nodes = size.y;
+	generate();
 }
 
 int GameMap::getRow()
 {
-	return this->row_nodes;
+	return row_nodes;
 }
 
 int GameMap::getColumn()
 {
-	return this->column_nodes;
+	return column_nodes;
 }
 
 std::shared_ptr<NodeMap> GameMap::operator[](int index) const
 {
-	if (index > this->row_nodes * this->column_nodes || index < 0) {
+	if (index > row_nodes * column_nodes || index < 0) {
 		return nullptr;
 	}
 	int i = 0;
-	int j = this->column_nodes - 1;
+	int j = column_nodes - 1;
 	while (map[i][j]->getID() != index) {
 		if (map[i][j]->getID() > index) {
 			--j;
@@ -55,39 +55,38 @@ std::string GameMap::getMapJson()
 
 void GameMap::createMapJson()
 {
-	nlohmann::json jsonObj;
-	for (int n = 0; n < map.size(); ++n) {
-		for (int m = 0; m < map[m].size(); ++m) {
-			jsonObj["map"][n][m]["id"] = map[n][m]->getID();
-			jsonObj["map"][n][m]["type"] = static_cast<int>(map[n][m]->getType());
+	nlohmann::json json_obj;
+	for (size_t n = 0; n < map.size(); ++n) {
+		for (size_t m = 0; m < map[n].size(); ++m) {
+			json_obj["map"][n][m]["id"] = map[n][m]->getID();
+			json_obj["map"][n][m]["type"] = static_cast<int>(map[n][m]->getType());
 			if (map[n][m]->getType() == NODE_TYPE::TOWN) {
-				std::shared_ptr<NodeMapTown> townPtr = std::dynamic_pointer_cast<NodeMapTown>(map[n][m]);
-				if (townPtr) {
-					jsonObj["map"][n][m]["town_id"] = townPtr->getTownID();
+				std::shared_ptr<NodeMapTown> town_ptr = std::dynamic_pointer_cast<NodeMapTown>(map[n][m]);
+				if (town_ptr) {
+					json_obj["map"][n][m]["town_id"] = town_ptr->getTownID();
 				}
-
 			}
 		}
 	}
-	map_json = jsonObj.dump();
+	map_json = json_obj.dump();
 }
 
 std::vector<int> GameMap::placeTowns(std::vector<DimensionMap::SizeMap> &towns)
 {
 	std::vector<int> ids;
-	for (int i = 0; i < towns.size(); ++i) {
+	for (size_t i = 0; i < towns.size(); ++i) {
 		map[towns[i].x][towns[i].y] = std::make_shared<NodeMapTown>(i, map[towns[i].x][towns[i].y]->getID(), NODE_TYPE::TOWN);
 		ids.push_back(map[towns[i].x][towns[i].y]->getID());
 	}
-	this->createMapJson();
+	createMapJson();
 	return ids;
 }
 
 void GameMap::generate()
 {
 	int id = 0;
-	for (int n = 0; n < this->row_nodes; ++n) {
-		for (int m = 0; m < this->column_nodes; ++m) {
+	for (size_t n = 0; n < row_nodes; ++n) {
+		for (size_t m = 0; m < column_nodes; ++m) {
 			map.at(n).push_back(std::make_shared<NodeMap>(id++, NODE_TYPE::DEFAULT));
 		}
 	}
