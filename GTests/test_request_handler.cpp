@@ -100,7 +100,7 @@ TEST(RequestHandlerTest, WrongAction) {
     ASSERT_EQ(value.err, "Action doesn't exist");
 }
 
-TEST(RequestHandlerTest, Wrong) {
+TEST(RequestHandlerTest, WrongSpecified) {
     {
         std::string request = "{\"acion\": \"join_lobby\",\"params\" : { \"uuid\": \"5853f2b4-5e1c-11ef-96e1-0250cf951982\" } }";
         auto result = RequestHandler::Handler(request);
@@ -118,7 +118,9 @@ TEST(RequestHandlerTest, Wrong) {
         RequestError& value = std::get<RequestError>(result);
         ASSERT_EQ(value.err, "Action not specified");
     }
+}
 
+TEST(RequestHandlerTest, IncorrectJSON) {
     {
         std::string request = "{ ";
         auto result = RequestHandler::Handler(request);
