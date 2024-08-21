@@ -18,11 +18,9 @@ Middleware::~Middleware() {
 std::shared_ptr<User> Middleware::authorization(std::string username, std::string address, unsigned short port)
 {
     if (AuthValidate::checkUsername(username)) {
-        return nullptr;
+        return std::make_shared<User>(username, address + ":" + std::to_string(port));
     }
-	std::shared_ptr<User> user;
-	user = std::make_shared<User>(username, address + ":" + std::to_string(port));
-	return user;
+	return nullptr;
 }
 
 std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult request_result, std::shared_ptr<User> user)
