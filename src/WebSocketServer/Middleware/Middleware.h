@@ -2,7 +2,8 @@
 #include <memory>
 #include <string>
 
-class GameMinorTowns;
+class IManagerController;
+class ManagerController;
 class User;
 class RequestResult;
 
@@ -13,12 +14,12 @@ enum MIDDLEWARE_STATUS {
 
 class Middleware {
 public:
-	explicit Middleware(std::shared_ptr<GameMinorTowns> game);
+	explicit Middleware(std::shared_ptr<IManagerController> manager_controller);
 	~Middleware();
 
 	std::shared_ptr<User> authorization(std::string username, std::string address, unsigned short port);
 	std::pair<MIDDLEWARE_STATUS, std::string> action(RequestResult request_result, std::shared_ptr<User> user);
 	MIDDLEWARE_STATUS disconnect(std::shared_ptr<User> user);
 private:
-	std::shared_ptr<GameMinorTowns> game_minor_towns;
+	std::shared_ptr<IManagerController> manager_controller;
 };

@@ -1,13 +1,13 @@
 #include "Middleware.h"
 #include <thread>
-#include "GameMinorTowns.h"
+#include "IManagerController.h"
 #include "AuthorizationValidate/AuthorizationValidate.h"
 #include "User.h"
 #include "RequestResult.h"
 #include <future>
 
-Middleware::Middleware(std::shared_ptr<GameMinorTowns> game)
-    : game_minor_towns(game) {
+Middleware::Middleware(std::shared_ptr<IManagerController> manager_controller)
+    : manager_controller(manager_controller) {
 
 }
 
@@ -31,8 +31,12 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
         if (request_result.isParams()) {
             auto params = request_result.getParams().lock();
             auto lobby_params = std::static_pointer_cast<Params::CreateLobby>(params);
-            auto result = std::async(&GameMinorTowns::createLobby, game_minor_towns, std::ref(user), lobby_params->max_users);
+            auto result = std::async(&IManagerController::createLobby, manager_controller, std::ref(user), lobby_params->max_users);
             result.wait();
+            auto value = result.get();
+            if (value.has_value()) {
+                return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string(value.value()));
+            }
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
         }
         else {
@@ -43,31 +47,51 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
         if (request_result.isParams()) {
             auto params = request_result.getParams().lock();
             auto join_lobby_params = std::static_pointer_cast<Params::JoinLobby>(params);
-            auto result = std::async(&GameMinorTowns::joinLobby, game_minor_towns, std::ref(user), join_lobby_params->uuid_lobby);
+            auto result = std::async(&IManagerController::joinLobby, manager_controller, std::ref(user), join_lobby_params->uuid_lobby);
             result.wait();
+            auto value = result.get();
+            if (value.has_value()) {
+                return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string(value.value()));
+            }
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
         }
         else {
             return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
         }
     } else if (request_result.getOperation() == RequestOperation::LEAVE_LOBBY && user->getLocation() == Location::LOBBY) {
-            auto result = std::async(&GameMinorTowns::leaveLobby, game_minor_towns, std::ref(user));
+            auto result = std::async(&IManagerController::leaveLobby, manager_controller, std::ref(user));
             result.wait();
+            auto value = result.get();
+            if (value.has_value()) {
+                return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string(value.value()));
+            }
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
     } else if (request_result.getOperation() == RequestOperation::SUBSCRIBE_UPDATE && user->getLocation() == Location::MENU) {
-            auto result = std::async(&GameMinorTowns::subscribeUpdateLobby, game_minor_towns, std::ref(user));
+            auto result = std::async(&IManagerController::subscribeUpdateLobby, manager_controller, std::ref(user));
             result.wait();
+            auto value = result.get();
+            if (value.has_value()) {
+                return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string(value.value()));
+            }
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
     } else if (request_result.getOperation() == RequestOperation::UNSUBSCRIBE_UPDATE && user->getLocation() == Location::MENU) {
-            auto result = std::async(&GameMinorTowns::unsubscribeUpdateLobby, game_minor_towns, std::ref(user));
+            auto result = std::async(&IManagerController::unsubscribeUpdateLobby, manager_controller, std::ref(user));
             result.wait();
+            auto value = result.get();
+            if (value.has_value()) {
+                return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string(value.value()));
+            }
             return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
     } else if (request_result.getOperation() == RequestOperation::BUILD_BUILDINGS && user->getLocation() == Location::GAME) {
             if (request_result.isParams()) {
                 auto params = request_result.getParams().lock();
                 auto buildings_params = std::static_pointer_cast<Params::BuildBuildings>(params);
-                auto result = std::async(&GameMinorTowns::buildBuildings, game_minor_towns, std::ref(user), buildings_params->building_id);
+                auto result = std::async(&IManagerController::buildBuildings, manager_controller, std::ref(user), buildings_params->building_id);
                 result.wait();
+                auto value = result.get();
+                if (value.has_value()) {
+                    return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string(value.value()));
+                }
                 return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
             else {
@@ -77,8 +101,12 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
             if (request_result.isParams()) {
                 auto params = request_result.getParams().lock();
                 auto raise_params = std::static_pointer_cast<Params::RaiseArmy>(params);
-                auto result = std::async(&GameMinorTowns::raiseArmy, game_minor_towns, std::ref(user), raise_params->soldiers);
+                auto result = std::async(&IManagerController::raiseArmy, manager_controller, std::ref(user), raise_params->soldiers);
                 result.wait();
+                auto value = result.get();
+                if (value.has_value()) {
+                    return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string(value.value()));
+                }
                 return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
             else {
@@ -88,8 +116,12 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
             if (request_result.isParams()) {
                 auto params = request_result.getParams().lock();
                 auto disband_params = std::static_pointer_cast<Params::DisbandArmy>(params);
-                auto result = std::async(&GameMinorTowns::disbandArmy, game_minor_towns, std::ref(user), disband_params->soldiers);
+                auto result = std::async(&IManagerController::disbandArmy, manager_controller, std::ref(user), disband_params->soldiers);
                 result.wait();
+                auto value = result.get();
+                if (value.has_value()) {
+                    return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string(value.value()));
+                }
                 return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
             }
             else {
@@ -103,18 +135,30 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
 MIDDLEWARE_STATUS Middleware::disconnect(std::shared_ptr<User> user)
 {
     if (user->getLocation() == Location::MENU) {
-        auto result = std::async(&GameMinorTowns::unsubscribeUpdateLobby, game_minor_towns, std::ref(user));
+        auto result = std::async(&IManagerController::unsubscribeUpdateLobby, manager_controller, std::ref(user));
         result.wait();
+        auto value = result.get();
+        if (value.has_value()) {
+            return MIDDLEWARE_STATUS::ST_ERROR;
+        }
         return MIDDLEWARE_STATUS::ST_OK;
     }
     else if (user->getLocation() == Location::LOBBY) {
-        auto result = std::async(&GameMinorTowns::leaveLobby, game_minor_towns, std::ref(user));
+        auto result = std::async(&IManagerController::leaveLobby, manager_controller, std::ref(user));
         result.wait();
+        auto value = result.get();
+        if (value.has_value()) {
+            return MIDDLEWARE_STATUS::ST_ERROR;
+        }
         return MIDDLEWARE_STATUS::ST_OK;
     }
     else if (user->getLocation() == Location::GAME) {
-        auto result = std::async(&GameMinorTowns::leftGame, game_minor_towns, std::ref(user));
+        auto result = std::async(&IManagerController::leftGame, manager_controller, std::ref(user));
         result.wait();
+        auto value = result.get();
+        if (value.has_value()) {
+            return MIDDLEWARE_STATUS::ST_ERROR;
+        }
         return MIDDLEWARE_STATUS::ST_OK;
     }
     return MIDDLEWARE_STATUS::ST_ERROR;

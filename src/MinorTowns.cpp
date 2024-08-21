@@ -1,6 +1,6 @@
 ﻿#include <memory>
 #include "WebSocketServer/WebSocketServer.h"
-#include "WebSocketServer/GameMinorTowns/GameMinorTowns.h"
+#include "WebSocketServer/ManagerController/ManagerController.h"
 #include "WebSocketServer/Middleware/Middleware.h"
 #include "LogManager/LogManager.h"
 #include "LogManager/log.h"
@@ -12,7 +12,7 @@ int main() {
 	log_manager.initialize();
 	LOGGER_INFO("START");
 
-	std::shared_ptr<GameMinorTowns> game_minor_towns;
+	std::shared_ptr<ManagerController> game_minor_towns;
 	std::shared_ptr<Middleware> middleware;
 	std::unique_ptr<WebSocketServer> socket_server;
 
@@ -20,8 +20,8 @@ int main() {
 	YAML::Node config = YAML::LoadFile("server.yml");
 
 	LOGGER_INFO("make middleware");
-	middleware = std::make_shared<Middleware>(std::make_shared<GameMinorTowns>(
-		config["max_users"].as<int>(), config["manager"]["game"]["collector"].as<int>(),
+	middleware = std::make_shared<Middleware>(std::make_shared<ManagerController>(
+		config["manager"]["game"]["collector"].as<int>(),
 		config["manager"]["lobby"]["refresher"].as<int>(),
 		config["manager"]["redis_uri"].as<std::string>()));
 

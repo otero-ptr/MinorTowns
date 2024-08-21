@@ -2,7 +2,7 @@ set(INC
 	.
 	AuthorizationValidate
 	${CMAKE_SOURCE_DIR}/src/WebSocketServer/User
-	${CMAKE_SOURCE_DIR}/src/WebSocketServer/GameMinorTowns
+	${CMAKE_SOURCE_DIR}/src/WebSocketServer/ManagerController
 	${CMAKE_SOURCE_DIR}/src/WebSocketServer/RequestHandler
 )
 
@@ -19,7 +19,7 @@ set(SRC
 
 set(LIB
 	RequestHandler
-	GameMinorTowns
+	ManagerController
 )
 
 add_library(Middleware STATIC ${SRC})
