@@ -1,51 +1,32 @@
 #include "Army.h"
-#include <stdexcept>
 
-
-Army::Army(int soldiers, int ownTownId)
+Army::Army(uint32_t soldiers) :
+	soldiers(soldiers)
 {	
-	if (soldiers >= 0) {
-		this->soldiers = soldiers;
-	}
-	else {
-		throw std::invalid_argument("The value cannot be less than one.");
-	}
-	this->ownTownId = ownTownId;
-	this->idNode = ownTownId;
+
 }
 
 Army::~Army()
 {
 }
 
-void Army::detach(const int soldiers)
+bool Army::detach(const uint32_t soldiers) noexcept
 {
-	if (this->ownTownId == this->idNode) {
-		if (soldiers >= this->soldiers) {
-			this->soldiers -= soldiers;
-		}
-		else {
-			throw std::invalid_argument("Cannot detach more soldiers than in the army.");
-		}
-	}
-}
-
-void Army::merge(const int soldiers)
-{
-	if (this->ownTownId == this->idNode) {
-		this->soldiers += soldiers;
+	if (this->soldiers >= soldiers) {
+		this->soldiers -= soldiers;
+		return true;
 	}
 	else {
-		throw std::invalid_argument("The army is not located in the capital.");
+		return false;
 	}
 }
 
-const int Army::getNode()
+void Army::merge(const uint32_t soldiers) noexcept
 {
-	return this->idNode;
+	this->soldiers += soldiers;
 }
 
-const int Army::getCount()
+const int Army::getCount() const
 {
-	return this->soldiers;
+	return soldiers;
 }

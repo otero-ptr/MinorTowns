@@ -1,16 +1,14 @@
 #pragma once
+#include <cstdint>
 
 class Army {
 public:
 	Army() = delete;
-	Army(int soldiers, int ownTownId);
+	Army(uint32_t soldiers);
 	~Army();
-	void detach(const int soldiers);
-	void merge(const int soldiers);
-	const int getCount();
-	const int getNode();
+	bool detach(const uint32_t soldiers) noexcept;
+	void merge(const uint32_t soldiers) noexcept;
+	const int getCount() const;
 private:
-	int soldiers;
-	int ownTownId;
-	int idNode;
+	uint32_t soldiers;
 };
