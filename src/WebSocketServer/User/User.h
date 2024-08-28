@@ -27,3 +27,12 @@ private:
 	std::string username;
 	std::string address;
 };
+
+namespace std {
+	template <>
+	struct hash<User> {
+		std::size_t operator()(const User& user) const {
+			return std::hash<std::string>()(user.getUUID());
+		}
+	};
+}
