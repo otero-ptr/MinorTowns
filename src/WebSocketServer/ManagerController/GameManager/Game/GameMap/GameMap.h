@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <list>
 #include "NodeMap\NodeMap.h"
 
 namespace DimensionMap {
@@ -17,19 +18,19 @@ namespace DimensionMap {
 class GameMap {
 public:
 	GameMap() = delete;
-	GameMap(const int row, const int column);
-	GameMap(DimensionMap::SizeMap size);
+	explicit GameMap(const int row, const int column);
+	explicit GameMap(DimensionMap::SizeMap size);
 	~GameMap();
-	int getRow();
-	int getColumn();
-	std::shared_ptr<NodeMap> operator[](int index) const;
+	int getRow() const;
+	int getColumn() const;
 	std::string getMapJson();
-	std::vector<int> placeTowns(std::vector<DimensionMap::SizeMap> &towns);
+	std::vector<uint8_t> placeTowns(std::vector<DimensionMap::SizeMap> &towns);
+	std::list<uint8_t> buildWay(int from, int to);
 private:
 	void generate();
 	void createMapJson();
-	int row_nodes;
-	int column_nodes;
-	std::vector<std::vector<std::shared_ptr<NodeMap>>> map;
+	std::vector<std::vector<NodeMap>> map;
+	int row;
+	int column;
 	std::string map_json;
 };

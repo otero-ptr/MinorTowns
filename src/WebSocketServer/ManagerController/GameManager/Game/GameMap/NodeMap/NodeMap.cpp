@@ -1,21 +1,15 @@
 #include "NodeMap.h"
 
-NodeMap::NodeMap(int id, NODE_TYPE type)
+NodeMap::NodeMap(uint8_t id) : id(id)
 {
-	this->id = id;
-	this->type = type;
+
 }
 
 NodeMap::~NodeMap()
 {
 }
 
-int NodeMap::getID() const
+uint8_t NodeMap::getID() const
 {
-	return this->id;
-}
-
-NODE_TYPE NodeMap::getType() const
-{
-	return this->type;
+	return id;
 }

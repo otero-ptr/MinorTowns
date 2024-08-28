@@ -1,13 +1,11 @@
 #pragma once
-#include "NodeType.h"
+#include <cstdint>
 
 class NodeMap {
 public:
-	NodeMap(int id, NODE_TYPE type);
-	virtual ~NodeMap();
-	int getID() const;
-	NODE_TYPE getType() const;
+	NodeMap(uint8_t id);
+	~NodeMap();
+	uint8_t getID() const;
 private:
-	int id;
-	NODE_TYPE type;
+	uint8_t id;
 };
