@@ -7,9 +7,8 @@
 
 class User;
 
-struct TownData {
+struct TownDetails {
 	uint8_t town_id;
-	std::string username;
 	struct EconomyData {
 		double budget;
 		double net_worth;
@@ -27,8 +26,6 @@ struct TownData {
 		uint32_t bonus;
 	} manufactory;
 	struct ArmyData {
-		int count_soldiers;
-		int locate_node;
 		int32_t cost;
 	} army;
 };
@@ -36,27 +33,22 @@ struct TownData {
 class Town {
 public:
 	Town() = delete;
-	Town(int id, std::shared_ptr<User> user, 
-		int capital_node, std::unique_ptr<Economy> economy,
+	Town(uint8_t id, std::unique_ptr<Economy> economy,
 		std::unique_ptr<Church> charch, 
 		std::unique_ptr<Manufactory> manufactory);
 	~Town();
-	const int getCapitalNodeId();
-	void TownTickProcessing();
+	void processing();
 	void buildBuilding(const TypeBuildings type_building);
-	void destroyBuilding(const TypeBuildings type_building);
-	std::shared_ptr<User> getOwnTown() const;
-	const int getID() const;
+	void destroyBuilding(const TypeBuildings type_building);;
+	const uint8_t getID() const;
 	bool operator<(const Town& other) const;
-	const TownData getData() const;
+	const TownDetails getDetails() const;
 
 	Town(Town&& other) noexcept = default;
 	Town& operator=(Town&& other) noexcept = default;
 private:
-	int id;
-	int capital_node;
 	std::unique_ptr<Economy> economy;
 	std::unique_ptr<Church> church;
 	std::unique_ptr<Manufactory> manufactory;
-	std::shared_ptr<User> own;
+	uint8_t id;
 };
