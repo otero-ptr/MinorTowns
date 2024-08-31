@@ -47,6 +47,14 @@ bool ParamsValidator::validate(std::shared_ptr<Params::BuildBuildings>& params)
 	return true;
 }
 
+bool ParamsValidator::validate(std::shared_ptr<Params::MoveArmy>& params)
+{
+	if (0 > params->node && params->node > UINT8_MAX) {
+		return false;
+	}
+	return true;
+}
+
 bool ParamsValidator::tool::isValidCharacter(char c)
 {
 	return std::isalnum(static_cast<unsigned char>(c)) || c == '-';

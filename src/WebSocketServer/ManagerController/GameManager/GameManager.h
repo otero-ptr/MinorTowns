@@ -18,6 +18,7 @@ public:
 	void raiseArmy(std::shared_ptr<User>& user, int& count_soldiers);
 	void disbandArmy(std::shared_ptr<User>& user, int& count_soldiers);
 	void leftGame(std::shared_ptr<User>& user);
+	void moveArmy(std::shared_ptr<User>& user, int node);
 private:
 	void collectingEndedGames(std::stop_token token);
 	std::shared_ptr<GameSettings> game_settings;

@@ -16,6 +16,13 @@ task api:
 
 json:
 {
+  "action": "move_army",
+  "params": {
+    "node" : 6
+  }
+}
+
+{
   "action": "build_buildings",
   "params": {
     "building_id" : 0

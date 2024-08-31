@@ -33,7 +33,11 @@ std::variant<RequestResult, RequestError> RequestHandler::Handler(std::string re
             }
             else if (request_json["action"] == "disband_army") {
                 return DisbandArmy(request_json);
-            } else {
+            } 
+            else if (request_json["action"] == "move_army") {
+                return MoveArmy(request_json);
+            }
+            else {
                 return RequestError("Action doesn't exist");
             }
         }
@@ -149,6 +153,26 @@ std::variant<RequestResult, RequestError> RequestHandler::DisbandArmy(nlohmann::
         }
         return RequestResult(RequestOperation::DISBAND_ARMY, std::move(params));
     } else {
+        return RequestError("missing parameters");
+    }
+}
+
+std::variant<RequestResult, RequestError> RequestHandler::MoveArmy(nlohmann::json request_json)
+{
+    if (request_json.contains("params")) {
+        std::shared_ptr params = std::make_shared<Params::MoveArmy>();
+        if (request_json["params"].contains("node")) {
+            params->node = request_json["params"]["node"].get<uint8_t>();
+        }
+        else {
+            return RequestError("field node missing");
+        }
+        if (!ParamsValidator::validate(params)) {
+            return RequestError("failed validation");
+        }
+        return RequestResult(RequestOperation::MOVE_ARMY, std::move(params));
+    }
+    else {
         return RequestError("missing parameters");
     }
 }

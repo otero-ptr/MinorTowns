@@ -10,4 +10,5 @@ enum class RequestOperation {
 	BUILD_BUILDINGS,
 	RAISE_ARMY,
 	DISBAND_ARMY,
+	MOVE_ARMY
 };

@@ -13,4 +13,5 @@ namespace ParamsValidator {
 	bool validate(std::shared_ptr<Params::RaiseArmy>& params);
 	bool validate(std::shared_ptr<Params::DisbandArmy>& params);
 	bool validate(std::shared_ptr<Params::BuildBuildings>& params);
+	bool validate(std::shared_ptr<Params::MoveArmy>& params);
 };

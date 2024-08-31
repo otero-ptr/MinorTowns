@@ -8,14 +8,14 @@ ManagerController::ManagerController(int cooldown_collector, int cooldown_refres
 
 }
 
-std::optional<std::string> ManagerController::createLobby(std::shared_ptr<User>& user,const int max_game_users)
+std::optional<std::string> ManagerController::createLobby(std::shared_ptr<User> user,const int max_game_users)
 {
 	std::string uuidLobby = this->lobby_manager->createLobby(max_game_users);
 	lobby_manager->joinLobby(uuidLobby, user);
 	return std::nullopt;
 }
 
-std::optional<std::string> ManagerController::joinLobby(std::shared_ptr<User>& user,const std::string uuid_lobby)
+std::optional<std::string> ManagerController::joinLobby(std::shared_ptr<User> user,const std::string uuid_lobby)
 {
 	std::lock_guard<std::mutex> lock(lobby_mtx);
 	if (!lobby_manager->isLobby(uuid_lobby)){
@@ -34,7 +34,7 @@ std::optional<std::string> ManagerController::joinLobby(std::shared_ptr<User>& u
 	return std::nullopt;
 }
 
-std::optional<std::string> ManagerController::leaveLobby(std::shared_ptr<User>& user)
+std::optional<std::string> ManagerController::leaveLobby(std::shared_ptr<User> user)
 {
 	std::lock_guard<std::mutex> lock(lobby_mtx);
 	std::string uuid_temp = user->getUUIDLocation();
@@ -45,35 +45,41 @@ std::optional<std::string> ManagerController::leaveLobby(std::shared_ptr<User>& 
 	return std::nullopt;
 }
 
-std::optional<std::string> ManagerController::leftGame(std::shared_ptr<User>& user) {
+std::optional<std::string> ManagerController::leftGame(std::shared_ptr<User> user) {
 	game_manager->leftGame(user);
 	return std::nullopt;
 }
 
-std::optional<std::string> ManagerController::buildBuildings(std::shared_ptr<User>& user, int buildingType)
+std::optional<std::string> ManagerController::buildBuildings(std::shared_ptr<User> user, int buildingType)
 {
 	game_manager->buildBuildings(user, buildingType);
 	return std::nullopt;
 }
 
-std::optional<std::string> ManagerController::subscribeUpdateLobby(std::shared_ptr<User>& user)
+std::optional<std::string> ManagerController::subscribeUpdateLobby(std::shared_ptr<User> user)
 {
 	lobby_manager->subscribeLobbyUpdate(user);
 	return std::nullopt;
 }
 
-std::optional<std::string> ManagerController::unsubscribeUpdateLobby(std::shared_ptr<User>& user)
+std::optional<std::string> ManagerController::unsubscribeUpdateLobby(std::shared_ptr<User> user)
 {
 	lobby_manager->unsubscribeLobbyUpdate(user);
 	return std::nullopt;
 }
 
-std::optional<std::string> ManagerController::raiseArmy(std::shared_ptr<User>& user, int countSoldiers)
+std::optional<std::string> ManagerController::raiseArmy(std::shared_ptr<User> user, int countSoldiers)
 {
 	return std::nullopt;
 }
 
-std::optional<std::string> ManagerController::disbandArmy(std::shared_ptr<User>& user, int countSoldiers)
+std::optional<std::string> ManagerController::disbandArmy(std::shared_ptr<User> user, int countSoldiers)
 {
+	return std::nullopt;
+}
+
+std::optional<std::string> ManagerController::moveArmy(std::shared_ptr<User> user, int node)
+{
+	game_manager->moveArmy(user, node);
 	return std::nullopt;
 }

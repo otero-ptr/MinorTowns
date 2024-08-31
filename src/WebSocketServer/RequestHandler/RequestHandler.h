@@ -18,4 +18,5 @@ private:
 	static std::variant<RequestResult, RequestError> BuildBuildings(nlohmann::json request_json);
 	static std::variant<RequestResult, RequestError> RaiseArmy(nlohmann::json request_json);
 	static std::variant<RequestResult, RequestError> DisbandArmy(nlohmann::json request_json);
+	static std::variant<RequestResult, RequestError> MoveArmy(nlohmann::json request_json);
 };

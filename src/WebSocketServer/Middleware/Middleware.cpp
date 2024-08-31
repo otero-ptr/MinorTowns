@@ -125,7 +125,23 @@ std::pair<MIDDLEWARE_STATUS, std::string> Middleware::action(RequestResult reque
             else {
                 return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
             }
-    } else {
+    } else if (request_result.getOperation() == RequestOperation::MOVE_ARMY && user->getLocation() == Location::GAME) {
+        if (request_result.isParams()) {
+            auto params = request_result.getParams().lock();
+            auto disband_params = std::static_pointer_cast<Params::MoveArmy>(params);
+            auto result = std::async(&IManagerController::moveArmy, manager_controller, std::ref(user), disband_params->node);
+            result.wait();
+            auto value = result.get();
+            if (value.has_value()) {
+                return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string(value.value()));
+            }
+            return std::make_pair(MIDDLEWARE_STATUS::ST_OK, std::string());
+        }
+        else {
+            return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("missing params"));
+        }
+    }
+    else {
         return std::make_pair(MIDDLEWARE_STATUS::ST_ERROR, std::string("unknown action"));
     }
 }

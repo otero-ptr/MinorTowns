@@ -25,7 +25,6 @@ void GameManager::createGame(std::vector<std::shared_ptr<User>>&& users)
 	for (auto& user : users) {
 		user->setLocation(Location::GAME, new_game->getUUID());
 	}
-	new_game->prepare(game_settings);
 	new_game->start();
 	this->games.insert(std::make_pair(new_game->getUUID(), std::move(new_game)));
 }
@@ -59,6 +58,13 @@ void GameManager::leftGame(std::shared_ptr<User>& user)
 	auto it = games.find(user->getUUIDLocation());
 	if (it != games.end()) {
 		it->second->defeated(user);
+	}
+}
+
+void GameManager::moveArmy(std::shared_ptr<User>& user, int node) {
+	auto it = games.find(user->getUUIDLocation());
+	if (it != games.end()) {
+		it->second->moveArmy(user, node);
 	}
 }
 

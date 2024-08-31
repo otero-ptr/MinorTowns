@@ -26,4 +26,8 @@ namespace Params {
 	struct BuildBuildings : public Params {
 		uint32_t building_id;
 	};
+
+	struct MoveArmy : public Params {
+		uint8_t node;
+	};
 };
