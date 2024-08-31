@@ -28,17 +28,17 @@ Game::Game(std::vector<std::shared_ptr<User>> users, std::shared_ptr<GameSetting
 	logger->info("cooldown tick: " + std::to_string(settings->getCooldownTick()));
 
 	logger->info("users count: " + std::to_string(users.size()));
-	this->users.reserve(users.size());
 	for (auto& user : users) {
 		logger->info("username: " + user->getUsername() + " [" + user->getUUID() + "]");
-		this->users.push_back(user);
 	}
+
+	prepare(users, settings);
 }
 
 Game::~Game()
 {
-	if (this->th_tick.joinable()) {
-		this->th_tick.join();
+	if (th_tick.joinable()) {
+		th_tick.join();
 	}
 	logger->info("Game end");
 }
@@ -47,24 +47,22 @@ void Game::start()
 {
 	std::lock_guard<std::mutex> lock(mtx);
 	logger->info("Game start");
-	this->game_controller.notify(users, GameNotify::GAME_START);
-	this->th_tick = std::jthread(&Game::tick, this, th_tick.get_stop_token());
+	game_controller.notify(leaderboard, GameNotify::GAME_START);
+	th_tick = std::jthread(&Game::tick, this, th_tick.get_stop_token());
 }
 
-void Game::prepare(std::shared_ptr<GameSettings> settings)
+void Game::prepare(std::vector<std::shared_ptr<User>>& users, std::shared_ptr<GameSettings> settings)
 {
 	std::lock_guard<std::mutex> lock(mtx);
 	logger->info("Game prepare");
 	game_controller.notify(users, GameNotify::GAME_STARTING);
 	logger->info("Create map");
-	std::vector<int> idTowns = createMap(users.size());
-	logger->info("Create towns");
-	createTowns(idTowns, settings);
+	std::vector<uint8_t> id_towns = createMap(users.size());
+	logger->info("Create Game Data");
+	createGameData(users, id_towns, settings);
 
 	logger->info("Notify map");
 	notifyMap();
-	logger->info("Notify table");
-	notifyTable();
 }
 
 const std::string Game::getUUID()
@@ -85,108 +83,69 @@ bool Game::isActive()
 
 void Game::buildBuildings(std::shared_ptr<User>& user, int& building_type)
 {
-	for (auto& town : towns) {
-		if (town.getOwnTown() == user) {
-			logger->info(user->getUsername() + "[" + user->getUUID() + "] built a building " + std::to_string(building_type));
-			town.buildBuilding(static_cast<TypeBuildings>(building_type));
-			break;
-		}
-	}
+	towns[user->getUUID()].second->buildBuilding(static_cast<TypeBuildings>(building_type));
+	logger->info(user->getUsername() + "[" + user->getUUID() + "] built a building " + std::to_string(building_type));
 }
 
-void Game::raiseArmy(std::shared_ptr<User>& user, int& count_soldiers)
+void Game::raiseArmy(std::shared_ptr<User>& user, uint32_t soldiers)
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	if (count_soldiers > 0) {
-		for (int i = 0; i < towns.size(); ++i) {
-			if (towns[i].getOwnTown() == user) {
-				armies[i].merge(count_soldiers);
-				break;
-			}
-		}
-	}
-	else {
-		throw std::invalid_argument("The value cannot be less than 1.");
-	}
+	armies[user->getUUID()].second->merge(soldiers);
 }
 
-void Game::disbandArmy(std::shared_ptr<User>& user, int& count_soldiers)
+void Game::disbandArmy(std::shared_ptr<User>& user, uint32_t soldiers)
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	if (count_soldiers > 0) {
-		for (int i = 0; i < towns.size(); ++i) {
-			if (towns[i].getOwnTown() == user) {
-				armies[i].merge(count_soldiers);
-				break;
-			}
-		}
-	}
-	else {
-		throw std::invalid_argument("The value cannot be less than 1.");
-	}
+	armies[user->getUUID()].second->detach(soldiers);
 }
 
-void Game::attackArmy(std::shared_ptr<User>& user)
+void Game::moveArmy(std::shared_ptr<User>& user, int node)
 {
-	for (int i = 0; i < towns.size(); ++i) {
-		if (towns[i].getOwnTown() == user) {
-			for (int a = 0; a < armies.size(); ++a) {
-				if (armies[i].getNode() == armies[a].getNode() && i != a 
-					&& armies[i].getCount() > 0 && armies[a].getCount() > 0) {
-					battles.emplace_back(armies[a], armies[i], armies[i].getNode());
-				}
-			}
-			break;
-		}
-	}
+	auto& [data, army] = armies[user->getUUID()];
+	auto way = game_map->buildWay(data.node_id, node);
+	data.way = way;
 }
 
 void Game::defeated(std::shared_ptr<User>& user) {
 	std::lock_guard<std::mutex> lock(mtx);
-	logger->info("user:" + user->getUsername() + "defeated");
-	auto it_user = std::find(users.begin(), users.end(), user);
-	if (it_user != users.end()) {
+	logger->info("user:" + user->getUsername() + " defeated");
+	auto it_user = std::find_if(leaderboard.begin(), leaderboard.end(), 
+		[&user](const std::pair<std::shared_ptr<User>,  std::shared_ptr<Town>>& place) {
+			return place.first == user;
+		}
+	);
+
+	if (it_user != leaderboard.end()) {
 		logger->info("user:" + user->getUsername() + " remove user");
-		users.erase(it_user);
-		users.shrink_to_fit();
+		leaderboard.erase(it_user);
 	}
-	auto it_town = std::find_if(towns.begin(), towns.end(), [&user](const Town& town) {return town.getOwnTown() == user; });
-	if (it_town != towns.end()) {
+	if (towns.erase(user->getUUID()) > 0) {
 		logger->info("user:" + user->getUsername() + " remove town");
-		towns.erase(it_town);
-		towns.shrink_to_fit();
+	}
+	if (armies.erase(user->getUUID()) > 0) {
+		logger->info("user:" + user->getUsername() + " remove armies");
 	}
 }
 
 void Game::tick(std::stop_token token)
 {
-	// start zero tick
-	logger->trace("zero tick");
-	mtx.lock();
-	notifyTick(); 
-	game_controller.control(tick_count, towns);
-	mtx.unlock();
-	std::this_thread::sleep_for(std::chrono::milliseconds(cooldown_tick));
-	// end zero tick
-
 	while (!token.stop_requested()) {
 		auto start = std::chrono::steady_clock::now();
 		mtx.lock();
-		++tick_count;
-		for (auto& town : towns) {
-			town.TownTickProcessing();
-		}
 
-		std::sort(towns.rbegin(), towns.rend());
+		leaderboardProcessing();
 
-		logger->trace("tick " + std::to_string(tick_count));
+		armyProcessing();
+
+		logger->trace("tick " + std::to_string(game_controller.getTick()));
+
 		notifyTick();
 
-		game_controller.control(tick_count, towns);
+		game_controller.control(leaderboard);
 
-		if (game_controller.isGameEnd()) {
-			for (auto& town : towns) {
-				town.getOwnTown()->setLocation(Location::MENU, "menu");
+		if (game_controller.isEnd()) {
+			for (auto& [user, town] : leaderboard) {
+				user->setLocation(Location::MENU, "menu");
 			}
 			th_tick.request_stop();
 			mtx.unlock();
@@ -201,72 +160,64 @@ void Game::tick(std::stop_token token)
 	}
 }
 
-void Game::createTowns(std::vector<int> &id_towns, std::shared_ptr<GameSettings> settings)
+void Game::createGameData(std::vector<std::shared_ptr<User>>& users, const std::vector<uint8_t> &id_towns, std::shared_ptr<GameSettings> settings)
 {
-	towns.reserve(users.size());
-	armies.reserve(users.size());
-	
-	for (int i = 0; i < users.size(); i++) {
-		towns.emplace_back(i, users[i], id_towns[i], settings->makeEconomy(),
+	leaderboard.reserve(users.size());
+	for (uint8_t i = 0; i < users.size(); ++i) {
+		TownData town_data{};
+		town_data.node_id = id_towns[i];
+		auto town = std::make_shared<Town>(
+			i, settings->makeEconomy(),
 			settings->makeChurch(), settings->makeManufactory());
-		armies.emplace_back(0, id_towns[i]);
+
+		ArmyData army_data;
+		army_data.node_id = id_towns[i];
+		auto army = std::make_shared<Army>(0);
+
+		leaderboard.emplace_back(users[i], town);
+		armies.emplace(users[i]->getUUID(), std::make_pair(army_data, army));
+		towns.emplace(users[i]->getUUID(), std::make_pair(town_data, town));
 	}
 }
 
 void Game::notifyTick()
 {
 	nlohmann::json common_obj = makeCommonJson();
-	for (auto& town : towns) {
-		nlohmann::json info = createTownJson(town.getData(), common_obj);
-		town.getOwnTown()->message_pool.push(info.dump());
+	for (auto& [user, town] : leaderboard) {
+		nlohmann::json info = createTownJson(town->getDetails(), common_obj);
+		user->message_pool.push(info.dump());
 	}
 }
 
 void Game::notifyMap()
 {
-	for (auto& town : towns) {
-		town.getOwnTown()->message_pool.push(game_map->getMapJson());
-	}
-}
-
-void Game::notifyTable()
-{
-	nlohmann::json common_obj;
-	common_obj["table"] = makeTableJson();
-	logger->info("game table: " + common_obj.dump());
-	for (auto& town : towns) {
-		town.getOwnTown()->message_pool.push(common_obj.dump());
+	for (auto& [user, town] : leaderboard) {
+		user->message_pool.push(game_map->getMapJson());
 	}
 }
 
 nlohmann::json Game::makeCommonJson()
 {
 	nlohmann::json common_obj;
-	common_obj["tick"] = tick_count;
+	common_obj["tick"] = game_controller.getTick();
 	common_obj["uuid"] = uuid;
-	for (size_t it = 0; it < towns.size(); ++it) {
-		auto result = towns[it].getData();
+	size_t it = 0;
+	for (auto& [user, town] : leaderboard) {
+		auto result = town->getDetails();
+		auto &location_town = towns[user->getUUID()].first;
 		common_obj["towns"][it]["town_id"] = result.town_id;
-		common_obj["towns"][it]["username"] = result.username;
+		common_obj["towns"][it]["username"] = user->getUsername();
 		common_obj["towns"][it]["net_worth"] = result.economy.net_worth;
-		common_obj["towns"][it]["soldiers"] = result.army.count_soldiers;
-		common_obj["towns"][it]["locate_army"] = result.army.locate_node;
+		auto &[location_army, army] = armies[user->getUUID()];
+		common_obj["towns"][it]["soldiers"] = army->getCount();
+		common_obj["towns"][it]["node_army"] = location_army.node_id;
+		common_obj["towns"][it]["node_town"] = location_town.node_id;
+		++it;
 	}
 	return common_obj;
 }
 
-nlohmann::json Game::makeTableJson()
-{
-	nlohmann::json common_obj;
-	for (size_t it = 0; it < towns.size(); ++it) {
-		auto result = towns[it].getData();
-		common_obj[it]["town_id"] = result.town_id;
-		common_obj[it]["username"] = result.username;
-	}
-	return common_obj;
-}
-
-nlohmann::json Game::createTownJson(const TownData&& data, const nlohmann::json& common_json_obj) {
+nlohmann::json Game::createTownJson(const TownDetails&& data, const nlohmann::json& common_json_obj) {
 	nlohmann::json unique_obj;
 	unique_obj = common_json_obj;
 	unique_obj["town"]["town_id"] = data.town_id;
@@ -283,7 +234,7 @@ nlohmann::json Game::createTownJson(const TownData&& data, const nlohmann::json&
 	return unique_obj;
 }
 
-std::vector<int> Game::createMap(size_t count_user)
+std::vector<uint8_t> Game::createMap(size_t count_user)
 {
 	auto size_map = DimensionMap::detect(count_user);
 	logger->info("Map size: " + std::to_string(size_map.x) + 
@@ -296,4 +247,28 @@ std::vector<int> Game::createMap(size_t count_user)
 	auto result = game_map->placeTowns(pos_towns);
 	logger->info("map: " + game_map->getMapJson());
 	return result;
+}
+
+void Game::armyProcessing() {
+	for (auto& [user_uuid, army] : armies) {
+		if (!army.first.way.empty()) {
+			army.first.node_id = army.first.way.front();
+			army.first.way.pop_front();
+		}
+	}
+}
+
+void Game::leaderboardProcessing()
+{
+	for (auto& [user, town] : leaderboard) {
+		town->processing();
+	}
+	sortLeaderboard();
+}
+
+void Game::sortLeaderboard()
+{
+	std::sort(leaderboard.rbegin(), leaderboard.rend(), [](const auto& a, const auto& b) {
+		return *a.second < *b.second;
+		});
 }

@@ -28,9 +28,6 @@ set(SRC
 	GameMap/GameMap.cpp
 	GameMap/NodeMap/NodeMap.h
 	GameMap/NodeMap/NodeMap.cpp
-	GameMap/NodeMap/NodeMapTown.h
-	GameMap/NodeMap/NodeMapTown.cpp
-	GameMap/NodeMap/NodeType.h
 
 	GameController/GameController.h
 	GameController/GameController.cpp
