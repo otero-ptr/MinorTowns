@@ -143,3 +143,22 @@ TEST(ParamsValidatorTest, IncorrectParamsDisbandArmy) {
 		EXPECT_FALSE(ParamsValidator::validate(params));
 	}
 }
+
+TEST(ParamsValidatorTest, CorrectParamsMoveArmy) {
+	std::shared_ptr params = std::make_shared<Params::MoveArmy>();
+
+	{
+		params->node = 0;
+		EXPECT_TRUE(ParamsValidator::validate(params));
+	}
+
+	{
+		params->node = 128;
+		EXPECT_TRUE(ParamsValidator::validate(params));
+	}
+
+	{
+		params->node = 255;
+		EXPECT_TRUE(ParamsValidator::validate(params));
+	}
+}

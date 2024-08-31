@@ -90,6 +90,18 @@ TEST(RequestHandlerTest, DisbandArmy) {
     EXPECT_EQ(params->soldiers, 1000);
 }
 
+TEST(RequestHandlerTest, MoveArmy) {
+    std::string request = "{\"action\": \"move_army\",\"params\" : {\"node\" : 6}}";
+    auto result = RequestHandler::Handler(request);
+    ASSERT_FALSE(std::holds_alternative<RequestError>(result));
+    ASSERT_TRUE(std::holds_alternative<RequestResult>(result));
+    RequestResult& value = std::get<RequestResult>(result);
+    EXPECT_EQ(value.getOperation(), RequestOperation::MOVE_ARMY);
+    EXPECT_TRUE(value.isParams());
+    auto params = std::static_pointer_cast<Params::MoveArmy>(value.getParams().lock());
+    EXPECT_EQ(params->node, 6);
+}
+
 TEST(RequestHandlerTest, WrongAction) {
     std::string request = "{\"action\": \"join_loby\",\"params\" : { \"uuid\": \"5853f2b4-5e1c-11ef-96e1-0250cf951982\" } }";
     auto result = RequestHandler::Handler(request);

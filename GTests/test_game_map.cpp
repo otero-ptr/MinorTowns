@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "GameMap/GameMap.h"
+#include <iostream>
 
 TEST(GameMapTest, SizeMap) {
 	using namespace DimensionMap;
@@ -123,5 +124,27 @@ TEST(GameMapTest, PlacementTownsOnMap) {
 		for (size_t i = 0; i < towns.size(); ++i) {
 			EXPECT_EQ(ids[i], exp_ids[i]);
 		}
+	}
+}
+
+TEST(GameMapTest, BuildWay) {
+	const int players = 3;
+	DimensionMap::SizeMap size = DimensionMap::detect(players);
+	GameMap map(size);
+	ASSERT_EQ(map.getRow(), size.x);
+	ASSERT_EQ(map.getColumn(), size.y);
+	EXPECT_TRUE(map.getMapJson().empty());
+	auto towns = DimensionMap::placeTowns(players, size);
+	ASSERT_EQ(towns.size(), players);
+	auto ids = map.placeTowns(towns);
+	const std::vector<int> exp_ids{ 0, 12, 8 };
+	ASSERT_EQ(ids.size(), exp_ids.size());
+	for (size_t i = 0; i < towns.size(); ++i) {
+		EXPECT_EQ(ids[i], exp_ids[i]);
+	}
+	auto way = map.buildWay(11,6);
+	std::cout << "way:" << std::endl;
+	for (auto& node : way) {
+		std::cout << node << std::endl;
 	}
 }
