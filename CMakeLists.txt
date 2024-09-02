@@ -35,4 +35,4 @@ enable_testing()
 
 # Include sub-projects.
 add_subdirectory ("src")
-add_subdirectory ("GTests")
+add_subdirectory ("tests")

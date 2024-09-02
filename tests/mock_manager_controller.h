@@ -14,7 +14,7 @@ public:
 	MOCK_METHOD(std::optional<std::string>, buildBuildings, (std::shared_ptr<User> user, int building_type), (override));
 	MOCK_METHOD(std::optional<std::string>, subscribeUpdateLobby, (std::shared_ptr<User> user), (override));
 	MOCK_METHOD(std::optional<std::string>, unsubscribeUpdateLobby, (std::shared_ptr<User> user), (override));
-	MOCK_METHOD(std::optional<std::string>, raiseArmy, (std::shared_ptr<User> user, int count_soldiers), (override));
-	MOCK_METHOD(std::optional<std::string>, disbandArmy, (std::shared_ptr<User> user, int count_soldiers), (override));
-	MOCK_METHOD(std::optional<std::string>, moveArmy, (std::shared_ptr<User> user, int node), (override));
+	MOCK_METHOD(std::optional<std::string>, raiseArmy, (std::shared_ptr<User> user, int32_t count_soldiers), (override));
+	MOCK_METHOD(std::optional<std::string>, disbandArmy, (std::shared_ptr<User> user, int32_t count_soldiers), (override));
+	MOCK_METHOD(std::optional<std::string>, moveArmy, (std::shared_ptr<User> user, uint8_t node), (override));
 };
