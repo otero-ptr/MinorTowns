@@ -14,11 +14,11 @@ public:
 	~GameManager();
 	void createGame(std::vector<std::shared_ptr<User>>&& users);
 	void getGame() {}
-	void buildBuildings(std::shared_ptr<User>& user, int& building_type);
-	void raiseArmy(std::shared_ptr<User>& user, int& count_soldiers);
-	void disbandArmy(std::shared_ptr<User>& user, int& count_soldiers);
+	void buildBuildings(std::shared_ptr<User>& user, int building_type);
+	void raiseArmy(std::shared_ptr<User>& user, int32_t count_soldiers);
+	void disbandArmy(std::shared_ptr<User>& user, int32_t count_soldiers);
 	void leftGame(std::shared_ptr<User>& user);
-	void moveArmy(std::shared_ptr<User>& user, int node);
+	void moveArmy(std::shared_ptr<User>& user, uint8_t node);
 private:
 	void collectingEndedGames(std::stop_token token);
 	std::shared_ptr<GameSettings> game_settings;

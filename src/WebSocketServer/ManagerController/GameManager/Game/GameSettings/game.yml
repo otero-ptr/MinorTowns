@@ -5,7 +5,7 @@ game:
     
   economy:
     start_budget: 100.0
-    start_income: 10
+    start_income: 0
     start_multiplier: 1.0
       
   buildings:
@@ -14,3 +14,10 @@ game:
     price_manufactory: 30 #type 1
     modifier_church: 0.1
     modifier_manufactory: 10
+
+  army_prices:
+    convocation: 20
+    maintenance: 2
+
+  other:
+    tax: 10  

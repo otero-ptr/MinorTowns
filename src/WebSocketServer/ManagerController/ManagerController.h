@@ -16,9 +16,9 @@ public:
 	std::optional<std::string> buildBuildings(std::shared_ptr<User> user, int building_type) override;
 	std::optional<std::string> subscribeUpdateLobby(std::shared_ptr<User> user) override;
 	std::optional<std::string> unsubscribeUpdateLobby(std::shared_ptr<User> user) override;
-	std::optional<std::string> raiseArmy(std::shared_ptr<User> user, int count_soldiers) override;
-	std::optional<std::string> disbandArmy(std::shared_ptr<User> user, int count_soldiers) override;
-	std::optional<std::string> moveArmy(std::shared_ptr<User> user, int node) override;
+	std::optional<std::string> raiseArmy(std::shared_ptr<User> user, int32_t count_soldiers) override;
+	std::optional<std::string> disbandArmy(std::shared_ptr<User> user, int32_t count_soldiers) override;
+	std::optional<std::string> moveArmy(std::shared_ptr<User> user, uint8_t node) override;
 private:
 	std::mutex lobby_mtx;
 	std::unique_ptr<GameManager> game_manager;

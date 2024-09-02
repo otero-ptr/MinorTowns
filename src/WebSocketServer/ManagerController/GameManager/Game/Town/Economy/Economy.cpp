@@ -1,6 +1,6 @@
 #include "Economy.h"
 
-Economy::Economy(double start_budget, int32_t tick_income, float start_multiplier)
+Economy::Economy(int32_t start_budget, int32_t tick_income, float start_multiplier)
 	: budget(start_budget), net_worth(start_budget),
 	income(tick_income), multiplier(start_multiplier)
 {
@@ -13,47 +13,47 @@ Economy::~Economy()
 
 const double Economy::getBudget() const
 {
-	return this->budget;
+	return budget;
 }
 
 const double Economy::getNetWorth() const
 {
-	return this->net_worth;
+	return net_worth;
 }
 
 const int32_t Economy::getIncome() const
 {
-	return this->income;
+	return income;
 }
 
 const float Economy::getMultiplier() const
 {
-	return this->multiplier;
+	return multiplier;
 }
 
 void Economy::setIncome(int32_t value)
 {
-	this->income = value;
+	income = value;
 }
 
 void Economy::setMultiplier(float value)
 {
-	this->multiplier = value;
+	multiplier = value;
 }
 
-void Economy::expenseBuild(double value)
+void Economy::expense(int32_t value)
 {
-	this->budget -= value;
+	budget -= value;
 }
 
 void Economy::add(int32_t value)
 {
-	this->budget += value;
-	this->net_worth += value;
+	budget += value;
+	net_worth += value;
 }
 
 void Economy::sub(int32_t value)
 {
-	this->budget -= value;
-	this->net_worth -= value;
+	budget -= value;
+	net_worth -= value;
 }

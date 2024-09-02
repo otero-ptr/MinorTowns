@@ -68,17 +68,19 @@ std::optional<std::string> ManagerController::unsubscribeUpdateLobby(std::shared
 	return std::nullopt;
 }
 
-std::optional<std::string> ManagerController::raiseArmy(std::shared_ptr<User> user, int countSoldiers)
+std::optional<std::string> ManagerController::raiseArmy(std::shared_ptr<User> user, int32_t countSoldiers)
 {
+	game_manager->raiseArmy(user, countSoldiers);
 	return std::nullopt;
 }
 
-std::optional<std::string> ManagerController::disbandArmy(std::shared_ptr<User> user, int countSoldiers)
+std::optional<std::string> ManagerController::disbandArmy(std::shared_ptr<User> user, int32_t countSoldiers)
 {
+	game_manager->disbandArmy(user, countSoldiers);
 	return std::nullopt;
 }
 
-std::optional<std::string> ManagerController::moveArmy(std::shared_ptr<User> user, int node)
+std::optional<std::string> ManagerController::moveArmy(std::shared_ptr<User> user, uint8_t node)
 {
 	game_manager->moveArmy(user, node);
 	return std::nullopt;

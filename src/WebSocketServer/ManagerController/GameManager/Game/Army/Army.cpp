@@ -26,7 +26,7 @@ void Army::merge(const uint32_t soldiers) noexcept
 	this->soldiers += soldiers;
 }
 
-const int Army::getCount() const
+const uint32_t Army::getCount() const
 {
 	return soldiers;
 }

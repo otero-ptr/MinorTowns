@@ -14,8 +14,8 @@ public:
 	virtual std::optional<std::string> buildBuildings(std::shared_ptr<User> user, int building_type) = 0;
 	virtual std::optional<std::string> subscribeUpdateLobby(std::shared_ptr<User> user) = 0;
 	virtual std::optional<std::string> unsubscribeUpdateLobby(std::shared_ptr<User> user) = 0;
-	virtual std::optional<std::string> raiseArmy(std::shared_ptr<User> user, int count_soldiers) = 0;
-	virtual std::optional<std::string> disbandArmy(std::shared_ptr<User> user, int count_soldiers) = 0;
-	virtual std::optional<std::string> moveArmy(std::shared_ptr<User> user, int node) = 0;
+	virtual std::optional<std::string> raiseArmy(std::shared_ptr<User> user, int32_t count_soldiers) = 0;
+	virtual std::optional<std::string> disbandArmy(std::shared_ptr<User> user, int32_t count_soldiers) = 0;
+	virtual std::optional<std::string> moveArmy(std::shared_ptr<User> user, uint8_t node) = 0;
 	virtual ~IManagerController() {}
 };

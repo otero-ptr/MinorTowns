@@ -35,11 +35,11 @@ public:
 	void start();
 	const std::string getUUID();
 	bool isActive();
-	void buildBuildings(std::shared_ptr<User>& user, int &building_type);
+	void buildBuildings(std::shared_ptr<User>& user, int building_type);
 	void raiseArmy(std::shared_ptr<User>& user, uint32_t soldiers);
 	void disbandArmy(std::shared_ptr<User>& user, uint32_t soldiers);
-	void defeated(std::shared_ptr<User>& user);
-	void moveArmy(std::shared_ptr<User>& user, int node);
+	void defeated(std::shared_ptr<User> user);
+	void moveArmy(std::shared_ptr<User>& user, uint8_t node);
 private:
 	void prepare(std::vector<std::shared_ptr<User>>& users, 
 		std::shared_ptr<GameSettings> settings);
@@ -57,6 +57,8 @@ private:
 	void armyProcessing();
 	void leaderboardProcessing();
 	void sortLeaderboard();
+	void checkBankruptcy();
+	void removingPlayer(std::shared_ptr<User> user);
 
 	std::string uuid;
 

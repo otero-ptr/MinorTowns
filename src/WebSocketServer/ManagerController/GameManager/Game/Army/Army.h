@@ -8,7 +8,7 @@ public:
 	~Army();
 	bool detach(const uint32_t soldiers) noexcept;
 	void merge(const uint32_t soldiers) noexcept;
-	const int getCount() const;
+	const uint32_t getCount() const;
 private:
 	uint32_t soldiers;
 };

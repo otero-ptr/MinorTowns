@@ -1,5 +1,4 @@
 #include "GameManager.h"
-#include "GameManager.h"
 #include "Game/GameSettings/GameSettings.h"
 #include "User.h"
 #include "log.h"
@@ -29,7 +28,7 @@ void GameManager::createGame(std::vector<std::shared_ptr<User>>&& users)
 	this->games.insert(std::make_pair(new_game->getUUID(), std::move(new_game)));
 }
 
-void GameManager::buildBuildings(std::shared_ptr<User>& user, int& building_type)
+void GameManager::buildBuildings(std::shared_ptr<User>& user, int building_type)
 {
 	auto it = games.find(user->getUUIDLocation());
 	if (it != games.end()) {
@@ -37,7 +36,7 @@ void GameManager::buildBuildings(std::shared_ptr<User>& user, int& building_type
 	}
 }
 
-void GameManager::raiseArmy(std::shared_ptr<User>& user, int& count_soldiers)
+void GameManager::raiseArmy(std::shared_ptr<User>& user, int32_t count_soldiers)
 {
 	auto it = games.find(user->getUUIDLocation());
 	if (it != games.end()) {
@@ -45,7 +44,7 @@ void GameManager::raiseArmy(std::shared_ptr<User>& user, int& count_soldiers)
 	}
 }
 
-void GameManager::disbandArmy(std::shared_ptr<User>& user, int& count_soldiers)
+void GameManager::disbandArmy(std::shared_ptr<User>& user, int32_t count_soldiers)
 {
 	auto it = games.find(user->getUUIDLocation());
 	if (it != games.end()) {
@@ -61,7 +60,7 @@ void GameManager::leftGame(std::shared_ptr<User>& user)
 	}
 }
 
-void GameManager::moveArmy(std::shared_ptr<User>& user, int node) {
+void GameManager::moveArmy(std::shared_ptr<User>& user, uint8_t node) {
 	auto it = games.find(user->getUUIDLocation());
 	if (it != games.end()) {
 		it->second->moveArmy(user, node);

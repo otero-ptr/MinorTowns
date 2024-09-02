@@ -81,7 +81,7 @@ bool Game::isActive()
 	return !th_tick.get_stop_token().stop_requested(); 
 }
 
-void Game::buildBuildings(std::shared_ptr<User>& user, int& building_type)
+void Game::buildBuildings(std::shared_ptr<User>& user, int building_type)
 {
 	towns[user->getUUID()].second->buildBuilding(static_cast<TypeBuildings>(building_type));
 	logger->info(user->getUsername() + "[" + user->getUUID() + "] built a building " + std::to_string(building_type));
@@ -90,41 +90,35 @@ void Game::buildBuildings(std::shared_ptr<User>& user, int& building_type)
 void Game::raiseArmy(std::shared_ptr<User>& user, uint32_t soldiers)
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	armies[user->getUUID()].second->merge(soldiers);
+	auto& [army_data, army] = armies[user->getUUID()];
+	auto& [town_data, town] = towns[user->getUUID()];
+	if (army_data.node_id == town_data.node_id) {
+		if (town->allocateForArmy(soldiers)) {
+			armies[user->getUUID()].second->merge(soldiers);
+		}
+	}
 }
 
 void Game::disbandArmy(std::shared_ptr<User>& user, uint32_t soldiers)
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	armies[user->getUUID()].second->detach(soldiers);
+	auto& [army_data, army] = armies[user->getUUID()];
+	auto& [town_data, town] = towns[user->getUUID()];
+	if (army_data.node_id == town_data.node_id) {
+		if (soldiers > army->getCount()) {
+			soldiers = army->getCount();
+		}
+		if (town->deallocateForArmy(soldiers)) {
+			armies[user->getUUID()].second->detach(soldiers);
+		}
+	}
 }
 
-void Game::moveArmy(std::shared_ptr<User>& user, int node)
+void Game::moveArmy(std::shared_ptr<User>& user, uint8_t node)
 {
 	auto& [data, army] = armies[user->getUUID()];
 	auto way = game_map->buildWay(data.node_id, node);
 	data.way = way;
-}
-
-void Game::defeated(std::shared_ptr<User>& user) {
-	std::lock_guard<std::mutex> lock(mtx);
-	logger->info("user:" + user->getUsername() + " defeated");
-	auto it_user = std::find_if(leaderboard.begin(), leaderboard.end(), 
-		[&user](const std::pair<std::shared_ptr<User>,  std::shared_ptr<Town>>& place) {
-			return place.first == user;
-		}
-	);
-
-	if (it_user != leaderboard.end()) {
-		logger->info("user:" + user->getUsername() + " remove user");
-		leaderboard.erase(it_user);
-	}
-	if (towns.erase(user->getUUID()) > 0) {
-		logger->info("user:" + user->getUsername() + " remove town");
-	}
-	if (armies.erase(user->getUUID()) > 0) {
-		logger->info("user:" + user->getUsername() + " remove armies");
-	}
 }
 
 void Game::tick(std::stop_token token)
@@ -133,11 +127,13 @@ void Game::tick(std::stop_token token)
 		auto start = std::chrono::steady_clock::now();
 		mtx.lock();
 
+		logger->trace("tick " + std::to_string(game_controller.getTick()));
+
+		checkBankruptcy();
+
 		leaderboardProcessing();
 
 		armyProcessing();
-
-		logger->trace("tick " + std::to_string(game_controller.getTick()));
 
 		notifyTick();
 
@@ -168,7 +164,9 @@ void Game::createGameData(std::vector<std::shared_ptr<User>>& users, const std::
 		town_data.node_id = id_towns[i];
 		auto town = std::make_shared<Town>(
 			i, settings->makeEconomy(),
-			settings->makeChurch(), settings->makeManufactory());
+			settings->makeChurch(), settings->makeManufactory(), 
+			settings->getTax(),
+			settings->getPriceConvocation(), settings->getPriceMaintenance());
 
 		ArmyData army_data;
 		army_data.node_id = id_towns[i];
@@ -209,8 +207,10 @@ nlohmann::json Game::makeCommonJson()
 		common_obj["towns"][it]["username"] = user->getUsername();
 		common_obj["towns"][it]["net_worth"] = result.economy.net_worth;
 		auto &[location_army, army] = armies[user->getUUID()];
-		common_obj["towns"][it]["soldiers"] = army->getCount();
-		common_obj["towns"][it]["node_army"] = location_army.node_id;
+		if (army->getCount() > 0) {
+			common_obj["towns"][it]["soldiers"] = army->getCount();
+			common_obj["towns"][it]["node_army"] = location_army.node_id;
+		}
 		common_obj["towns"][it]["node_town"] = location_town.node_id;
 		++it;
 	}
@@ -226,7 +226,7 @@ nlohmann::json Game::createTownJson(const TownDetails&& data, const nlohmann::js
 	unique_obj["town"]["economy"]["income"] = data.economy.income;
 	unique_obj["town"]["economy"]["detail"]["charch_bonus"] = std::round(static_cast<double>(data.charch.bonus) * 100) / 100;
 	unique_obj["town"]["economy"]["detail"]["manufactury_bonus"] = data.manufactory.bonus;
-	unique_obj["town"]["economy"]["detail"]["army_cost"] = data.army.cost;
+	unique_obj["town"]["economy"]["detail"]["army_cost"] = data.army.cost_tick;
 	unique_obj["town"]["buildings"]["charch_count"] = data.charch.count;
 	unique_obj["town"]["buildings"]["charch_price"] = data.charch.price;
 	unique_obj["town"]["buildings"]["manufactory_count"] = data.manufactory.count;
@@ -271,4 +271,46 @@ void Game::sortLeaderboard()
 	std::sort(leaderboard.rbegin(), leaderboard.rend(), [](const auto& a, const auto& b) {
 		return *a.second < *b.second;
 		});
+}
+
+void Game::checkBankruptcy()
+{
+	std::vector<std::shared_ptr<User>> to_remove;
+	for (auto& [user, town] : leaderboard) {
+		if (town->isBankrupt()) {
+			to_remove.push_back(user);
+		}
+	}
+	for (const auto& user : to_remove) {
+		removingPlayer(user);
+		user->message_pool.push("{\"defeated\": 2}");
+	}
+}
+
+
+void Game::defeated(std::shared_ptr<User> user) {
+	std::lock_guard<std::mutex> lock(mtx);
+	removingPlayer(user);
+	user->message_pool.push("{\"defeated\": 1}");
+}
+
+void Game::removingPlayer(std::shared_ptr<User> user)
+{
+	logger->info("user:" + user->getUsername() + " defeated");
+	auto it_user = std::find_if(leaderboard.begin(), leaderboard.end(),
+		[&user](const std::pair<std::shared_ptr<User>, std::shared_ptr<Town>>& place) {
+			return place.first == user;
+		}
+	);
+
+	if (it_user != leaderboard.end()) {
+		logger->info("user:" + user->getUsername() + " remove user");
+		leaderboard.erase(it_user);
+	}
+	if (towns.erase(user->getUUID()) > 0) {
+		logger->info("user:" + user->getUsername() + " remove town");
+	}
+	if (armies.erase(user->getUUID()) > 0) {
+		logger->info("user:" + user->getUsername() + " remove armies");
+	}
 }
