@@ -11,9 +11,8 @@ third phase after 20 minute winner top 1
 formule:
  (20min
 
-task api:
 
-
+api:
 json:
 {
   "action": "move_army",
@@ -78,11 +77,7 @@ json:
 }
 
 game phase:
-начало первой фазы
 {"game_phase": 1}
-начало второй фазы
 {"game_phase": 2}
-город-претендент на победу
 {"contender_town": 0}
-город-победитель
 {"win_town": 0}
